@@ -18,14 +18,16 @@ function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <h1 className="text-4xl font-bold">Bem-vindo ao IMOinvestor</h1>
-      <div className="text-red-500 text-2xl font-bold mt-4">Tailwind test</div>
-      <pre className="bg-gray-800 p-4 rounded-md mt-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-white p-6">
+      <h1 className="text-5xl font-extrabold text-blue-400 drop-shadow-md">
+        Bem-vindo ao IMOinvestor
+      </h1>
+
+      <pre className="bg-gray-800 p-6 rounded-md mt-6 shadow-md max-w-2xl w-full text-left">
         {data ? JSON.stringify(data, null, 2) : "Carregando dados..."}
       </pre>
     </div>
-  )
+  );
 }
 
 export default Home;
