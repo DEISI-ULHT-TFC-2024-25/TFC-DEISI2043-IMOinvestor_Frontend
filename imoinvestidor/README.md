@@ -23,3 +23,6 @@ npm install tailwindcss@latest
 npm install react-router-dom
 
 para correr o website fazer npm run dev
+
+register:
+npm install prop-types
