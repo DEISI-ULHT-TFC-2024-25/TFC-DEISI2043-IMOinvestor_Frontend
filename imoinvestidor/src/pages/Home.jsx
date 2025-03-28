@@ -1,5 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
+  const navigate = useNavigate();
 
   return (
     <>
@@ -39,7 +41,7 @@ export default function Home() {
             </div>
 
             {/* Botão de busca */}
-            <button className="bg-[#CFAF5E] text-white px-6 py-3 rounded-lg font-semibold min-w-48 hover:bg-[#b89a4e] transition">
+            <button className="bg-[#CFAF5E] text-white px-6 py-3 rounded-lg font-semibold min-w-48 hover:bg-[#b89a4e] transition cursor-pointer">
               Ver Imóveis
             </button>
 
@@ -67,12 +69,14 @@ export default function Home() {
             title: "Receba notificações sobre novos imóveis",
             text: "Cadastre-se para ser notificado sempre que um imóvel for listado na sua região de interesse. Escolha as cidades e bairros desejados e selecione o método de contato preferido.",
             button: "Definir Região",
-            bgColor: "bg-[#0A2647]"
+            bgColor: "bg-[#0A2647]",
+            path: "/map"
           }, {
             title: "Quer vender ou alugar seu imóvel?",
             text: "Anuncie seu imóvel de forma rápida e eficiente para alcançar mais compradores e locatários interessados.",
             button: "Criar Anúncio",
-            bgColor: "bg-[#3A3A3A]"
+            bgColor: "bg-[#3A3A3A]",
+            path: "/create-add"
           }].map((item, index) => (
             <div key={index} className="bg-white p-8 rounded shadow flex-1 flex flex-col items-center">
               <div className="w-full h-48 bg-gray-300 rounded mb-4"></div>
@@ -80,7 +84,12 @@ export default function Home() {
                 <h3 className="text-lg font-medium text-[#0A2647] mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-600 mb-4">{item.text}</p>
               </div>
-              <button className={`${item.bgColor} text-white px-4 py-2 rounded w-full mt-auto`}>{item.button}</button>
+              <button 
+              className={`${item.bgColor} text-white px-4 py-2 rounded w-full mt-auto cursor-pointer`}
+              onClick={() => navigate(item.path)}
+              >
+                {item.button}
+              </button>
             </div>
           ))}
         </div>
@@ -97,7 +106,7 @@ export default function Home() {
               <p className="text-sm">Descrição breve do imóvel</p>
               <div className="flex justify-between items-center mt-2">
                 <span className="font-bold text-[#CFAF5E]">600.000 $</span>
-                <button className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg">Ver Listagem</button>
+                <button className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer">Ver Listagem</button>
               </div>
             </div>
           ))}
@@ -115,7 +124,7 @@ export default function Home() {
               <p className="text-sm">Descrição breve do imóvel</p>
               <div className="flex justify-between items-center mt-2">
                 <span className="font-bold text-green-500">500.000 $</span>
-                <button className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg">Ver Listagem</button>
+                <button className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer">Ver Listagem</button>
               </div>
             </div>
           ))}
@@ -138,7 +147,7 @@ export default function Home() {
       {/* App Section */}
       <section className="p-6 bg-[#E5E5E5] text-center">
         <h3 className="text-xl font-semibold text-[#0A2647] mb-4">Baixe a nossa aplicação para uma experiência melhor!</h3>
-        <button className="bg-[#3A3A3A] text-white px-4 py-2 rounded">Instalar App</button>
+        <button className="bg-[#3A3A3A] text-white px-4 py-2 rounded cursor-pointer">Instalar App</button>
       </section>
     </>
   );

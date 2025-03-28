@@ -26,3 +26,6 @@ para correr o website fazer npm run dev
 
 register:
 npm install prop-types
+
+map:
+npm install lucide-react
