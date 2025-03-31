@@ -225,8 +225,8 @@ export default function Registration() {
           )}
         </div>
         <p className="text-sm text-center mt-4">
-            já tem conta? <a href="/register" className="text-blue-600">Faça login</a>
-      </p>
+            já tem conta? <a href="/login" className="text-blue-600">Faça login</a>
+        </p>
       </div>
     </div>
   );
