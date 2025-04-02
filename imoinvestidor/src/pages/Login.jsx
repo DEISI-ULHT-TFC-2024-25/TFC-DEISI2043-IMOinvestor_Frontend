@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useAuth } from "../hooks/useAuth";
 
 const SocialLoginButton = ({ provider }) => {
   return (
@@ -17,9 +17,8 @@ SocialLoginButton.propTypes = {
 
 export default function Login() {
   const [formData, setFormData] = useState({ user_name: "", password: "" });
-  const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const { login, error, loading } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,23 +27,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    try {
-      const response = await fetch("https://imoinvestor.pythonanywhere.com/api/user/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (!response.ok) {
-        throw new Error("Credenciais inválidas");
-      }
-      const data = await response.json();
-      console.log("Token recebido:", data.token);
-      localStorage.setItem("token", data.token);
-      navigate("/home");
-    } catch (error) {
-      setError(error.message);
-    }
+    await login(formData);
   };
 
   return (
@@ -63,7 +46,7 @@ export default function Login() {
             <input
               type="text"
               name="user_name"
-              placeholder="Nome de Usuário"
+              placeholder="Utilizador"
               value={formData.user_name}
               onChange={handleChange}
               className="w-full border rounded p-2"
@@ -88,8 +71,12 @@ export default function Login() {
               </button>
             </div>
             {error && <p className="text-red-600 text-sm">{error}</p>}
-            <button type="submit" className="w-full bg-[#CFAF5E] text-white py-2 rounded hover:bg-yellow-600">
-              Entrar
+            <button 
+              type="submit" 
+              className="w-full bg-[#CFAF5E] text-white py-2 rounded hover:bg-yellow-600"
+              disabled={loading}
+            >
+              {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
           <p className="text-sm text-center mt-4">
