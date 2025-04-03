@@ -5,11 +5,11 @@ import * as authService from '../services/authService';
 export const useAuth = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(authService.getUser()); // Get user data from localStorage initially
+  const [user, setUser] = useState(authService.getUser());
   const navigate = useNavigate();
 
   useEffect(() => {
-    setUser(authService.getUser()); // Sync user state with localStorage
+    setUser(authService.getUser());
   }, []);
 
   const login = async (credentials) => {
@@ -18,7 +18,7 @@ export const useAuth = () => {
 
     try {
       const loggedInUser = await authService.login(credentials);
-      setUser(loggedInUser); // Update user state
+      setUser(loggedInUser);
       setLoading(false);
       navigate('/');
       return true;
@@ -32,7 +32,7 @@ export const useAuth = () => {
   const logout = () => {
     authService.logout();
     setUser(null);
-    navigate('/login');
+    navigate('/');
   };
 
   return {

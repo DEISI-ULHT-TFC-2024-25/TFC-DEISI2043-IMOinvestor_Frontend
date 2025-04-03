@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { PropertyCard } from '../components/PropertyCard';
+import { TeamSection } from '../components/TeamSection';
+import { SoldBlog } from '../components/SoldBlog';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
 
   return (
     <>
@@ -95,41 +100,41 @@ export default function Home() {
         </div>
       </section>
       
-      {/* New Properties Section */}
+      {/* New Properties */}
       <section className="p-6">
         <h3 className="text-xl font-semibold text-[#0A2647] mb-4">Novidades Imóveis</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((item) => (
-            <div key={item} className="bg-white p-4 rounded shadow">
-              <div className="h-40 bg-gray-300 rounded"></div>
-              <h4 className="mt-2 font-semibold text-[#0A2647]">Novo Imóvel</h4>
-              <p className="text-sm">Descrição breve do imóvel</p>
-              <div className="flex justify-between items-center mt-2">
-                <span className="font-bold text-[#CFAF5E]">600.000 $</span>
-                <button className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer">Ver Listagem</button>
-              </div>
-            </div>
+          {[1, 2, 3].map((i) => (
+            <PropertyCard
+              key={i}
+              title="Novo Imóvel"
+              description="Descrição breve do imóvel"
+              price="600.000 $"
+              hidePrice={!isLoggedIn}
+              onClick={() => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login')}
+            />
           ))}
         </div>
       </section>
 
-      {/* Price Reductions Section */}
+      {/* Reduções de Preço */}
       <section className="p-6">
         <h3 className="text-xl font-semibold text-[#0A2647] mb-4">Reduções de Preço</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[4, 5, 6].map((item) => (
-            <div key={item} className="bg-white p-4 rounded shadow">
-              <div className="h-40 bg-gray-300 rounded"></div>
-              <h4 className="mt-2 font-semibold text-[#0A2647]">Imóvel com Desconto</h4>
-              <p className="text-sm">Descrição breve do imóvel</p>
-              <div className="flex justify-between items-center mt-2">
-                <span className="font-bold text-green-500">500.000 $</span>
-                <button className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer">Ver Listagem</button>
-              </div>
-            </div>
+          {[4, 5, 6].map((i) => (
+            <PropertyCard
+              key={i}
+              title="Imóvel com Desconto"
+              description="Descrição breve do imóvel"
+              price="500.000 $"
+              hidePrice={!isLoggedIn}
+              onClick={() => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login')}
+            />
           ))}
         </div>
       </section>
+
+      <TeamSection />
       
       {/* Organizations and Partners Section */}
       <section className="p-6 bg-[#FAEBC8] text-[#0A2647] text-center">
@@ -149,6 +154,8 @@ export default function Home() {
         <h3 className="text-xl font-semibold text-[#0A2647] mb-4">Baixe a nossa aplicação para uma experiência melhor!</h3>
         <button className="bg-[#3A3A3A] text-white px-4 py-2 rounded cursor-pointer">Instalar App</button>
       </section>
+
+      <SoldBlog />
     </>
   );
 }
