@@ -136,6 +136,11 @@ export default function Registration() {
                 >
                   Próximo
                 </button>
+
+                <p className="col-span-2 text-sm text-center mt-4">
+                  já tem conta? <a href="/login" className="text-blue-600">Faça login</a>
+                </p>
+
               </div>
             </div>
           )}
@@ -224,9 +229,6 @@ export default function Registration() {
             </div>
           )}
         </div>
-        <p className="text-sm text-center mt-4">
-            já tem conta? <a href="/login" className="text-blue-600">Faça login</a>
-        </p>
       </div>
     </div>
   );
