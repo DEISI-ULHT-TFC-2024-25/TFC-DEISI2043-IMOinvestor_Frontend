@@ -16,7 +16,7 @@ export default function Header() {
       <div className="text-2xl font-bold">
         <Link to="/">ImoInvestor</Link>
       </div>
-      <button className="px-6 py-2 rounded-md hover:bg-yellow-700 transition">
+      <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
         Criar Anúncio
       </button>
       <div className="flex gap-4 items-center">
