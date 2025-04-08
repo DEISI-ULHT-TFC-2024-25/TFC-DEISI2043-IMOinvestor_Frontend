@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { PropertyCard } from '../components/PropertyCard';
 import { TeamSection } from '../components/TeamSection';
 import { SoldBlog } from '../components/SoldBlog';

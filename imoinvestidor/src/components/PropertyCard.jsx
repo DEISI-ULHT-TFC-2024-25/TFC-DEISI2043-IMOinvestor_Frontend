@@ -22,7 +22,7 @@ export const PropertyCard = ({ title, description, price, onClick, hidePrice }) 
 PropertyCard.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
-  price: PropTypes.string.isRequired,
+  price: PropTypes.string,
   onClick: PropTypes.func.isRequired,
   hidePrice: PropTypes.bool,
 };

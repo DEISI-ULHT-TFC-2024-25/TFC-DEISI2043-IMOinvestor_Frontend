@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserCircle } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useAuth();
@@ -18,18 +18,11 @@ export default function Header() {
           ImoInvestor
         </Link>
 
-        <div className="hidden md:flex gap-4">
-          <Link to="/listagens">
-            <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
-              Explorar Investimentos
-            </button>
-          </Link>
-          <Link to="/create-add">
-            <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
-              Criar Anúncio
-            </button>
-          </Link>
-        </div>
+        <Link to="/create-add">
+          <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
+            Criar Anúncio
+          </button>
+        </Link>
 
         <div className="flex gap-2 items-center">
           {isLoggedIn ? (

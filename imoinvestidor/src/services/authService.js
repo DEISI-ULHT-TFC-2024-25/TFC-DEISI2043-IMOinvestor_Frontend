@@ -53,7 +53,6 @@ export const getUser = () => {
   }
 };
 
-// Update user data
 export const updateUser = (userData) => {
   const currentUser = getUser();
   const updatedUser = { ...currentUser, ...userData };
