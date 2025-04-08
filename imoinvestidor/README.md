@@ -1,31 +1,35 @@
-
-Setup
 Todos os seguintes comandos tem de ser corridos dentro da pasta imoinvestidor (fazer cd imovestidor)
+
+Para correr a app fazer npm run dev
+
+- Setup
+
+Se estiveres no PowerShell e tiveres erros de permissões, corre:
+Set-ExecutionPolicy Unrestricted -Scope CurrentUser
 
 1 - NodeJS
 fazer download do nodejs, em https://nodejs.org/
 npm install
 
-2 - ESLint, axios e Prettier
-(não estava a conseguir correr o comando abaixo sem tirar as restrições)
-Set-ExecutionPolicy Unrestricted -Scope CurrentUser
-npm install react-router-dom axios eslint prettier
+Este comando instala automaticamente as dependências definidas no package.json, incluindo:
+- react-router-dom
+- axios
+- tailwindcss, postcss, autoprefixer
+- lucide-react
+- prop-types
+- eslint, prettier, eslint-config-prettier, eslint-plugin-react, eslint-plugin-react-hooks
 
-npm install -D eslint prettier eslint-config-prettier eslint-plugin-react eslint-plugin-react-hooks
+2 - ESLint
 npx eslint --init
 
 3 - Tailwind
-npm install -D tailwindcss postcss autoprefixer
-npm install tailwindcss @tailwindcss/vite
-npm install tailwindcss@latest
+Se precisares de inicializar o Tailwind manualmente:
+npx tailwindcss init -p
 
-4- React Router
-npm install react-router-dom
+4- backend
 
-para correr o website fazer npm run dev
+Django Rest Framework:
+pip install django-cors-headers
 
-register:
-npm install prop-types
-
-map:
-npm install lucide-react
+Install Flask:
+pip install flask-cors
