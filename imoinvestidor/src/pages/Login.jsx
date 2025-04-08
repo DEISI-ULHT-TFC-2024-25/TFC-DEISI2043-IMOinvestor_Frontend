@@ -1,15 +1,14 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const SocialLoginButton = ({ provider }) => {
-  return (
-    <button className="w-full flex items-center justify-center mb-3 border rounded p-2 hover:bg-gray-100">
-      Continuar com {provider.charAt(0).toUpperCase() + provider.slice(1)}
-    </button>
-  );
-};
+const SocialLoginButton = ({ provider }) => (
+  <button className="w-full flex items-center justify-center mb-3 border rounded p-2 hover:bg-gray-100">
+    Continuar com {provider.charAt(0).toUpperCase() + provider.slice(1)}
+  </button>
+);
 
 SocialLoginButton.propTypes = {
   provider: PropTypes.string.isRequired,
@@ -19,6 +18,7 @@ export default function Login() {
   const [formData, setFormData] = useState({ user_name: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const { login, error, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +27,8 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(formData);
+    const success = await login(formData);
+    if (success) navigate("/");
   };
 
   return (
