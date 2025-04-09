@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { PropertyCard } from '../components/PropertyCard';
-import { TeamSection } from '../components/TeamSection';
-import { SoldBlog } from '../components/SoldBlog';
-import { OrganizationsSection } from '../components/OrganizationsSection';
+import { PropertyCard } from '../components/home/PropertyCard';
+import { TeamSection } from '../components/home/TeamSection';
+import { SoldBlog } from '../components/home/SoldBlog';
+import { OrganizationsSection } from '../components/home/OrganizationsSection';
 import { useState } from 'react';
 
 export default function Home() {
