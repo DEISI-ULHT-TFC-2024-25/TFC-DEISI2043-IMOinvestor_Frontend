@@ -5,15 +5,32 @@ import Health from "./pages/Health";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Map from "./pages/Map";
+import PublicRoute from "./components/PublicRoute";
+import ROLES from "./constants/roles";
+import RoleRoute from "./components/RoleRoute";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="health" element={<Health />} />
-        <Route path="register" element={<Register />} />
-        <Route path="login" element={<Login />} />
+        <Route path="health" element={
+          <RoleRoute allowedRoles={[ROLES.SYS_ADMIN]}>
+            <Health />
+          </RoleRoute>
+        } />
+
+        <Route path="register" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
+
+        <Route path="login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
         <Route path="map" element={<Map />} />
       </Route>
     </Routes>
