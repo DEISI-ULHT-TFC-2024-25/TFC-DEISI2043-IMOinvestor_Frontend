@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserCircle } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
+import useAuth from '../hooks/useAuth';
+import useRole from "../hooks/useRole";
+import ROLES from "../constants/roles";
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { hasAnyRole } = useRole();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -18,11 +21,13 @@ export default function Header() {
           ImoInvestor
         </Link>
 
+        {(!isLoggedIn || hasAnyRole([ROLES.AGENT, ROLES.PROMOTOR])) && (
         <Link to="/create-add">
           <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
             Criar Anúncio
           </button>
         </Link>
+         )}
 
         <div className="flex gap-2 items-center">
           {isLoggedIn ? (
@@ -32,7 +37,7 @@ export default function Header() {
                 className="flex items-center gap-2 cursor-pointer hover:text-[#CFAF5E]"
               >
                 <UserCircle size={24} />
-                <span>{user?.name || "Utilizador"}</span>
+                <span>{user?.user_name || "Utilizador"}</span>
               </button>
 
               {dropdownOpen && (

@@ -1,5 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import * as authService from "../services/authService";
+import PropTypes from "prop-types";
+import ROLES from "../constants/roles.js";
+
 
 const AuthContext = createContext();
 
@@ -10,7 +13,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = authService.getUser();
-    setUser(storedUser);
+    if (storedUser) {
+      setUser(storedUser);
+    }
   }, []);
 
   const login = async (credentials) => {
@@ -19,12 +24,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const loggedInUser = await authService.login(credentials);
       setUser(loggedInUser);
-      setLoading(false);
       return true;
     } catch (err) {
       setError(err.message);
-      setLoading(false);
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,12 +39,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn: !!user, login, logout, loading, error }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoggedIn: !!user,
+        hasRole: (role) => user?.role?.includes(role),
+        isAdmin: user?.role?.includes(ROLES.SYS_ADMIN),
+        isAgent: user?.role?.includes(ROLES.AGENT),
+        isInvestor: user?.role?.includes(ROLES.INVESTOR),
+        isPromotor: user?.role?.includes(ROLES.PROMOTOR),
+        login,
+        logout,
+        loading,
+        error,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
+
+export default AuthContext;

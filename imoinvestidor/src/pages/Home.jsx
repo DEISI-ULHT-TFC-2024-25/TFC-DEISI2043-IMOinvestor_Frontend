@@ -1,14 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import useAuth from '../hooks/useAuth';
 import { PropertyCard } from '../components/home/PropertyCard';
 import { TeamSection } from '../components/home/TeamSection';
 import { SoldBlog } from '../components/home/SoldBlog';
 import { OrganizationsSection } from '../components/home/OrganizationsSection';
 import { useState } from 'react';
+import useRole from "../hooks/useRole";
+import ROLES from "../constants/roles";
 
 export default function Home() {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const { hasAnyRole } = useRole();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [selectedBaths, setSelectedBaths] = useState([]);
@@ -144,14 +147,17 @@ export default function Home() {
             text: "Cadastre-se para ser notificado sempre que um imóvel for listado na sua região de interesse. Escolha as cidades e bairros desejados e selecione o método de contato preferido.",
             button: "Definir Região",
             bgColor: "bg-[#0A2647]",
-            path: "/map"
+            path: "/map",
+            visible: true,
           }, {
             title: "Quer vender ou alugar seu imóvel?",
             text: "Anuncie seu imóvel de forma rápida e eficiente para alcançar mais compradores e locatários interessados.",
             button: "Criar Anúncio",
             bgColor: "bg-[#3A3A3A]",
-            path: "/create-add"
-          }].map((item, index) => (
+            path: "/create-add",
+            visible: !isLoggedIn || hasAnyRole([ROLES.AGENT, ROLES.PROMOTOR]),
+          }].filter(item => item.visible)
+          .map((item, index) => (
             <div key={index} className="bg-white p-8 rounded shadow flex-1 flex flex-col items-center">
               <div className="w-full h-48 bg-gray-300 rounded mb-4"></div>
               <div className="flex-1 text-center">
