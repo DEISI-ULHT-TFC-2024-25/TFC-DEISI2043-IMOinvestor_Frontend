@@ -4,6 +4,7 @@ import { UserCircle } from "lucide-react";
 import useAuth from '../hooks/useAuth';
 import useRole from "../hooks/useRole";
 import ROLES from "../constants/roles";
+import logo from '../images/logo.png';
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useAuth();
@@ -15,15 +16,15 @@ export default function Header() {
   };
 
   return (
-    <nav className="bg-gray-900 text-white px-6 py-4 shadow-md">
+    <nav className="bg-[#0A2647] text-white px-6 py-4 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold">
-          ImoInvestor
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logo} alt="IMOinvestor Logo" className="h-20 w-auto object-contain" />
         </Link>
 
         {(!isLoggedIn || hasAnyRole([ROLES.AGENT, ROLES.PROMOTOR])) && (
         <Link to="/create-add">
-          <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
+          <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition hidden md:block">
             Criar Anúncio
           </button>
         </Link>
@@ -59,16 +60,26 @@ export default function Header() {
             </div>
           ) : (
             <>
-              <Link to="/login">
-                <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
-                  Login
-                </button>
-              </Link>
-              <Link to="/register">
-                <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
-                  Registar
-                </button>
-              </Link>
+              <div className="flex md:hidden">
+                <Link to="/login">
+                  <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
+                    Login
+                  </button>
+                </Link>
+              </div>
+
+              <div className="hidden md:flex gap-2">
+                <Link to="/login">
+                  <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
+                    Login
+                  </button>
+                </Link>
+                <Link to="/register">
+                  <button className="px-4 py-2 bg-[#CFAF5E] text-white rounded-md hover:bg-[#b89a4e] transition">
+                    Registar
+                  </button>
+                </Link>
+              </div>
             </>
           )}
         </div>
