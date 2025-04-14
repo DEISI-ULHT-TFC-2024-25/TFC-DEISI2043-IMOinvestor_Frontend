@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import useRole from "../hooks/useRole";
+import useAuth from "../../hooks/useAuth";
+import useRole from "../../hooks/useRole";
 
 function RoleRoute({ allowedRoles, children }) {
   const { isLoggedIn } = useAuth();

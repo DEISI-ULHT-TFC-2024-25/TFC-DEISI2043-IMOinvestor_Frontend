@@ -5,9 +5,9 @@ import Health from "./pages/Health";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Map from "./pages/Map";
-import PublicRoute from "./components/PublicRoute";
+import PublicRoute from "./components/routes/PublicRoute";
 import ROLES from "./constants/roles";
-import RoleRoute from "./components/RoleRoute";
+import RoleRoute from "./components/routes/RoleRoute";
 
 export default function AppRoutes() {
   return (
