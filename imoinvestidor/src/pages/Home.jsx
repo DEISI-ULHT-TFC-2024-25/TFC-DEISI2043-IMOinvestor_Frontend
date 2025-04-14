@@ -186,13 +186,13 @@ export default function Home() {
             Ver mais
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div className="flex gap-4 overflow-x-auto pb-2 snap-x sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-x-visible scrollbar-hide">
+          {[...Array(8)].map((_, i) => (
             <PropertyCard
-              key={`imovel-${i}`}
-              title="Novo Imóvel"
+              key={i}
+              title={`Imóvel ${i + 1}`}
               description="Descrição breve do imóvel"
-              price="600.000 $"
+              price="600.000 €"
               hidePrice={!isLoggedIn}
               onClick={() => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login')}
             />

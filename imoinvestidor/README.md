@@ -25,6 +25,7 @@ npx eslint --init
 3 - Tailwind
 Se precisares de inicializar o Tailwind manualmente:
 npx tailwindcss init -p
+npm install tailwind-scrollbar-hide
 
 4- backend
 

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 export const PropertyCard = ({ title, description, price, onClick, hidePrice }) => (
-  <div className="bg-white p-4 rounded shadow">
+  <div className="bg-white p-4 rounded shadow w-72 flex-shrink-0 sm:w-full">
     <div className="h-40 bg-gray-300 rounded"></div>
     <h4 className="mt-2 font-semibold text-[#0A2647]">{title}</h4>
     <p className="text-sm">{description}</p>
