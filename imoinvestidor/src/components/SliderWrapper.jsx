@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
 
 const PrevArrow = ({ onClick }) => (
   <button
@@ -30,11 +29,11 @@ NextArrow.propTypes = {
   onClick: PropTypes.func,
 };
 
-const SliderWrapper = ({ children, slidesToShow = 3, className = '', centerMode = true }) => {
+const SliderWrapper = ({ children, className = '', itemWidth = 'w-60', itemHeight = 'h-64' }) => {
   const settings = {
-    centerMode,
-    centerPadding: '60px',
-    slidesToShow,
+    centerMode: false,
+    centerPadding: '0px',
+    slidesToShow: 5,
     autoplay: true,
     autoplaySpeed: 4000,
     arrows: true,
@@ -55,20 +54,34 @@ const SliderWrapper = ({ children, slidesToShow = 3, className = '', centerMode 
     prevArrow: <PrevArrow />, 
     responsive: [
       {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          centerPadding: '0px',
+        },
+      },
+      {
         breakpoint: 768,
         settings: {
           slidesToShow: 1,
           centerPadding: '40px',
+          centerMode: true,
           arrows: false,
         },
       },
     ],
   };
 
+  const wrappedChildren = Array.isArray(children)
+    ? children.map((child, i) => (
+        <div key={i} className={`px-2 ${itemWidth} ${itemHeight} flex items-stretch`}>{child}</div>
+      ))
+    : <div className={`px-2 ${itemWidth} ${itemHeight} flex items-stretch`}>{children}</div>;
+
   return (
     <div className={`relative ${className}`}>
       <Slider {...settings}>
-        {children}
+        {wrappedChildren}
       </Slider>
     </div>
   );
@@ -76,9 +89,9 @@ const SliderWrapper = ({ children, slidesToShow = 3, className = '', centerMode 
 
 SliderWrapper.propTypes = {
   children: PropTypes.node.isRequired,
-  slidesToShow: PropTypes.number,
   className: PropTypes.string,
-  centerMode: PropTypes.bool,
+  itemWidth: PropTypes.string,
+  itemHeight: PropTypes.string,
 };
 
 export default SliderWrapper;

@@ -20,17 +20,16 @@ export const OrganizationsSection = () => {
         Trabalhamos com parceiros de confiança para garantir que cada processo ocorra com profissionalismo.
       </p>
 
-      <SliderWrapper slidesToShow={3}>
+      <SliderWrapper itemWidth="w-full max-w-xs" itemHeight="h-full max-h-xs">
         {items.map((org, i) => (
-          <div key={i} className="px-2">
-            <div className="bg-white p-4 rounded shadow w-60 mx-auto">
-              <div className="w-16 h-16 bg-[#D9CBA5] rounded-full mx-auto mb-3"></div>
-              <h4 className="font-semibold text-md">{org.nome}</h4>
-              <p className="text-sm text-gray-600">{org.descricao}</p>
-            </div>
+          <div key={i} className="bg-white p-4 rounded shadow mx-auto h-full">
+            <div className="w-16 h-16 bg-[#D9CBA5] rounded-full mx-auto mb-3"></div>
+            <h4 className="font-semibold text-md">{org.nome}</h4>
+            <p className="text-sm text-gray-600">{org.descricao}</p>
           </div>
         ))}
       </SliderWrapper>
+
     </section>
   );
 };
