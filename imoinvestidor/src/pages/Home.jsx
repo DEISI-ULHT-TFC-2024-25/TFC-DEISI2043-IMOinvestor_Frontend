@@ -141,7 +141,7 @@ export default function Home() {
       
       {/* Interest and Ad Creation Section */}
       <section className="p-6">
-        <div className="flex gap-6">
+        <div className="flex flex-col md:flex-row gap-6">
           {[{
             title: "Receba notificações sobre novos imóveis",
             text: "Cadastre-se para ser notificado sempre que um imóvel for listado na sua região de interesse. Escolha as cidades e bairros desejados e selecione o método de contato preferido.",
@@ -158,15 +158,15 @@ export default function Home() {
             visible: !isLoggedIn || hasAnyRole([ROLES.AGENT, ROLES.PROMOTOR]),
           }].filter(item => item.visible)
           .map((item, index) => (
-            <div key={index} className="bg-white p-8 rounded shadow flex-1 flex flex-col items-center">
-              <div className="w-full h-48 bg-gray-300 rounded mb-4"></div>
-              <div className="flex-1 text-center">
-                <h3 className="text-lg font-medium text-[#0A2647] mb-2">{item.title}</h3>
+            <div key={index} className="bg-white p-6 rounded shadow flex flex-col items-center w-full md:w-1/2">
+              <div className="w-full h-40 bg-gray-200 rounded mb-4"></div>
+              <div className="text-center flex-1">
+                <h3 className="text-lg font-semibold text-[#0A2647] mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-600 mb-4">{item.text}</p>
               </div>
               <button 
-              className={`${item.bgColor} text-white px-4 py-2 rounded w-full mt-auto cursor-pointer`}
-              onClick={() => navigate(item.path)}
+                className={`${item.bgColor} text-white px-4 py-2 rounded w-full mt-auto cursor-pointer`}
+                onClick={() => navigate(item.path)}
               >
                 {item.button}
               </button>
