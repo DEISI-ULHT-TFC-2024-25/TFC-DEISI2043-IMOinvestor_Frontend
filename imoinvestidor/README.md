@@ -26,6 +26,7 @@ npx eslint --init
 Se precisares de inicializar o Tailwind manualmente:
 npx tailwindcss init -p
 npm install tailwind-scrollbar-hide
+npm install react-slick slick-carousel
 
 4- backend
 

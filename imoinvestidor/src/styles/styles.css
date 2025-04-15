@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tailwindcss/utilities";
+@import 'slick-carousel/slick/slick.css';
 
 html, body {
     margin: 0;
