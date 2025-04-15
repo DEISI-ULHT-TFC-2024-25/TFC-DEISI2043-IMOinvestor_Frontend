@@ -16,7 +16,7 @@ export default function Header() {
   };
 
   return (
-    <nav className="bg-[#0A2647] text-white px-6 py-4 shadow-md">
+    <nav className="bg-[#0A2647] text-white px-6 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="IMOinvestor Logo" className="h-20 w-auto object-contain" />
