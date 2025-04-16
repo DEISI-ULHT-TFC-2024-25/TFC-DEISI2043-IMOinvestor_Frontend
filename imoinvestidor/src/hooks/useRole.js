@@ -3,12 +3,12 @@ import useAuth from "./useAuth";
 const useRole = () => {
   const { user } = useAuth();
 
-  const hasRole = (role) => {
-    return user?.role?.includes(role);
+  const hasRole = (roleId) => {
+    return user?.role === roleId;
   };
 
-  const hasAnyRole = (roles) => {
-    return roles.some((role) => hasRole(role));
+  const hasAnyRole = (roleIds) => {
+    return roleIds.includes(user?.role);
   };
 
   return { hasRole, hasAnyRole };
