@@ -27,32 +27,43 @@ export default function Home() {
     <>
       {/* Hero & Search Section */}
       <section className="pt-24 pb-16 px-8 bg-[#F5F5F5] text-center flex flex-col items-center justify-center gap-10 min-h-[40vh]">
-      <div className="bg-white shadow-lg px-10 py-8 rounded-xl text-center w-full max-w-5xl mx-auto mb-10">
-          <h3 className="text-2xl font-bold text-[#0A2647] mb-6">Explore oportunidades imobiliárias</h3>
+        <div className="bg-white shadow-lg px-10 py-8 rounded-xl text-center w-full max-w-5xl mx-auto mb-10">
+          <h3 className="text-2xl font-bold text-[#0A2647] mb-6">
+            Explore oportunidades imobiliárias
+          </h3>
 
-          {/* Barra principal de pesquisa + botão de pesquisa avançada */}
-          <div className="flex flex-wrap w-full justify-center gap-4 mb-4">
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-sm text-blue-600 hover:underline border border-blue-600 px-4 py-3 rounded-lg"
-            >
-              Pesquisa Avançada
-            </button>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center w-full gap-4 mb-4">
 
-            <div className="relative flex-1 min-w-[300px]">
-              <input 
-                type="text" 
-                placeholder="Buscar imóveis..." 
-                className="border border-gray-300 px-4 py-3 pr-12 rounded-lg text-[#0A2647] w-full focus:outline-none focus:ring-2 focus:ring-[#CFAF5E]" 
-              />
-              <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#0A2647]">
-                🔍
-              </span>
+            <div className="order-2 sm:order-1 w-full sm:w-auto">
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-sm text-blue-600 hover:underline border border-blue-600 px-4 py-3 rounded-lg w-full sm:w-auto"
+              >
+                Pesquisa Avançada
+              </button>
             </div>
 
-            <button className="bg-[#CFAF5E] text-white px-6 py-3 rounded-lg font-semibold min-w-48 hover:bg-[#b89a4e] transition cursor-pointer">
-              Ver Imóveis
-            </button>
+            <div className="order-1 sm:order-2 w-full sm:flex-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Procurar imóveis..."
+                  className="border border-gray-300 px-4 py-3 pr-12 rounded-lg text-[#0A2647] w-full focus:outline-none focus:ring-2 focus:ring-[#CFAF5E]"
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#0A2647]">
+                  🔍
+                </span>
+              </div>
+            </div>
+
+            <div className="order-3 w-full sm:w-auto">
+              <button
+                className="bg-[#CFAF5E] text-white px-6 py-3 rounded-lg font-semibold w-full sm:w-auto hover:bg-[#b89a4e] transition cursor-pointer"
+              >
+                Ver Imóveis
+              </button>
+            </div>
+
           </div>
 
           {showAdvanced && (
@@ -91,7 +102,7 @@ export default function Home() {
                 <div>
                   <label className="block text-xs font-semibold mb-1">Quartos</label>
                   <div className="flex flex-wrap gap-2">
-                    {['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6+'].map((tipo) => (
+                    {['T0', 'T1', 'T2', 'T3', 'T4', 'T6+'].map((tipo) => (
                       <button
                         key={tipo}
                         type="button"
