@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import { PropertyCard } from '../components/home/PropertyCard';
 import { TeamSection } from '../components/home/TeamSection';
 import { SoldBlog } from '../components/home/SoldBlog';
 import { OrganizationsSection } from '../components/home/OrganizationsSection';
+import NewPropertiesListing from '../components/home/NewPropertiesListing';
 import { useState } from 'react';
 import useRole from "../hooks/useRole";
 import ROLES from "../constants/roles";
@@ -175,31 +175,7 @@ export default function Home() {
         </div>
       </section>
       
-      {/* New Properties */}
-      <section className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <h3 className="text-xl font-semibold text-[#0A2647]">Novidades Imóveis</h3>
-          <button
-            className="text-sm text-blue-600 hover:underline"
-            onClick={() => isLoggedIn ? navigate(`/listagens`) : navigate('/login')}
-          >
-            Ver mais
-          </button>
-        </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 snap-x sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-x-visible scrollbar-hide">
-          {[...Array(8)].map((_, i) => (
-            <PropertyCard
-              key={i}
-              title={`Imóvel ${i + 1}`}
-              description="Descrição breve do imóvel"
-              price="600.000 €"
-              hidePrice={!isLoggedIn}
-              onClick={() => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login')}
-            />
-          ))}
-        </div>
-      </section>
-
+      <NewPropertiesListing  isLoggedIn={isLoggedIn}/>
 
       <TeamSection />
       
