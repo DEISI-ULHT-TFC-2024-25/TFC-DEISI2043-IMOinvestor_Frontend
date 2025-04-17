@@ -9,12 +9,14 @@ Set-ExecutionPolicy Unrestricted -Scope CurrentUser
 
 1 - NodeJS
 fazer download do nodejs, em https://nodejs.org/
+```bash
 npm install
+```
 
 Este comando instala automaticamente as dependências definidas no package.json, incluindo:
 - react-router-dom
 - axios
-- tailwindcss, postcss, autoprefixer
+- tailwindcss, slider, postcss, autoprefixer
 - lucide-react
 - prop-types
 - eslint, prettier, eslint-config-prettier, eslint-plugin-react, eslint-plugin-react-hooks
@@ -24,9 +26,9 @@ npx eslint --init
 
 3 - Tailwind
 Se precisares de inicializar o Tailwind manualmente:
+```bash
 npx tailwindcss init -p
-npm install tailwind-scrollbar-hide
-npm install react-slick slick-carousel
+```
 
 4- backend
 
