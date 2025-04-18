@@ -46,9 +46,15 @@ export default function Header() {
                   <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
                     Meu Perfil
                   </Link>
+
                   <Link to="/investments" className="block px-4 py-2 hover:bg-gray-100">
                     Meus Investimentos
                   </Link>
+
+                  <Link to="/my-properties" className="block px-4 py-2 hover:bg-gray-100">
+                    Minhas Propriedades
+                  </Link>
+
                   <button
                     onClick={logout}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
