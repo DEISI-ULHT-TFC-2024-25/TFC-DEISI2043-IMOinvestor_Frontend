@@ -1,93 +1,65 @@
 import PropTypes from 'prop-types';
 
+const inputStyle = "border border-gray-300 rounded w-full p-3 bg-[#F5F5F5] focus:outline-none focus:ring-2 focus:ring-[#0A2647]";
+
+const fields = [
+  { label: 'Nome do Imóvel', name: 'nome', type: 'text' },
+  { label: 'Tipo de Imóvel', name: 'tipo', type: 'select', options: ['Apartamento', 'Casa'] },
+  { label: 'Tipologia', name: 'tipologia', type: 'select', options: [...Array(10)].map((_, i) => (i < 9 ? `T${i}` : 'T9+')) },
+  { label: 'Nº Casas de Banho', name: 'casasBanho', type: 'select', options: ['1', '2', '3', '4+'] },
+  { label: 'Área (m²)', name: 'area', type: 'number' },
+  { label: 'Preço (€)', name: 'preco', type: 'number', isPrice: true },
+  { label: 'Código Postal', name: 'codigoPostal', type: 'text' },
+  { label: 'Distrito', name: 'distrito', type: 'text' },
+  { label: 'Município', name: 'municipio', type: 'text' },
+  { label: 'Rua', name: 'rua', type: 'text' },
+  { label: 'Nova Construção?', name: 'novaConstrucao', type: 'select', options: ['Sim', 'Não'] },
+  { label: 'Certificado Energético', name: 'certificado', type: 'select', options: ['A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F'] },
+];
+
+const extraInfos = [
+  'varanda', 'duplex', 'piscina', 'elevador',
+  'garagem', 'acessibilidade para pessoas com mobilidade reduzida',
+  'jardim', 'terraço',
+];
+
 export default function PropertyForm({ onSubmit, submitLabel }) {
   return (
-    <form className="bg-white p-8 rounded-lg shadow-md max-w-7xl mx-auto w-full" onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="bg-white p-8 rounded-lg shadow-lg max-w-7xl mx-auto w-full">
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Nome do Imóvel</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Rua</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Código Postal</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Área (m²)</label>
-          <input type="number" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div className="relative">
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Preço</label>
-          <input type="number" className="border border-gray-300 rounded w-full p-3 pr-12" />
-          <div className="absolute right-3 top-10 text-gray-400 font-semibold">€</div>
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Distrito (ID)</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Município (ID)</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Tipologia</label>
-          <select className="border border-gray-300 rounded w-full p-3">
-            <option value="">Selecione</option>
-            {[...Array(10)].map((_, i) => (
-              <option key={i} value={`T${i}`}>{i < 9 ? `T${i}` : 'T9+'}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Nº Casas de Banho</label>
-          <select className="border border-gray-300 rounded w-full p-3">
-            <option value="">Selecione</option>
-            {['1', '2', '3', '4+'].map((bath, i) => (
-              <option key={i} value={bath}>{bath}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Tipo de Imóvel</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Nova Construção? (sim/não)</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
-
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Certificado Energético</label>
-          <input type="text" className="border border-gray-300 rounded w-full p-3" />
-        </div>
+        {fields.map((field, idx) => (
+          <div key={idx} className="relative">
+            <label className="block mb-2 text-sm font-semibold text-[#0A2647]">{field.label}</label>
+            {field.type === 'select' ? (
+              <select className={inputStyle}>
+                <option value="">Selecione</option>
+                {field.options.map((opt, i) => (
+                  <option key={i} value={opt}>{opt}</option>
+                ))}
+              </select>
+            ) : (
+              <input 
+                type={field.type}
+                className={`${inputStyle} ${field.isPrice ? 'pr-12' : ''}`}
+              />
+            )}
+            {field.isPrice && <span className="absolute right-3 top-10 text-[#CFAF5E] font-semibold">€</span>}
+          </div>
+        ))}
       </div>
 
       <div className="mb-8">
         <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Descrição</label>
-        <textarea className="border border-gray-300 rounded w-full p-3" rows="4"></textarea>
+        <textarea rows="5" className={inputStyle}></textarea>
       </div>
 
       <div className="mb-8">
         <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias do Imóvel</h4>
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {[...Array(20)].map((_, i) => (
-            <div key={i} className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer">
-              +
+            <div key={i} className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]">
+              <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
             </div>
           ))}
         </div>
@@ -96,16 +68,19 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
       <div className="mb-8">
         <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Informações Adicionais</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          {['varanda', 'duplex', 'piscina', 'elevador', 'garagem', 'acessibilidade para pessoas com mobilidade reduzida', 'jardim', 'terraço'].map((info, i) => (
-            <label key={i} className="flex gap-2 items-center">
-              <input type="checkbox" className="accent-[#CFAF5E]" /> {info}
+          {extraInfos.map((info, i) => (
+            <label key={i} className="flex items-center gap-2 text-[#0A2647]">
+              <input type="checkbox" className="accent-[#0A2647]" /> {info}
             </label>
           ))}
         </div>
       </div>
 
       <div className="flex justify-end">
-        <button type="submit" className="bg-[#0A2647] hover:bg-[#133c7b] text-white px-6 py-3 rounded-md">
+        <button 
+          type="submit" 
+          className="bg-[#CFAF5E] hover:bg-[#b89a4e] text-[#0A2647] font-semibold px-8 py-3 rounded-md shadow-md transition"
+        >
           {submitLabel}
         </button>
       </div>
