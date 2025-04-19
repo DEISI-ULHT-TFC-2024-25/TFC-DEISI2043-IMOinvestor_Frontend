@@ -25,7 +25,7 @@ export default function MyProperties() {
         {propriedades.map((property) => (
           <div
             key={property.id}
-            onClick={() => navigate(`/editar-propriedade/${property.id}`)}
+            onClick={() => navigate(`/edit-property/${property.id}`)}
             className="bg-white p-4 rounded shadow hover:ring-2 hover:ring-[#CFAF5E] cursor-pointer transition"
           >
             <h3 className="font-bold text-[#0A2647] mb-2">{property.title}</h3>

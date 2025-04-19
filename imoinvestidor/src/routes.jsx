@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Map from "./pages/Map";
 import MyProperties from "./pages/MyProperties";
 import CreateProperty from "./pages/CreateProperty";
+import EditProperty from "./pages/EditProperty";
 import PublicRoute from "./components/routes/PublicRoute";
 import ROLES from "./constants/roles";
 import RoleRoute from "./components/routes/RoleRoute";
@@ -36,6 +37,7 @@ export default function AppRoutes() {
         <Route path="map" element={<Map />} />
         <Route path="my-properties" element={<MyProperties />} />
         <Route path="create-property" element={<CreateProperty />} />
+        <Route path="edit-property/:id" element={<EditProperty />} />
       </Route>
     </Routes>
   );
