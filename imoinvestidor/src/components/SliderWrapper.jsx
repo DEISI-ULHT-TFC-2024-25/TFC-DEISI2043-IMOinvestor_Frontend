@@ -1,23 +1,24 @@
 import PropTypes from 'prop-types';
 import Slider from 'react-slick';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PrevArrow = ({ onClick }) => (
   <button
     onClick={onClick}
-    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#0A2647] text-white w-10 h-10 rounded-full items-center justify-center shadow hover:bg-[#133c7b]"
+    className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-[#0A2647] text-white w-10 h-10 rounded-full items-center justify-center shadow hover:bg-[#133c7b] p-2"
     aria-label="Anterior"
   >
-    ◀
+    <ChevronLeft size={24} />
   </button>
 );
 
 const NextArrow = ({ onClick }) => (
   <button
     onClick={onClick}
-    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#0A2647] text-white w-10 h-10 rounded-full items-center justify-center shadow hover:bg-[#133c7b]"
+    className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-[#0A2647] text-white w-10 h-10 rounded-full items-center justify-center shadow hover:bg-[#133c7b] p-2"
     aria-label="Próximo"
   >
-    ▶
+    <ChevronRight size={24} />
   </button>
 );
 
