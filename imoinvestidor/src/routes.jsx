@@ -11,6 +11,8 @@ import EditProperty from "./pages/EditProperty";
 import PublicRoute from "./components/routes/PublicRoute";
 import ROLES from "./constants/roles";
 import RoleRoute from "./components/routes/RoleRoute";
+import NotFound from "./pages/NotFound";
+
 
 export default function AppRoutes() {
   return (
@@ -34,10 +36,13 @@ export default function AppRoutes() {
             <Login />
           </PublicRoute>
         } />
+        
         <Route path="map" element={<Map />} />
         <Route path="my-properties" element={<MyProperties />} />
         <Route path="create-property" element={<CreateProperty />} />
         <Route path="edit-property/:id" element={<EditProperty />} />
+
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   );
