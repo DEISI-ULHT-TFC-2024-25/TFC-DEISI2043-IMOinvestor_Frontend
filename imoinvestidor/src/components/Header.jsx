@@ -4,6 +4,7 @@ import { UserCircle, Heart } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import useRole from "../hooks/useRole";
 import logo from "../images/logo.png";
+import LanguageSelector from "./LanguageSelector";
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useAuth();
@@ -33,6 +34,8 @@ export default function Header() {
         )}
 
         <div className="flex items-center gap-4">
+          <LanguageSelector />
+
           <Link to="/favorites" className="hover:text-[#CFAF5E]">
             <Heart size={24} />
           </Link>
