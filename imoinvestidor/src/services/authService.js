@@ -54,7 +54,7 @@ export const register = async (userData) => {
     created_by: userData.email,
   };
 
-  const response = await fetch("/api/user/create-user/", {
+  const response = await fetch("/api/user/create/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
