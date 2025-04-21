@@ -98,7 +98,7 @@ export default function Registration() {
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
       <div className="w-full max-w-xl bg-white shadow-lg rounded-xl overflow-hidden">
         <div className="bg-[#0A2647] text-white border-b py-6">
-          <h1 className="text-2xl font-bold text-center">Registro de Utilizador</h1>
+          <h1 className="text-2xl font-bold text-center">Registo de Utilizador</h1>
         </div>
         <div className="p-8 text-[#3A3A3A]">
           {step === 1 && (
