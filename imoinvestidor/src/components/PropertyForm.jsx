@@ -1,30 +1,32 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import PriceRangeSlider from "./PriceRangeSlider";
-
-const inputStyle = "border border-gray-300 rounded w-full p-3 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#0A2647]";
+import InputField from "./common/InputField";
+import SelectField from "./common/SelectField";
+import TextAreaField from "./common/TextAreaField";
+import CheckboxGroup from "./common/CheckboxGroup";
+import PriceRangeSlider from "./common/PriceRangeSlider";
 
 const steps = [
   {
     title: "Informações do Imóvel",
     fields: [
-      { label: 'Nome do Imóvel', name: 'nome', type: 'text' },
+      { label: 'Nome do Imóvel', name: 'nome', type: 'input' },
       { label: 'Tipo de Imóvel', name: 'tipo', type: 'select', options: ['Apartamento', 'Casa'] },
       { label: 'Tipologia', name: 'tipologia', type: 'select', options: [...Array(10)].map((_, i) => (i < 9 ? `T${i}` : 'T9+')) },
       { label: 'Nº Casas de Banho', name: 'casasBanho', type: 'select', options: ['1', '2', '3', '4+'] },
-      { label: 'Área Útil (m²)', name: 'areaUtil', type: 'number' },
-      { label: 'Área Bruta (m²)', name: 'areaBruta', type: 'number' },
+      { label: 'Área Útil (m²)', name: 'areaUtil', type: 'input', inputType: 'number' },
+      { label: 'Área Bruta (m²)', name: 'areaBruta', type: 'input', inputType: 'number' },
     ],
     includePriceSlider: true,
   },
   {
     title: "Localização",
     fields: [
-      { label: 'Código Postal', name: 'codigoPostal', type: 'text' },
-      { label: 'Distrito', name: 'distrito', type: 'text' },
-      { label: 'Município', name: 'municipio', type: 'text' },
-      { label: 'Rua', name: 'rua', type: 'text' },
+      { label: 'Código Postal', name: 'codigoPostal', type: 'input' },
+      { label: 'Distrito', name: 'distrito', type: 'input' },
+      { label: 'Município', name: 'municipio', type: 'input' },
+      { label: 'Rua', name: 'rua', type: 'input' },
       { label: 'Nova Construção?', name: 'novaConstrucao', type: 'select', options: ['Sim', 'Não'] },
       { label: 'Certificado Energético', name: 'certificado', type: 'select', options: ['A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F'] },
     ],
@@ -36,9 +38,9 @@ const steps = [
 ];
 
 const extraInfos = [
-  'varanda', 'duplex', 'piscina', 'elevador',
+  'varanda', 'duplex', 'piscina', 'elevador', 
   'garagem', 'acessibilidade para pessoas com mobilidade reduzida',
-  'jardim', 'terraço',
+  'jardim', 'terraço'
 ];
 
 export default function PropertyForm({ onSubmit, submitLabel }) {
@@ -46,7 +48,6 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
   const [formData, setFormData] = useState({});
   const [priceRange, setPriceRange] = useState([50000, 500000]);
   const [isDesktop, setIsDesktop] = useState(false);
-
 
   useEffect(() => {
     const checkIfDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -63,93 +64,85 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
     onSubmit({ ...formData, priceMin: priceRange[0], priceMax: priceRange[1] });
   };
 
-  const renderFormFields = (stepIndex) => {
-    const currentStep = steps[stepIndex];
-    return (
-      <div className="space-y-6 mb-8">
-        {currentStep.fields.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {currentStep.fields.map((field, idx) => (
-              <div key={idx} className="relative">
-                <label className="block mb-2 text-sm font-semibold text-[#0A2647]">{field.label}</label>
-                {field.type === 'select' ? (
-                  <select
-                    name={field.name}
-                    className={inputStyle}
-                    value={formData[field.name] || ''}
-                    onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
-                  >
-                    <option value="">Selecione</option>
-                    {field.options.map((opt, i) => (
-                      <option key={i} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    className={inputStyle}
-                    value={formData[field.name] || ''}
-                    onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {currentStep.includePriceSlider && (
-          <div className="mt-8">
-            <label className="block mb-4 text-sm font-semibold text-[#0A2647]">Preço Estimado (€)</label>
-            <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />
-          </div>
-        )}
-
-        {stepIndex === 2 && (
-          <>
-            <div>
-              <label className="block mb-2 text-sm font-semibold text-[#0A2647]">Descrição</label>
-              <textarea
-                rows="5"
-                name="descricao"
-                className={inputStyle}
-                value={formData.descricao || ''}
-                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]">
-                    <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Informações Adicionais</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {extraInfos.map((info, idx) => (
-                  <label key={idx} className="flex items-center gap-2 text-[#0A2647]">
-                    <input
-                      type="checkbox"
-                      className="accent-[#0A2647]"
-                      name={`extra_${info}`}
-                      checked={formData[`extra_${info}`] || false}
-                      onChange={(e) => setFormData({ ...formData, [`extra_${info}`]: e.target.checked })}
-                    /> {info}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    );
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleCheckboxChange = (info) => {
+    setFormData(prev => ({
+      ...prev,
+      [`extra_${info}`]: !prev[`extra_${info}`],
+    }));
+  };
+
+  const renderFields = (currentStep) => (
+    <div className="space-y-6 mb-8">
+      {currentStep.fields.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {currentStep.fields.map((field, idx) => {
+            if (field.type === 'select') {
+              return (
+                <SelectField
+                  key={idx}
+                  label={field.label}
+                  name={field.name}
+                  options={field.options}
+                  value={formData[field.name] || ''}
+                  onChange={handleInputChange}
+                />
+              );
+            }
+            return (
+              <InputField
+                key={idx}
+                label={field.label}
+                name={field.name}
+                value={formData[field.name] || ''}
+                onChange={handleInputChange}
+                type={field.inputType || 'text'}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {currentStep.includePriceSlider && (
+        <div className="mt-8">
+          <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />
+        </div>
+      )}
+
+      {step === 2 && (
+        <>
+          <TextAreaField
+            label="Descrição"
+            name="descricao"
+            value={formData.descricao || ''}
+            onChange={handleInputChange}
+          />
+
+          <div>
+            <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]">
+                  <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <CheckboxGroup
+            label="Informações Adicionais"
+            options={extraInfos}
+            selectedOptions={Object.keys(formData).filter(key => formData[key])}
+            onChange={handleCheckboxChange}
+          />
+        </>
+      )}
+    </div>
+  );
 
   const isLastStep = step === steps.length - 1;
 
@@ -164,10 +157,10 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
 
       {isDesktop ? (
         <div className="space-y-12">
-          {steps.map((_, idx) => (
+          {steps.map((stepData, idx) => (
             <div key={idx}>
-              <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b pb-2">{steps[idx].title}</h3>
-              {renderFormFields(idx)}
+              <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b pb-2">{stepData.title}</h3>
+              {renderFields(stepData)}
             </div>
           ))}
           <div className="flex justify-end mt-8 pt-4 border-t">
@@ -181,7 +174,7 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
         </div>
       ) : (
         <>
-          {renderFormFields(step)}
+          {renderFields(steps[step])}
           <div className="flex justify-between mt-8">
             {step > 0 ? (
               <button
