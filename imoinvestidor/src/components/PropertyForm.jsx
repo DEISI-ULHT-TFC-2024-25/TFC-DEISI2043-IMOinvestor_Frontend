@@ -38,7 +38,7 @@ const steps = [
 ];
 
 const extraInfos = [
-  'varanda', 'duplex', 'piscina', 'elevador', 
+  'varanda', 'duplex', 'piscina', 'elevador',
   'garagem', 'acessibilidade para pessoas com mobilidade reduzida',
   'jardim', 'terraço'
 ];
@@ -112,36 +112,41 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
           <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />
         </div>
       )}
-
-      {step === 2 && (
-        <>
-          <TextAreaField
-            label="Descrição"
-            name="descricao"
-            value={formData.descricao || ''}
-            onChange={handleInputChange}
-          />
-
-          <div>
-            <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]">
-                  <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <CheckboxGroup
-            label="Informações Adicionais"
-            options={extraInfos}
-            selectedOptions={Object.keys(formData).filter(key => formData[key])}
-            onChange={handleCheckboxChange}
-          />
-        </>
-      )}
     </div>
+  );
+
+  const renderExtrasAndPhotos = () => (
+    <>
+      <TextAreaField
+        label="Descrição"
+        name="descricao"
+        value={formData.descricao || ''}
+        onChange={handleInputChange}
+      />
+
+      <div>
+        <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div
+              key={i}
+              className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]"
+            >
+              <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="mt-6">
+        <CheckboxGroup
+          label="Informações Adicionais"
+          options={extraInfos}
+          selectedOptions={Object.keys(formData).filter(key => formData[key])}
+          onChange={handleCheckboxChange}
+        />
+      </div>
+    </>
   );
 
   const isLastStep = step === steps.length - 1;
@@ -161,6 +166,7 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
             <div key={idx}>
               <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b pb-2">{stepData.title}</h3>
               {renderFields(stepData)}
+              {idx === 2 && renderExtrasAndPhotos()}
             </div>
           ))}
           <div className="flex justify-end mt-8 pt-4 border-t">
@@ -175,6 +181,7 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
       ) : (
         <>
           {renderFields(steps[step])}
+          {step === 2 && renderExtrasAndPhotos()}
           <div className="flex justify-between mt-8">
             {step > 0 ? (
               <button
