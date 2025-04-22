@@ -24,7 +24,7 @@ const steps = [
     title: "Localização",
     fields: [
       { label: 'Código Postal', name: 'codigoPostal', type: 'input' },
-      { label: 'Distrito', name: 'distrito', type: 'input' },
+      { label: 'Distrito', name: 'distrito', type: 'dynamic-select', dynamicOptionsKey: 'districts' },
       { label: 'Município', name: 'municipio', type: 'input' },
       { label: 'Rua', name: 'rua', type: 'input' },
       { label: 'Nova Construção?', name: 'novaConstrucao', type: 'select', options: ['Sim', 'Não'] },
@@ -39,15 +39,17 @@ const steps = [
 
 const extraInfos = [
   'varanda', 'duplex', 'piscina', 'elevador',
-  'garagem', 'acessibilidade para pessoas com mobilidade reduzida',
-  'jardim', 'terraço'
+  'garagem', 'terraço', 'jardim',
+  'acessibilidade para pessoas com mobilidade reduzida',
 ];
 
 export default function PropertyForm({ onSubmit, submitLabel }) {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({});
   const [priceRange, setPriceRange] = useState([50000, 500000]);
+  const [districts, setDistricts] = useState([]);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [formError, setFormError] = useState(null);
 
   useEffect(() => {
     const checkIfDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -56,12 +58,50 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
     return () => window.removeEventListener('resize', checkIfDesktop);
   }, []);
 
-  const nextStep = () => setStep(prev => Math.min(prev + 1, steps.length - 1));
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 0));
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      try {
+        const res = await fetch('/api/district/');
+        const data = await res.json();
+        const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+        setDistricts(sorted);
+      } catch (error) {
+        console.error('Erro a buscar distritos:', error);
+        setFormError('Erro ao carregar distritos. Por favor, tente novamente mais tarde.');
+      }
+    };
 
-  const handleSubmit = (e) => {
+    fetchDistricts();
+  }, []);
+
+  const nextStep = (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, priceMin: priceRange[0], priceMax: priceRange[1] });
+    e.stopPropagation();
+    setFormError(null);
+    setStep(prev => Math.min(prev + 1, steps.length - 1));
+  };
+  
+  const prevStep = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFormError(null);
+    setStep(prev => Math.max(prev - 1, 0));
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    
+    if (isDesktop || step === steps.length - 1) {
+      const formDataToSubmit = {
+        ...formData,
+        priceMin: priceRange[0],
+        priceMax: priceRange[1]
+      };
+      
+      onSubmit(formDataToSubmit);
+    } else {
+      nextStep();
+    }
   };
 
   const handleInputChange = (e) => {
@@ -76,6 +116,37 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
     }));
   };
 
+  const renderLastStepFields = () => (
+    <>
+      <TextAreaField
+        label="Descrição"
+        name="descricao"
+        value={formData.descricao || ''}
+        onChange={handleInputChange}
+      />
+
+      <div>
+        <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]">
+              <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <CheckboxGroup
+        label="Informações Adicionais"
+        options={extraInfos}
+        selectedOptions={Object.keys(formData)
+          .filter(key => key.startsWith('extra_') && formData[key])
+          .map(key => key.replace('extra_', ''))}
+        onChange={handleCheckboxChange}
+      />
+    </>
+  );
+
   const renderFields = (currentStep) => (
     <div className="space-y-6 mb-8">
       {currentStep.fields.length > 0 && (
@@ -88,6 +159,22 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
                   label={field.label}
                   name={field.name}
                   options={field.options}
+                  value={formData[field.name] || ''}
+                  onChange={handleInputChange}
+                />
+              );
+            }
+            if (field.type === 'dynamic-select') {
+              const dynamicOptions = field.dynamicOptionsKey === 'districts'
+                ? districts.map(d => ({ label: d.name, value: d.id }))
+                : [];
+
+              return (
+                <SelectField
+                  key={idx}
+                  label={field.label}
+                  name={field.name}
+                  options={dynamicOptions}
                   value={formData[field.name] || ''}
                   onChange={handleInputChange}
                 />
@@ -112,47 +199,21 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
           <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />
         </div>
       )}
+
+      {!isDesktop && step === 2 && renderLastStepFields()}
     </div>
-  );
-
-  const renderExtrasAndPhotos = () => (
-    <>
-      <TextAreaField
-        label="Descrição"
-        name="descricao"
-        value={formData.descricao || ''}
-        onChange={handleInputChange}
-      />
-
-      <div>
-        <h4 className="text-lg font-semibold text-[#0A2647] mb-4">Fotografias</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center h-24 cursor-pointer hover:border-[#CFAF5E]"
-            >
-              <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="mt-6">
-        <CheckboxGroup
-          label="Informações Adicionais"
-          options={extraInfos}
-          selectedOptions={Object.keys(formData).filter(key => formData[key])}
-          onChange={handleCheckboxChange}
-        />
-      </div>
-    </>
   );
 
   const isLastStep = step === steps.length - 1;
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
+    <form onSubmit={handleFormSubmit} className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-5xl mx-auto">
+      {formError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+          <p>{formError}</p>
+        </div>
+      )}
+      
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-[#0A2647]">{isDesktop ? "Cadastrar Imóvel" : steps[step].title}</h2>
         {!isDesktop && (
@@ -166,7 +227,8 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
             <div key={idx}>
               <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b pb-2">{stepData.title}</h3>
               {renderFields(stepData)}
-              {idx === 2 && renderExtrasAndPhotos()}
+              
+              {idx === 2 && renderLastStepFields()}
             </div>
           ))}
           <div className="flex justify-end mt-8 pt-4 border-t">
@@ -181,7 +243,6 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
       ) : (
         <>
           {renderFields(steps[step])}
-          {step === 2 && renderExtrasAndPhotos()}
           <div className="flex justify-between mt-8">
             {step > 0 ? (
               <button
