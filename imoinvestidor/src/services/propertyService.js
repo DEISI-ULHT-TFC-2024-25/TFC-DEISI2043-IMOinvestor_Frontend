@@ -1,4 +1,6 @@
 export async function createProperty(data, csrfToken = '') {
+  console.log("Payload:", data);
+
     const response = await fetch('/api/property/create/', {
       method: 'POST',
       headers: {
@@ -11,7 +13,10 @@ export async function createProperty(data, csrfToken = '') {
   
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || 'Erro ao criar imóvel.');
+      console.error("Erro na resposta da API:", errorData); 
+      throw new Error(
+        errorData.detail || JSON.stringify(errorData) || 'Erro ao criar imóvel.'
+      );
     }
   
     return response.json();

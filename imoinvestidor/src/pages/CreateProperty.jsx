@@ -10,24 +10,26 @@ export default function CreateProperty() {
   const navigate = useNavigate();
   const [formSubmitted, setFormSubmitted] = useState(false);
 
-  const handleCreate = async (formData) => {
+  const handleCreate = async (payload) => {
     try {
       setFormSubmitted(true);
 
-      if (!user || !user.organization_id) {
+      if (!user || !user.organization_ids?.length) {
         alert("Utilizador sem organização atribuída.");
         return;
       }
 
-      const payload = {
-        ...formData,
-        organization_id: user.organization_ids?.[0],
+      const finalPayload = {
+        ...payload,
+        organization_id: user.organization_ids[0],
       };
 
-      const success = await submitProperty(payload);
+      console.log("Payload antes de submit:", finalPayload);
+
+      const success = await submitProperty(finalPayload);
 
       if (success) {
-        alert("Imóvel criado com sucesso!");
+        console.log("Imóvel criado com sucesso!");
         navigate("/my-properties");
       } else {
         console.error("Falha ao criar propriedade:", error);

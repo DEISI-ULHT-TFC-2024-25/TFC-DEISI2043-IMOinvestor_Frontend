@@ -25,7 +25,7 @@ const steps = [
     fields: [
       { label: 'Código Postal', name: 'codigoPostal', type: 'input' },
       { label: 'Distrito', name: 'distrito', type: 'dynamic-select', dynamicOptionsKey: 'districts' },
-      { label: 'Município', name: 'municipio', type: 'input' },
+      { label: 'Município', name: 'municipio', type: 'dynamic-select', dynamicOptionsKey: 'municipalities' },
       { label: 'Rua', name: 'rua', type: 'input' },
       { label: 'Nova Construção?', name: 'novaConstrucao', type: 'select', options: ['Sim', 'Não'] },
       { label: 'Certificado Energético', name: 'certificado', type: 'select', options: ['A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F'] },
@@ -48,6 +48,7 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
   const [formData, setFormData] = useState({});
   const [priceRange, setPriceRange] = useState([50000, 500000]);
   const [districts, setDistricts] = useState([]);
+  const [municipalities, setMunicipalities] = useState([]);
   const [isDesktop, setIsDesktop] = useState(false);
   const [formError, setFormError] = useState(null);
 
@@ -93,9 +94,25 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
     
     if (isDesktop || step === steps.length - 1) {
       const formDataToSubmit = {
-        ...formData,
-        priceMin: priceRange[0],
-        priceMax: priceRange[1]
+        name: formData.nome,
+        property_type: formData.tipo,
+        tipologia: formData.tipologia,
+        numero_casas_banho: Number(formData.casasBanho),
+        area_util: Number(formData.areaUtil),
+        area_bruta: Number(formData.areaBruta),
+        preco_minimo: priceRange[0],
+        preco_maximo: priceRange[1],
+        postal_code: formData.codigoPostal,
+        district: Number(formData.distrito),
+        municipality: Number(formData.municipio),
+        street: formData.rua,
+        nova_construcao: formData.novaConstrucao === "Sim" ? "Sim" : "Não",
+        certificado_energetico: formData.certificado,
+        descricao: formData.descricao,
+        imagens: [],
+        informacoes_adicionais: Object.keys(formData)
+          .filter(k => k.startsWith('extra_') && formData[k])
+          .map(k => k.replace('extra_', '')),
       };
       
       onSubmit(formDataToSubmit);
@@ -104,9 +121,29 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  
+    if (name === 'distrito') {
+      try {
+        const res = await fetch('/api/municipality/municipalityByDistrict/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({ district_id: Number(value) }),
+        });
+  
+        if (!res.ok) throw new Error('Erro ao carregar municípios');
+        const data = await res.json();
+        const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+        setMunicipalities(sorted);
+      } catch (error) {
+        console.error("Erro ao buscar municípios:", error);
+      }
+    }
   };
 
   const handleCheckboxChange = (info) => {
@@ -165,9 +202,12 @@ export default function PropertyForm({ onSubmit, submitLabel }) {
               );
             }
             if (field.type === 'dynamic-select') {
-              const dynamicOptions = field.dynamicOptionsKey === 'districts'
-                ? districts.map(d => ({ label: d.name, value: d.id }))
-                : [];
+              const dynamicOptions =
+                field.dynamicOptionsKey === 'districts'
+                  ? districts.map(d => ({ label: d.name, value: d.id }))
+                  : field.dynamicOptionsKey === 'municipalities'
+                  ? municipalities.map(m => ({ label: m.name, value: m.id }))
+                  : [];
 
               return (
                 <SelectField

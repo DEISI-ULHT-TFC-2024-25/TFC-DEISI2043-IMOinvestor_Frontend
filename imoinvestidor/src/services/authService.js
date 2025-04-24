@@ -17,9 +17,16 @@ export const login = async ({ user_name, password }) => {
 
     const userData = {
       id: data.user_id,
-      name: `${data.first_name} ${data.last_name}`.trim(),
       user_name: data.user_name,
-      role: data.role,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone: data.phone,
+      date_of_birth: data.date_of_birth,
+      lang_key: data.lang_key,
+      activated: data.activated,
+      organization_ids: data.organization_ids || [],
+      role: data.role || [],
     };
 
     localStorage.setItem("authToken", data.access_token);
