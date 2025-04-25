@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
-import { register } from "../services/authService";
-import { fetchOrganizations } from "../services/organizationService";
+import { register } from "@services/authService";
+import { fetchOrganizations } from "@services/organizationService";
 
 const PasswordRequirements = () => (
   <div className="text-red-600 text-sm mt-2">

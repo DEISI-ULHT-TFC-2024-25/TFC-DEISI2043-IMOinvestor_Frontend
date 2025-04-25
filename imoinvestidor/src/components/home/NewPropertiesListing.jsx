@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { PropertyCard } from '../PropertyCard';
-import SliderWrapper from '../SliderWrapper';
+import { PropertyCard } from '@components/PropertyCard';
+import SliderWrapper from '@components/SliderWrapper';
 
 const NewPropertiesListing = ({ isLoggedIn }) => {
   const navigate = useNavigate();

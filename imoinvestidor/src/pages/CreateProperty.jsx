@@ -1,8 +1,8 @@
 import { useState } from "react";
-import useCreateProperty from "../hooks/useCreateProperty";
-import PropertyForm from "../components/PropertyForm";
+import useCreateProperty from "@hooks/useCreateProperty";
+import PropertyForm from "@components/PropertyForm";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@hooks/useAuth";
 
 export default function CreateProperty() {
   const { submitProperty, loading, error } = useCreateProperty();

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import InputField from "./common/InputField";
-import SelectField from "./common/SelectField";
-import TextAreaField from "./common/TextAreaField";
-import CheckboxGroup from "./common/CheckboxGroup";
-import PriceRangeSlider from "./common/PriceRangeSlider";
+import InputField from "@common/InputField";
+import SelectField from "@common/SelectField";
+import TextAreaField from "@common/TextAreaField";
+import CheckboxGroup from "@common/CheckboxGroup";
+import PriceRangeSlider from "@common/PriceRangeSlider";
 
 const steps = [
   {

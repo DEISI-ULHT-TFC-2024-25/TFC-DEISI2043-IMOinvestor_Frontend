@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserCircle, Heart } from "lucide-react";
-import useAuth from "../hooks/useAuth";
-import useRole from "../hooks/useRole";
-import logo from "../images/logo.png";
-import LanguageSelector from "./LanguageSelector";
+import useAuth from "@hooks/useAuth";
+import useRole from "@hooks/useRole";
+import logo from "@images/logo.png";
+import LanguageSelector from "@components/LanguageSelector";
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useAuth();

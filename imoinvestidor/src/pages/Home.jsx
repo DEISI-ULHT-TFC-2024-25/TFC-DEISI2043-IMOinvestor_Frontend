@@ -1,10 +1,10 @@
-import useAuth from '../hooks/useAuth';
-import { TeamSection } from '../components/home/TeamSection';
-import { SoldBlog } from '../components/home/SoldBlog';
-import { OrganizationsSection } from '../components/home/OrganizationsSection';
-import NewPropertiesListing from '../components/home/NewPropertiesListing';
+import useAuth from '@hooks/useAuth';
+import { TeamSection } from '@home/TeamSection';
+import { SoldBlog } from '@home/SoldBlog';
+import { OrganizationsSection } from '@home/OrganizationsSection';
+import NewPropertiesListing from '@home/NewPropertiesListing';
 import { useState } from 'react';
-import UserActionCards from '../components/home/UserActionCards ';
+import UserActionCards from '@home/UserActionCards';
 
 export default function Home() {
   const { isLoggedIn } = useAuth();

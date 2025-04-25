@@ -1,17 +1,17 @@
 import {Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import Health from "./pages/Health";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
-import Map from "./pages/Map";
-import MyProperties from "./pages/MyProperties";
-import CreateProperty from "./pages/CreateProperty";
-import EditProperty from "./pages/EditProperty";
-import PublicRoute from "./components/routes/PublicRoute";
-import ROLES from "./constants/roles";
-import RoleRoute from "./components/routes/RoleRoute";
-import NotFound from "./pages/NotFound";
+import Layout from "@components/Layout";
+import Home from "@pages/Home";
+import Health from "@pages/Health";
+import Register from "@pages/Register";
+import Login from "@pages/Login";
+import Map from "@pages/Map";
+import MyProperties from "@pages/MyProperties";
+import CreateProperty from "@pages/CreateProperty";
+import EditProperty from "@pages/EditProperty";
+import PublicRoute from "@components/routes/PublicRoute";
+import ROLES from "@constants/roles";
+import RoleRoute from "@components/routes/RoleRoute";
+import NotFound from "@pages/NotFound";
 
 
 export default function AppRoutes() {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createProperty } from '../services/propertyService';
+import { createProperty } from '@services/propertyService';
 
 export default function useCreateProperty() {
   const [loading, setLoading] = useState(false);

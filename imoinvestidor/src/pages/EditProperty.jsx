@@ -1,4 +1,4 @@
-import PropertyForm from '../components/PropertyForm';
+import PropertyForm from '@components/PropertyForm';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function EditProperty() {

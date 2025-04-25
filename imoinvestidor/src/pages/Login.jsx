@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import useAuth from "../hooks/useAuth";
+import useAuth from "@hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const SocialLoginButton = ({ provider }) => (

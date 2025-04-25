@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
-import useRole from "../hooks/useRole";
+import useAuth from "@hooks/useAuth";
+import useRole from "@hooks/useRole";
 
 export default function UserActionCards() {
   const navigate = useNavigate();

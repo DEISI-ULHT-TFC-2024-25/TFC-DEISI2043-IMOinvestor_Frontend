@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useLanguage } from "../contexts/LanguageContext";
-import ptFlag from "../images/flags/flag_pt.svg";
-import enFlag from "../images/flags/flag_en.svg";
+import { useLanguage } from "@contexts/LanguageContext";
+import ptFlag from "@images/flags/flag_pt.svg";
+import enFlag from "@images/flags/flag_en.svg";
 
 export default function LanguageSelector() {
   const { language, changeLanguage } = useLanguage();
