@@ -21,6 +21,7 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
     casasBanho: 2,
     areaUtil: 126,
     price: "600.000 €",
+    roi: "5",
     onClick: () => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login'),
     hidePrice: !isLoggedIn,
     isFavorited: i % 2 === 0,
