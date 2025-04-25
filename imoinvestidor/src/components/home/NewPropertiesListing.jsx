@@ -17,10 +17,14 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
 
   const properties = [...Array(8)].map((_, i) => ({
     title: `Imóvel ${i + 1}`,
-    description: "Descrição breve do imóvel",
+    tipologia: 4,
+    casasBanho: 2,
+    areaUtil: 126,
     price: "600.000 €",
     onClick: () => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login'),
     hidePrice: !isLoggedIn,
+    isFavorited: i % 2 === 0,
+    onToggleFavorite: () => console.log(`Favorito toggle no imóvel ${i + 1}`),
   }));
 
   return (
