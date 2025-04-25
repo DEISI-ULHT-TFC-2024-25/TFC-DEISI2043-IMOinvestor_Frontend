@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import AdvancedSearchOptions from "@components/AdvancedSearchOptions";
+import AdvancedSearchOptions from "@home/AdvancedSearchFilters";
 
 export default function HeroSearch({
   showAdvanced,
