@@ -1,5 +1,5 @@
 import {Routes, Route } from "react-router-dom";
-import Layout from "@components/Layout";
+import Layout from "@layout/Layout";
 import Home from "@pages/Home";
 import Health from "@pages/Health";
 import Register from "@pages/Register";
@@ -8,9 +8,9 @@ import Map from "@pages/Map";
 import MyProperties from "@pages/MyProperties";
 import CreateProperty from "@pages/CreateProperty";
 import EditProperty from "@pages/EditProperty";
-import PublicRoute from "@components/routes/PublicRoute";
+import PublicRoute from "@routes/PublicRoute";
 import ROLES from "@constants/roles";
-import RoleRoute from "@components/routes/RoleRoute";
+import RoleRoute from "@routes/RoleRoute";
 import NotFound from "@pages/NotFound";
 
 

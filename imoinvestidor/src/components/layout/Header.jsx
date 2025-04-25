@@ -4,7 +4,7 @@ import { UserCircle, Heart } from "lucide-react";
 import useAuth from "@hooks/useAuth";
 import useRole from "@hooks/useRole";
 import logo from "@images/logo.png";
-import LanguageSelector from "@components/LanguageSelector";
+import LanguageSelector from "@layout/LanguageSelector";
 
 export default function Header() {
   const { isLoggedIn, user, logout } = useAuth();

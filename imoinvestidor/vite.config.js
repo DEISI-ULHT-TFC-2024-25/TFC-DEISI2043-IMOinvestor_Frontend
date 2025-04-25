@@ -24,6 +24,8 @@ export default ({ mode }) => {
         '@images': resolve(__dirname, 'src/images'),
         '@components': resolve(__dirname, 'src/components'),
         '@common': resolve(__dirname, 'src/components/common'),
+        '@layout': resolve(__dirname, 'src/components/layout'),
+        '@routes': resolve(__dirname, 'src/components/routes'),
         '@home': resolve(__dirname, 'src/components/home'),
         '@hooks': resolve(__dirname, 'src/hooks'),
         '@contexts': resolve(__dirname, 'src/contexts'),
