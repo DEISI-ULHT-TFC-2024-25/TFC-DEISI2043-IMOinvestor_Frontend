@@ -1,17 +1,14 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { UserCircle, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import useAuth from "@hooks/useAuth";
 import useRole from "@hooks/useRole";
 import logo from "@images/logo.png";
 import LanguageSelector from "@layout/LanguageSelector";
+import UserDropdown from "@layout/UserDropdown";
 
 export default function Header() {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isLoggedIn } = useAuth();
   const { hasAnyRole } = useRole();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   const showCreateButton = isLoggedIn ? hasAnyRole(["AGENT", "PROMOTOR"]) : true;
   const createButtonLink = isLoggedIn ? "/create-add" : "/login";
@@ -19,6 +16,7 @@ export default function Header() {
   return (
     <nav className="bg-[#0A2647] text-white px-6 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center relative py-2">
+
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="IMOinvestor Logo" className="h-20 w-auto object-contain" />
         </Link>
@@ -41,29 +39,7 @@ export default function Header() {
           </Link>
 
           {isLoggedIn ? (
-            <div className="relative">
-              <button
-                onClick={toggleDropdown}
-                className="flex items-center gap-2 cursor-pointer hover:text-[#CFAF5E]"
-              >
-                <UserCircle size={24} />
-                <span className="hidden sm:inline">{user?.user_name || "Utilizador"}</span>
-              </button>
-
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white text-[#0A2647] rounded shadow-lg z-20 overflow-hidden">
-                  <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">Meu Perfil</Link>
-                  <Link to="/investments" className="block px-4 py-2 hover:bg-gray-100">Meus Investimentos</Link>
-                  <Link to="/my-properties" className="block px-4 py-2 hover:bg-gray-100">Minhas Propriedades</Link>
-                  <button
-                    onClick={logout}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
-                  >
-                    Sair
-                  </button>
-                </div>
-              )}
-            </div>
+            <UserDropdown />
           ) : (
             <div className="flex gap-2">
               <Link to="/login">
@@ -79,6 +55,7 @@ export default function Header() {
             </div>
           )}
         </div>
+
       </div>
     </nav>
   );
