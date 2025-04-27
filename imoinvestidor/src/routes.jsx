@@ -39,16 +39,8 @@ export default function AppRoutes() {
         
         <Route path="map" element={<Map />} />
         <Route path="my-properties" element={<MyProperties />} />
-        <Route path="create-property" element={
-          <RoleRoute allowedRoles={[ROLES.PROMOTOR || ROLES.INVESTOR]}>
-            <CreateProperty />
-          </RoleRoute>
-        } />
-        <Route path="edit-property/:id" element={
-          <RoleRoute allowedRoles={[ROLES.PROMOTOR || ROLES.INVESTOR]}>
-            <EditProperty />
-          </RoleRoute>
-        } />
+        <Route path="create-property" element={<CreateProperty />} />
+        <Route path="edit-property/:id" element={<EditProperty />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>
