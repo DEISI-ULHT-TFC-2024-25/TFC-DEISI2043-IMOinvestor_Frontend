@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProperties } from "../services/propertyService";
+import { getPropertiesByOrganization } from "@services/propertyService";
+import { getUser } from "@services/authService";
 
 export default function MyProperties() {
   const navigate = useNavigate();
 
+  const user = getUser();
+  const orgId = user?.organization_ids?.[0];
+
   const [propriedades, setPropriedades] = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getProperties()
+    if (!orgId) {
+      setError(new Error("Nenhuma organização associada ao utilizador."));
+      setLoading(false);
+      return;
+    }
+
+    getPropertiesByOrganization(orgId)
       .then(setPropriedades)
       .catch(setError)
       .finally(() => setLoading(false));
-  }, []);
+  }, [orgId]);
 
   if (loading) {
     return (
@@ -73,7 +83,7 @@ export default function MyProperties() {
                 {property.street}, {property.postal_code}
               </p>
               <p className="font-semibold text-[#CFAF5E]">
-                {property.preco_minimo?.toLocaleString()} € –{" "}
+                {property.preco_minimo?.toLocaleString()} € –{' '}
                 {property.preco_maximo?.toLocaleString()} €
               </p>
             </div>
