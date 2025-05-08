@@ -1,4 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_URL.replace(/\/$/, ""); 
+const API_BASE = import.meta.env.DEV
+  ? '/api'
+  : import.meta.env.VITE_API_URL.replace(/\/$/, '');
 
 function normalizeProperty(raw) {
   return {
@@ -12,9 +14,21 @@ function normalizeProperty(raw) {
 
 export async function getProperties() {
   const res = await fetch(`${API_BASE}/property/`, {
-    method: "GET",
-    headers: { Accept: "application/json" },
-    // credentials: "include", // só se precisares realmente de cookies
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || res.statusText);
+  }
+  const list = await res.json();
+  return list.map(normalizeProperty);
+}
+
+export async function getPropertiesByOrganization(orgId) {
+  const res = await fetch(`${API_BASE}/property/organization/${orgId}/`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -26,8 +40,8 @@ export async function getProperties() {
 
 export async function getPropertyById(id) {
   const res = await fetch(`${API_BASE}/property/${id}/`, {
-    method: "GET",
-    headers: { Accept: "application/json" },
+    method: 'GET',
+    headers: { Accept: 'application/json' },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -37,13 +51,13 @@ export async function getPropertyById(id) {
   return normalizeProperty(raw);
 }
 
-export async function createProperty(data, csrfToken = "") {
+export async function createProperty(data, csrfToken = '') {
   const res = await fetch(`${API_BASE}/property/create/`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...(csrfToken && { "X-CSRFTOKEN": csrfToken }),
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
     },
     body: JSON.stringify(data),
   });
@@ -55,13 +69,13 @@ export async function createProperty(data, csrfToken = "") {
   return normalizeProperty(raw);
 }
 
-export async function updateProperty(id, data, csrfToken = "") {
+export async function updateProperty(id, data, csrfToken = '') {
   const res = await fetch(`${API_BASE}/property/${id}/update/`, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...(csrfToken && { "X-CSRFTOKEN": csrfToken }),
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
     },
     body: JSON.stringify(data),
   });
@@ -73,12 +87,30 @@ export async function updateProperty(id, data, csrfToken = "") {
   return normalizeProperty(raw);
 }
 
-export async function deleteProperty(id, csrfToken = "") {
-  const res = await fetch(`${API_BASE}/property/${id}/`, {
-    method: "DELETE",
+export async function partialUpdateProperty(id, data, csrfToken = '') {
+  const res = await fetch(`${API_BASE}/property/${id}/update/`, {
+    method: 'PATCH',
     headers: {
-      Accept: "application/json",
-      ...(csrfToken && { "X-CSRFTOKEN": csrfToken }),
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || JSON.stringify(err) || res.statusText);
+  }
+  const raw = await res.json();
+  return normalizeProperty(raw);
+}
+
+export async function deleteProperty(id, csrfToken = '') {
+  const res = await fetch(`${API_BASE}/property/${id}/delete/`, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
     },
   });
   if (!res.ok) {
@@ -87,4 +119,3 @@ export async function deleteProperty(id, csrfToken = "") {
   }
   return { success: true };
 }
-
