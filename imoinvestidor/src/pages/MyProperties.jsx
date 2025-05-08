@@ -1,18 +1,43 @@
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getProperties } from "../services/propertyService";
 
 export default function MyProperties() {
   const navigate = useNavigate();
 
-  const propriedades = [
-    { id: 1, title: "Apartamento T2 Lisboa", address: "Lisboa, Portugal", price: 250000 },
-    { id: 2, title: "Moradia V4 Cascais", address: "Cascais, Portugal", price: 750000 },
-    { id: 3, title: "Estúdio no Porto", address: "Porto, Portugal", price: 120000 },
-  ];
+  const [propriedades, setPropriedades] = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState(null);
+
+  useEffect(() => {
+    getProperties()
+      .then(setPropriedades)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="p-6 text-center">
+        <p>Carregando propriedades…</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="p-6 text-center text-red-600">
+        <p>Erro ao carregar propriedades: {error.message}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-[#0A2647]">Minhas Propriedades</h1>
+        <h1 className="text-2xl font-semibold text-[#0A2647]">
+          Minhas Propriedades
+        </h1>
         <button
           onClick={() => navigate("/create-property")}
           className="bg-[#CFAF5E] text-white px-4 py-2 rounded hover:bg-[#b89a4e] transition"
@@ -23,7 +48,9 @@ export default function MyProperties() {
 
       {propriedades.length === 0 ? (
         <div className="text-center mt-16 text-[#0A2647]">
-          <h2 className="text-xl font-semibold mb-4">Ainda não tem propriedades criadas.</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Ainda não tem propriedades criadas.
+          </h2>
           <button
             onClick={() => navigate("/create-property")}
             className="bg-[#CFAF5E] text-white px-6 py-3 rounded-md hover:bg-[#b89a4e] transition"
@@ -39,9 +66,16 @@ export default function MyProperties() {
               onClick={() => navigate(`/edit-property/${property.id}`)}
               className="bg-white p-4 rounded shadow hover:ring-2 hover:ring-[#CFAF5E] cursor-pointer transition"
             >
-              <h3 className="font-bold text-[#0A2647] mb-2">{property.title}</h3>
-              <p className="text-sm text-gray-600 mb-2">{property.address}</p>
-              <p className="font-semibold text-[#CFAF5E]">{property.price.toLocaleString()} €</p>
+              <h3 className="font-bold text-[#0A2647] mb-2">
+                {property.name}
+              </h3>
+              <p className="text-sm text-gray-600 mb-2">
+                {property.street}, {property.postal_code}
+              </p>
+              <p className="font-semibold text-[#CFAF5E]">
+                {property.preco_minimo?.toLocaleString()} € –{" "}
+                {property.preco_maximo?.toLocaleString()} €
+              </p>
             </div>
           ))}
         </div>
