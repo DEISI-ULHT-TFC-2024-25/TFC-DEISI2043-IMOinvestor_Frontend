@@ -2,6 +2,17 @@ const API_BASE = import.meta.env.DEV
   ? '/api'
   : import.meta.env.VITE_API_URL.replace(/\/$/, '');
 
+function authHeaders(csrfToken = '') {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
+}
+
+
 function normalizeProperty(raw) {
   return {
     ...raw,
@@ -12,110 +23,76 @@ function normalizeProperty(raw) {
   };
 }
 
+async function handleResponse(res) {
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || JSON.stringify(err) || res.statusText);
+  }
+  return res.json();
+}
+
 export async function getProperties() {
   const res = await fetch(`${API_BASE}/property/`, {
     method: 'GET',
-    headers: { Accept: 'application/json' },
+    headers: authHeaders(),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || res.statusText);
-  }
-  const list = await res.json();
+  const list = await handleResponse(res);
   return list.map(normalizeProperty);
 }
 
 export async function getPropertiesByOrganization(orgId) {
   const res = await fetch(`${API_BASE}/property/organization/${orgId}/`, {
     method: 'GET',
-    headers: { Accept: 'application/json' },
+    headers: authHeaders(),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || res.statusText);
-  }
-  const list = await res.json();
+  const list = await handleResponse(res);
   return list.map(normalizeProperty);
 }
 
 export async function getPropertyById(id) {
   const res = await fetch(`${API_BASE}/property/${id}/`, {
     method: 'GET',
-    headers: { Accept: 'application/json' },
+    headers: authHeaders(),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || res.statusText);
-  }
-  const raw = await res.json();
+  const raw = await handleResponse(res);
   return normalizeProperty(raw);
 }
 
 export async function createProperty(data, csrfToken = '') {
   const res = await fetch(`${API_BASE}/property/create/`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
-    },
+    headers: authHeaders(csrfToken),
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || JSON.stringify(err) || res.statusText);
-  }
-  const raw = await res.json();
+  const raw = await handleResponse(res);
   return normalizeProperty(raw);
 }
 
 export async function updateProperty(id, data, csrfToken = '') {
   const res = await fetch(`${API_BASE}/property/${id}/update/`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
-    },
+    headers: authHeaders(csrfToken),
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || JSON.stringify(err) || res.statusText);
-  }
-  const raw = await res.json();
+  const raw = await handleResponse(res);
   return normalizeProperty(raw);
 }
 
 export async function partialUpdateProperty(id, data, csrfToken = '') {
   const res = await fetch(`${API_BASE}/property/${id}/update/`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
-    },
+    headers: authHeaders(csrfToken),
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || JSON.stringify(err) || res.statusText);
-  }
-  const raw = await res.json();
+  const raw = await handleResponse(res);
   return normalizeProperty(raw);
 }
 
 export async function deleteProperty(id, csrfToken = '') {
   const res = await fetch(`${API_BASE}/property/${id}/delete/`, {
     method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-      ...(csrfToken && { 'X-CSRFTOKEN': csrfToken }),
-    },
+    headers: authHeaders(csrfToken),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || res.statusText);
-  }
+  await handleResponse(res);
   return { success: true };
 }
