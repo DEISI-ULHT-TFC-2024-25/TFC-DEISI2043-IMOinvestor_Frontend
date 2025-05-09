@@ -2,9 +2,9 @@ import { Range } from 'react-range';
 import PropTypes from 'prop-types';
 import { useState, useCallback, useMemo } from 'react';
 
-const MIN = 50000;
+const MIN = 100;
 const MAX = 2000000;
-const STEP = 10000;
+const STEP = 100;
 
 export default function PriceRangeSlider({ priceRange, setPriceRange }) {
   const [activeThumb, setActiveThumb] = useState(null);
