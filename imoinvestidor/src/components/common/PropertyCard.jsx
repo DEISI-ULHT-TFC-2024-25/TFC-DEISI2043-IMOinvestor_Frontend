@@ -13,9 +13,18 @@ export const PropertyCard = ({
   className = '',
   imageClassName = 'h-40',
   isFavorited = false,
-  onToggleFavorite
+  onToggleFavorite,
+  actions = null,
+  street,
+  district,
 }) => (
-  <div className={`bg-white rounded shadow p-4 flex flex-col justify-between w-full h-full ${className}`}>
+  <div className={`bg-white rounded shadow p-4 flex flex-col justify-between w-full h-full relative ${className}`}>
+    {actions && (
+      <div className="absolute top-2 right-2 flex gap-2 z-10">
+        {actions}
+      </div>
+    )}
+
     <div>
       <div className={`bg-gray-300 rounded mb-3 ${imageClassName}`}></div>
 
@@ -27,6 +36,12 @@ export const PropertyCard = ({
           </button>
         )}
       </div>
+
+      {(district || street) && (
+        <p className="text-sm text-gray-600 mt-1">
+          {street ? `${street}, ${district}` : district}
+        </p>
+      )}
 
       <div className="text-sm text-gray-600 flex gap-4 mt-2">
         <div className="flex items-center gap-1">
@@ -75,4 +90,7 @@ PropertyCard.propTypes = {
   imageClassName: PropTypes.string,
   isFavorited: PropTypes.bool,
   onToggleFavorite: PropTypes.func,
+  actions: PropTypes.node,
+  street: PropTypes.string,
+  district: PropTypes.string,
 };
