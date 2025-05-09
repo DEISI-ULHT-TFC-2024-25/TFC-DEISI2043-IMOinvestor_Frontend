@@ -20,6 +20,8 @@ function normalizeProperty(raw) {
     informacoes_adicionais: Array.isArray(raw.informacoes_adicionais)
       ? raw.informacoes_adicionais
       : [],
+      casasBanho: raw.numero_casas_banho ?? '0',
+    title: raw.name,
   };
 }
 
@@ -28,6 +30,9 @@ async function handleResponse(res) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || JSON.stringify(err) || res.statusText);
   }
+
+  if (res.status === 204) return null;
+
   return res.json();
 }
 
@@ -93,6 +98,9 @@ export async function deleteProperty(id, csrfToken = '') {
     method: 'DELETE',
     headers: authHeaders(csrfToken),
   });
+
+
+
   await handleResponse(res);
   return { success: true };
 }
