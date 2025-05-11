@@ -13,20 +13,22 @@ const ConfirmDialog = ({ message, onConfirm, onCancel }) => {
       onClick={handleBackdropClick}
     >
       <div
-        className="bg-white rounded p-6 shadow max-w-sm w-full"
+        className="bg-[#F9F9F9] border-2 border-[#0A2647] rounded-xl p-6 shadow-xl max-w-sm w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-[#0A2647] mb-4">{message}</h2>
+        <h2 className="text-lg font-semibold text-[#0A2647] mb-6 text-center">
+          {message}
+        </h2>
         <div className="flex justify-end gap-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+            className="px-5 py-2 rounded border border-[#0A2647] text-[#0A2647] hover:bg-[#e5e9ef] transition"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+            className="px-5 py-2 rounded border border-red-700 text-white font-semibold bg-red-600 hover:bg-red-700 transition"
           >
             Apagar
           </button>
