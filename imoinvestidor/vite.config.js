@@ -27,6 +27,7 @@ export default ({ mode }) => {
         '@layout': resolve(__dirname, 'src/components/layout'),
         '@routes': resolve(__dirname, 'src/components/routes'),
         '@home': resolve(__dirname, 'src/components/home'),
+        '@properties': resolve(__dirname, 'src/components/properties'),
         '@hooks': resolve(__dirname, 'src/hooks'),
         '@contexts': resolve(__dirname, 'src/contexts'),
         '@constants': resolve(__dirname, 'src/constants'),
