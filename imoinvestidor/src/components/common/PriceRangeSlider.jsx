@@ -2,7 +2,7 @@ import { Range } from 'react-range';
 import PropTypes from 'prop-types';
 import { useState, useCallback, useMemo } from 'react';
 
-const MIN = 100;
+const MIN = 0;
 const MAX = 2000000;
 const STEP = 100;
 
