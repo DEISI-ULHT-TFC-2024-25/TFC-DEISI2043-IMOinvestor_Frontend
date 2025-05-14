@@ -7,6 +7,8 @@ import TextAreaField from "@common/TextAreaField";
 import CheckboxGroup from "@common/CheckboxGroup";
 import PriceRangeSlider from "@common/PriceRangeSlider";
 import { steps } from "@constants/propertySteps";
+import useDistricts from "@hooks/useDistricts";
+import useMunicipalities from "@hooks/useMunicipalities";
 
 const extraInfos = [
   "varanda",
@@ -23,8 +25,8 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({});
   const [priceRange, setPriceRange] = useState([100, 2000000]);
-  const [districts, setDistricts] = useState([]);
-  const [municipalities, setMunicipalities] = useState([]);
+  const { districts } = useDistricts();
+  const { municipalities, loadByDistrict } = useMunicipalities();
   const [isDesktop, setIsDesktop] = useState(false);
   const [formError, setFormError] = useState(null);
 
@@ -33,18 +35,6 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     checkIfDesktop();
     window.addEventListener("resize", checkIfDesktop);
     return () => window.removeEventListener("resize", checkIfDesktop);
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("/api/district/");
-        const data = await res.json();
-        setDistricts(data.sort((a, b) => a.name.localeCompare(b.name)));
-      } catch {
-        setFormError("Erro ao carregar distritos. Tente novamente mais tarde.");
-      }
-    })();
   }, []);
 
   useEffect(() => {
@@ -88,15 +78,7 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     setFormData((f) => ({ ...f, [name]: value }));
 
     if (name === "distrito") {
-      try {
-        const res = await fetch("/api/municipality/municipalityByDistrict/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ district_id: Number(value) }),
-        });
-        const data = await res.json();
-        setMunicipalities(data.sort((a, b) => a.name.localeCompare(b.name)));
-      } catch {}
+      loadByDistrict(value);
     }
   };
 
