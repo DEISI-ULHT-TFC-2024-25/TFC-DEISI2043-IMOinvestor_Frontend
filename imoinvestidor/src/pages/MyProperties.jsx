@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUser } from "@services/authService";
 import { getPropertiesByOrganization } from "@services/propertyService";
-import { fetchOrganizations } from "@services/organizationService";
+import { getOrganizationById } from "@services/organizationService";
 import useDeleteProperty from "@hooks/useDeleteProperty";
 import useDistricts from "@hooks/useDistricts";
 import useMunicipalities from "@hooks/useMunicipalities";
@@ -44,11 +44,8 @@ export default function MyProperties() {
       .catch(setError)
       .finally(() => setLoading(false));
 
-    fetchOrganizations()
-      .then((orgs) => {
-        const matched = orgs.find((org) => org.id === orgId);
-        if (matched) setOrgName(matched.name);
-      })
+    getOrganizationById(orgId)
+      .then((org) => setOrgName(org.name))
       .catch(() => setOrgName("Organização"));
   }, [orgId]);
 
