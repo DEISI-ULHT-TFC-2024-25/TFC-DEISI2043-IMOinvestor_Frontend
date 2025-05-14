@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import PropertyForm from "@components/PropertyForm";
+import PropertyForm from "@properties/PropertyForm";
 import useCreateProperty from "@hooks/useCreateProperty";
 import useAuth from "@hooks/useAuth";
 

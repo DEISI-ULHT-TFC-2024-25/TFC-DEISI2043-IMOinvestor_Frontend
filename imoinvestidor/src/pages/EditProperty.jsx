@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import PropertyForm from "@components/PropertyForm";
+import PropertyForm from "@properties/PropertyForm";
 import useUpdateProperty from "@hooks/useUpdateProperty";
 import { getPropertyById } from "@services/propertyService";
 import useAuth from "@hooks/useAuth";
