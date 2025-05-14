@@ -20,3 +20,21 @@ export const fetchOrganizations = async () => {
     }
 };
   
+export const getOrganizationById = async (id) => {
+  try {
+    const response = await fetch(`/api/organization/${id}/`, {
+      headers: { Accept: "application/json" },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Erro ao obter organização.");
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Erro:", err);
+    throw err;
+  }
+};
