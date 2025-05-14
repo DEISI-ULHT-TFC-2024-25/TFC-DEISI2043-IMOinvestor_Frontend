@@ -62,6 +62,12 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     }
   }, [initialData]);
 
+  useEffect(() => {
+  if (!initialData.district) {
+    loadByDistrict(null);
+  }
+}, []);
+
   const nextStep = (e) => {
     e.preventDefault();
     setFormError(null);
@@ -75,10 +81,19 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-    setFormData((f) => ({ ...f, [name]: value }));
 
     if (name === "distrito") {
-      loadByDistrict(value);
+      const currentMunicipio = formData.municipio;
+      setFormData((f) => ({ ...f, [name]: value }));
+
+      const municipios = await loadByDistrict(value);
+      const stillValid = municipios.some((m) => String(m.id) === String(currentMunicipio));
+
+      if (!stillValid) {
+        setFormData((f) => (f.municipio ? { ...f, municipio: "" } : f));
+      }
+    } else {
+      setFormData((f) => ({ ...f, [name]: value }));
     }
   };
 
