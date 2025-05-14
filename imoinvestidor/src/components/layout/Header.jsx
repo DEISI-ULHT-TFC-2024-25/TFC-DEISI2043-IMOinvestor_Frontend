@@ -8,10 +8,12 @@ import UserDropdown from "@layout/UserDropdown";
 
 export default function Header() {
   const { isLoggedIn } = useAuth();
-  const { hasAnyRole } = useRole();
+  const { hasAnyRole, hasRole } = useRole();
 
   const showCreateButton = isLoggedIn ? hasAnyRole(["AGENT", "PROMOTOR"]) : true;
   const createButtonLink = isLoggedIn ? "/create-add" : "/login";
+
+  const isAdmin = hasRole("SYS_ADMIN");
 
   return (
     <nav className="bg-[#0A2647] text-white px-6 shadow-md">
@@ -37,6 +39,21 @@ export default function Header() {
           <Link to="/favorites" className="hover:text-[#CFAF5E]">
             <Heart size={24} />
           </Link>
+
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Link to="/health">
+                <button className="px-3 py-1 border border-green-400 text-green-400 rounded-md text-sm hover:bg-green-100 transition">
+                  Health
+                </button>
+              </Link>
+              <Link to="/all-properties">
+                <button className="px-3 py-1 border border-blue-400 text-blue-400 rounded-md text-sm hover:bg-blue-100 transition">
+                  Todas as Propriedades
+                </button>
+              </Link>
+            </div>
+          )}
 
           {isLoggedIn ? (
             <UserDropdown />
