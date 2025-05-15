@@ -8,9 +8,9 @@ export default function AccountInfo({ formData, onSave }) {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-[#0A2647] mb-4">Informações Pessoais</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+      <h2 className="text-2xl sm:text-3xl font-semibold text-[#0A2647] mb-10">Informações Pessoais</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
         <EditableField
           label="Primeiro Nome"
           name="first_name"
@@ -36,13 +36,16 @@ export default function AccountInfo({ formData, onSave }) {
           onSave={onSave}
         />
 
-        <div className="space-y-1 w-full">
-          <p className="text-sm text-gray-500">Idioma</p>
+        <div className="md:col-span-2 md:w-1/2">
+          <label htmlFor="lang_key" className="block text-sm font-semibold text-[#0A2647] mb-2">
+            Idioma
+          </label>
           <select
             name="lang_key"
+            id="lang_key"
             value={formData.lang_key}
             onChange={handleLangChange}
-            className="border border-gray-300 rounded px-3 py-2 bg-white w-full"
+            className="border border-gray-300 rounded w-full p-3 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#CFAF5E]"
           >
             <option value="PT">Português</option>
             <option value="EN">Inglês</option>

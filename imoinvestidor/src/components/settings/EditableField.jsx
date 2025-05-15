@@ -24,7 +24,7 @@ export default function EditableField({ label, name, value, onSave }) {
 
   return (
     <div className="space-y-1 w-full">
-      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-sm font-semibold text-[#0A2647]">{label}</p>
       {editing ? (
         <div className="flex items-center gap-2">
           <input
@@ -32,7 +32,7 @@ export default function EditableField({ label, name, value, onSave }) {
             name={name}
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}
-            className="border border-gray-300 rounded px-3 py-2 bg-white w-full"
+            className="border border-[#0A2647] rounded px-3 py-2 bg-white w-full focus:outline-none focus:ring-2 focus:ring-[#CFAF5E] focus:border-[#CFAF5E]"
             autoFocus
           />
           <button
