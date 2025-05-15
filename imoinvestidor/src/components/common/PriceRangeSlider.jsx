@@ -8,11 +8,10 @@ const STEP = 100;
 
 export default function PriceRangeSlider({ priceRange, setPriceRange }) {
   const [activeThumb, setActiveThumb] = useState(null);
+  const [inputValues, setInputValues] = useState(priceRange);
 
-  // Memoize format function to prevent unnecessary re-renders
   const formatPrice = useCallback((value) => `${value.toLocaleString()} €`, []);
 
-  // Calculate percentages once per render
   const leftPercent = useMemo(() => 
     ((priceRange[0] - MIN) / (MAX - MIN)) * 100, 
     [priceRange]
@@ -25,6 +24,7 @@ export default function PriceRangeSlider({ priceRange, setPriceRange }) {
 
   const handlePriceChange = useCallback((values) => {
     setPriceRange(values);
+    setInputValues(values);
   }, [setPriceRange]);
 
   const handleFinalChange = useCallback(() => {
@@ -36,17 +36,37 @@ export default function PriceRangeSlider({ priceRange, setPriceRange }) {
   }, []);
 
   const handleMinInputChange = useCallback((e) => {
-    const val = Math.max(MIN, Math.min(Number(e.target.value), priceRange[1]));
-    setPriceRange([val, priceRange[1]]);
-  }, [priceRange, setPriceRange]);
+    const newValue = e.target.value === '' ? '' : Number(e.target.value);
+    setInputValues([newValue, inputValues[1]]);
+  }, [inputValues]);
 
   const handleMaxInputChange = useCallback((e) => {
-    const val = Math.min(MAX, Math.max(Number(e.target.value), priceRange[0]));
-    setPriceRange([priceRange[0], val]);
-  }, [priceRange, setPriceRange]);
+    const newValue = e.target.value === '' ? '' : Number(e.target.value);
+    setInputValues([inputValues[0], newValue]);
+  }, [inputValues]);
+
+  const applyMinInput = useCallback(() => {
+    const validValue = Math.max(MIN, Math.min(Number(inputValues[0]) || 0, inputValues[1]));
+
+    setInputValues([validValue, inputValues[1]]);
+    setPriceRange([validValue, priceRange[1]]);
+  }, [inputValues, priceRange, setPriceRange]);
+
+  const applyMaxInput = useCallback(() => {
+    const validValue = Math.min(MAX, Math.max(Number(inputValues[1]) || 0, inputValues[0]));
+
+    setInputValues([inputValues[0], validValue]);
+    setPriceRange([priceRange[0], validValue]);
+  }, [inputValues, priceRange, setPriceRange]);
+
+  const handleInputKeyDown = useCallback((e, isMin) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      isMin ? applyMinInput() : applyMaxInput();
+    }
+  }, [applyMinInput, applyMaxInput]);
 
   const renderTrack = useCallback(({ props, children }) => {
-    // eslint-disable-next-line react/prop-types
     const { key, ref, style, ...restProps } = props;
     return (
       <div
@@ -71,7 +91,6 @@ export default function PriceRangeSlider({ priceRange, setPriceRange }) {
   }, [leftPercent, widthPercent]);
 
   const renderThumb = useCallback(({ props, index }) => {
-    // eslint-disable-next-line react/prop-types
     const { key, ref, style, ...restProps } = props;
     return (
       <div
@@ -113,11 +132,10 @@ export default function PriceRangeSlider({ priceRange, setPriceRange }) {
           <input
             id="min-price"
             type="number"
-            value={priceRange[0]}
-            min={MIN}
-            max={priceRange[1]}
-            step={STEP}
+            value={inputValues[0]}
             onChange={handleMinInputChange}
+            onBlur={applyMinInput}
+            onKeyDown={(e) => handleInputKeyDown(e, true)}
             className="w-full p-3 rounded border border-gray-300 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#CFAF5E]"
           />
         </div>
@@ -129,11 +147,10 @@ export default function PriceRangeSlider({ priceRange, setPriceRange }) {
           <input
             id="max-price"
             type="number"
-            value={priceRange[1]}
-            min={priceRange[0]}
-            max={MAX}
-            step={STEP}
+            value={inputValues[1]}
             onChange={handleMaxInputChange}
+            onBlur={applyMaxInput}
+            onKeyDown={(e) => handleInputKeyDown(e, false)}
             className="w-full p-3 rounded border border-gray-300 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#CFAF5E]"
           />
         </div>
