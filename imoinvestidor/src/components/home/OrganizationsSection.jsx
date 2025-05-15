@@ -1,4 +1,4 @@
-import SliderWrapper from '@components/SliderWrapper';
+import SliderWrapper from '@common/SliderWrapper';
 
 export const OrganizationsSection = () => {
   const items = [
