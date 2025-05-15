@@ -33,6 +33,7 @@ export default ({ mode }) => {
         '@contexts': resolve(__dirname, 'src/contexts'),
         '@constants': resolve(__dirname, 'src/constants'),
         '@services': resolve(__dirname, 'src/services'),
+        '@utils': resolve(__dirname, 'src/utils'),
       },
     },
     server: {

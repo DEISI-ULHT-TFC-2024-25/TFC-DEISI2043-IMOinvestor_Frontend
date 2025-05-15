@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
-export default function useMunicipalities() {
+export default function useMunicipalities(initialDistrictId = null) {
   const [municipalities, setMunicipalities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const loadByDistrict = async (districtId) => {
+  const loadByDistrict = useCallback(async (districtId = null) => {
     try {
       setLoading(true);
       setError(null);
@@ -40,7 +40,11 @@ export default function useMunicipalities() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadByDistrict(initialDistrictId);
+  }, [initialDistrictId, loadByDistrict]);
 
   return { municipalities, loadByDistrict, loading, error };
 }

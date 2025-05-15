@@ -14,9 +14,9 @@ export const steps = [
   {
     title: "Localização",
     fields: [
-      { label: 'Código Postal', name: 'codigoPostal', type: 'input' },
       { label: 'Distrito', name: 'distrito', type: 'dynamic-select', dynamicOptionsKey: 'districts' },
       { label: 'Município', name: 'municipio', type: 'dynamic-select', dynamicOptionsKey: 'municipalities' },
+      { label: 'Código Postal', name: 'codigoPostal', type: 'input' },
       { label: 'Rua', name: 'rua', type: 'input' },
       { label: 'Nova Construção?', name: 'novaConstrucao', type: 'select', options: ['Sim', 'Não'] },
       { label: 'Certificado Energético', name: 'certificado', type: 'select', options: ['A+', 'A', 'B', 'B-', 'C', 'D', 'E', 'F'] },

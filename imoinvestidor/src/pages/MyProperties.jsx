@@ -5,6 +5,7 @@ import { getOrganizationById } from "@services/organizationService";
 import useDeleteProperty from "@hooks/useDeleteProperty";
 import useDistricts from "@hooks/useDistricts";
 import useMunicipalities from "@hooks/useMunicipalities";
+import { handleDistrictChange } from "@utils/locationUtils";
 
 import PropertiesSearchBar from "@properties/PropertiesSearchBar";
 import PropertiesList from "@properties/PropertiesList";
@@ -20,14 +21,13 @@ export default function MyProperties() {
 
   const { removeProperty } = useDeleteProperty();
   const { districts } = useDistricts();
-  const { municipalities, loadByDistrict } = useMunicipalities();
-
   const [propriedades, setPropriedades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedMunicipality, setSelectedMunicipality] = useState("");
+  const { municipalities, loadByDistrict } = useMunicipalities(selectedDistrict);
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedToDelete, setSelectedToDelete] = useState(null);
   const [orgName, setOrgName] = useState("Organização");
@@ -48,12 +48,6 @@ export default function MyProperties() {
       .then((org) => setOrgName(org.name))
       .catch(() => setOrgName("Organização"));
   }, [orgId]);
-
-  useEffect(() => {
-    if (selectedDistrict) {
-      loadByDistrict(selectedDistrict);
-    }
-  }, [selectedDistrict]);
 
   const handleConfirmDelete = async () => {
     const success = await removeProperty(selectedToDelete.id);
@@ -96,10 +90,15 @@ export default function MyProperties() {
 
         <SelectField
           name="distrito"
-          value={selectedDistrict}
-          onChange={(e) => {
-            setSelectedDistrict(e.target.value);
-            setSelectedMunicipality("");
+          value={String(selectedDistrict)}
+          onChange={async (e) => {
+            await handleDistrictChange({
+              newDistrict: String(e.target.value),
+              currentMunicipality: selectedMunicipality,
+              loadByDistrict,
+              setDistrict: setSelectedDistrict,
+              setMunicipality: setSelectedMunicipality,
+            });
           }}
           options={districts.map((d) => ({ label: d.name, value: String(d.id) }))}
           placeholder="Distrito"
@@ -107,9 +106,12 @@ export default function MyProperties() {
 
         <SelectField
           name="municipio"
-          value={selectedMunicipality}
-          onChange={(e) => setSelectedMunicipality(e.target.value)}
-          options={municipalities.map((m) => ({ label: m.name, value: String(m.id) }))}
+          value={String(selectedMunicipality)}
+          onChange={(e) => setSelectedMunicipality(String(e.target.value))}
+          options={municipalities.map((m) => ({
+            label: m.name,
+            value: String(m.id),
+          }))}
           placeholder="Município"
         />
       </div>

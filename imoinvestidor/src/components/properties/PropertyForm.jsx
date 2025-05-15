@@ -9,6 +9,7 @@ import PriceRangeSlider from "@common/PriceRangeSlider";
 import { steps } from "@constants/propertySteps";
 import useDistricts from "@hooks/useDistricts";
 import useMunicipalities from "@hooks/useMunicipalities";
+import { handleDistrictChange } from "@utils/locationUtils";
 
 const extraInfos = [
   "varanda",
@@ -62,12 +63,6 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     }
   }, [initialData]);
 
-  useEffect(() => {
-  if (!initialData.district) {
-    loadByDistrict(null);
-  }
-}, []);
-
   const nextStep = (e) => {
     e.preventDefault();
     setFormError(null);
@@ -83,17 +78,17 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     const { name, value } = e.target;
 
     if (name === "distrito") {
-      const currentMunicipio = formData.municipio;
-      setFormData((f) => ({ ...f, [name]: value }));
-
-      const municipios = await loadByDistrict(value);
-      const stillValid = municipios.some((m) => String(m.id) === String(currentMunicipio));
-
-      if (!stillValid) {
-        setFormData((f) => (f.municipio ? { ...f, municipio: "" } : f));
-      }
+      await handleDistrictChange({
+        newDistrict: String(value),
+        currentMunicipality: formData.municipio,
+        loadByDistrict,
+        setDistrict: (val) =>
+          setFormData((f) => ({ ...f, distrito: String(val) })),
+        setMunicipality: (val) =>
+          setFormData((f) => ({ ...f, municipio: String(val) })),
+      });
     } else {
-      setFormData((f) => ({ ...f, [name]: value }));
+      setFormData((f) => ({ ...f, [name]: String(value) }));
     }
   };
 
@@ -185,11 +180,10 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
                   : municipalities.map((m) => ({ label: m.name, value: m.id }));
               return (
                 <SelectField
-                  key={i}
                   label={f.label}
                   name={f.name}
                   options={opts}
-                  value={val}
+                  value={String(val)}
                   onChange={handleInputChange}
                 />
               );
