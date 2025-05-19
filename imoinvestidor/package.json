@@ -29,6 +29,7 @@
   "devDependencies": {
     "@eslint/css": "^0.7.0",
     "@eslint/js": "^9.26.0",
+    "@rollup/wasm-node": "^4.41.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
@@ -45,5 +46,8 @@
     "prettier": "^3.4.2",
     "tailwindcss": "^4.1.5",
     "vite": "^6.3.5"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.41.0"
   }
 }
