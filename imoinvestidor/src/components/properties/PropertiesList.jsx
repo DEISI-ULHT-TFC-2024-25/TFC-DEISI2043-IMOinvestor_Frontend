@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Trash2 } from "lucide-react";
-import { PropertyCard } from "@common/PropertyCard";
+import { PropertyCard } from "@properties/PropertyCard";
 
 export default function PropertiesList({ properties, onDelete }) {
   return (

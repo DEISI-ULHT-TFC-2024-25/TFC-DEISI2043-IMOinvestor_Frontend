@@ -1,4 +1,3 @@
-// src/pages/AllProperties.jsx
 import { useEffect, useState } from "react";
 import { getProperties } from "@services/propertyService";
 import useDeleteProperty from "@hooks/useDeleteProperty";
