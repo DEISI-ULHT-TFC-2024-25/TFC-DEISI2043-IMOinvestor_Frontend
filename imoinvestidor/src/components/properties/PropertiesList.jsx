@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { PropertyCard } from "@properties/PropertyCard";
 
-export default function PropertiesList({ properties, onDelete, showView, showEdit }) {
+export default function PropertiesList({ properties, onDelete, onView, showView, showEdit }) {
   const navigate = useNavigate();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-8">
@@ -17,7 +17,7 @@ export default function PropertiesList({ properties, onDelete, showView, showEdi
           price={`${property.preco_minimo?.toLocaleString()} € – ${property.preco_maximo?.toLocaleString()} €`}
           street={property.street}
           district={String(property.district)}
-          onView={() => navigate(`/edit-property/${property.id}`)}
+          onView={() => onView && onView(property)}
           onEdit={() => navigate(`/edit-property/${property.id}`)}
           actions={
             onDelete && (
@@ -41,6 +41,7 @@ export default function PropertiesList({ properties, onDelete, showView, showEdi
 PropertiesList.propTypes = {
   properties: PropTypes.array.isRequired,
   onDelete: PropTypes.func,
+  onView: PropTypes.func,
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
 };

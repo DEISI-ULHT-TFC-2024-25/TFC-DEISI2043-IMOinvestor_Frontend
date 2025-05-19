@@ -10,6 +10,7 @@ import PropertiesList from "@properties/PropertiesList";
 import PropertiesEmptyState from "@properties/PropertiesEmptyState";
 import ConfirmDialog from "@common/ConfirmDialog";
 import SelectField from "@common/SelectField";
+import PropertyDetails from "@properties/PropertyDetails";
 
 export default function PropertiesManager({
   fetchProperties,
@@ -17,8 +18,6 @@ export default function PropertiesManager({
   showView = true,
   showEdit = true,
   showDelete = true,
-  onView,
-  onEdit,
   emptyStateMessage = "Nenhuma propriedade encontrada.",
 }) {
   const navigate = useNavigate();
@@ -34,6 +33,7 @@ export default function PropertiesManager({
   const { municipalities, loadByDistrict } = useMunicipalities(selectedDistrict);
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedToDelete, setSelectedToDelete] = useState(null);
+  const [selectedToView, setSelectedToView] = useState(null);
 
   useEffect(() => {
     fetchProperties()
@@ -91,7 +91,7 @@ export default function PropertiesManager({
               currentMunicipality: selectedMunicipality,
               loadByDistrict,
               setDistrict: setSelectedDistrict,
-              setMunicipality: setSelectedMunicipality,
+              setMunicipality: setSelectedToView => setSelectedMunicipality(String(e.target.value))
             });
           }}
           options={districts.map(d => ({ label: d.name, value: String(d.id) }))}
@@ -124,12 +124,29 @@ export default function PropertiesManager({
       {filtered.length === 0 ? (
         <PropertiesEmptyState message={emptyStateMessage} />
       ) : (
-        <PropertiesList
-          properties={filtered}
-          onDelete={showDelete ? setSelectedToDelete : undefined}
-          showView={showView}
-          showEdit={showEdit}
-        />
+        <>
+          <PropertiesList
+            properties={filtered}
+            onDelete={showDelete ? setSelectedToDelete : undefined}
+            onView={showView ? setSelectedToView : undefined}
+            showView={showView}
+            showEdit={showEdit}
+          />
+
+          <PropertyDetails
+            property={
+              selectedToView
+                ? {
+                    ...selectedToView,
+                    districtName: districts.find(d => String(d.id) === String(selectedToView.district))?.name,
+                    municipalityName: municipalities.find(m => String(m.id) === String(selectedToView.municipality))?.name,
+                  }
+                : null
+            }
+            isOpen={!!selectedToView}
+            onClose={() => setSelectedToView(null)}
+          />
+        </>
       )}
     </section>
   );
@@ -141,7 +158,5 @@ PropertiesManager.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
-  onView: PropTypes.func,
-  onEdit: PropTypes.func,
   emptyStateMessage: PropTypes.string,
 };
