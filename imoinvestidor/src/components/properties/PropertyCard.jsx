@@ -8,7 +8,8 @@ export const PropertyCard = ({
   areaUtil,
   price,
   roi,
-  onClick,
+  onView,
+  onEdit,
   hidePrice,
   className = '',
   imageClassName = 'h-40',
@@ -17,6 +18,8 @@ export const PropertyCard = ({
   actions = null,
   street,
   district,
+  showView = true,
+  showEdit = true,
 }) => (
   <div className={`bg-white rounded shadow p-4 flex flex-col justify-between w-full h-full relative ${className}`}>
     {actions && (
@@ -56,23 +59,29 @@ export const PropertyCard = ({
       </div>
     </div>
 
-    <div className="flex justify-between items-center mt-4">
-      <div className="flex items-baseline gap-3">
-        <span className="font-bold text-[#CFAF5E]">
-          {hidePrice ? 'Inicie sessão para ver o preço' : price}
-        </span>
-        {roi && !hidePrice && (
-          <span className="text-sm text-green-600 font-medium">
-            {roi}% ROI
-          </span>
-        )}
+    {!hidePrice && price && (
+      <div className="absolute bottom-4 left-4 text-[#CFAF5E] font-bold">
+        {price}
       </div>
-      <button
-        className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer"
-        onClick={onClick}
-      >
-        Ver
-      </button>
+    )}
+
+    <div className="flex justify-end items-center mt-4 gap-2">
+      {showEdit && (
+        <button
+          onClick={onEdit}
+          className="bg-white border border-[#CFAF5E] text-[#0A2647] px-3 py-1 rounded shadow"
+        >
+          Editar
+        </button>
+      )}
+      {showView && (
+        <button
+          className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer"
+          onClick={onView}
+        >
+          Ver
+        </button>
+      )}
     </div>
   </div>
 );
@@ -84,7 +93,8 @@ PropertyCard.propTypes = {
   areaUtil: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   price: PropTypes.string,
   roi: PropTypes.string,
-  onClick: PropTypes.func.isRequired,
+  onView: PropTypes.func,
+  onEdit: PropTypes.func,
   hidePrice: PropTypes.bool,
   className: PropTypes.string,
   imageClassName: PropTypes.string,
@@ -93,4 +103,6 @@ PropertyCard.propTypes = {
   actions: PropTypes.node,
   street: PropTypes.string,
   district: PropTypes.string,
+  showView: PropTypes.bool,
+  showEdit: PropTypes.bool,
 };

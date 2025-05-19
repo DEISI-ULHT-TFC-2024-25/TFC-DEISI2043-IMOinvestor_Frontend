@@ -1,11 +1,13 @@
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { PropertyCard } from "@properties/PropertyCard";
 
-export default function PropertiesList({ properties, onDelete }) {
+export default function PropertiesList({ properties, onDelete, showView, showEdit }) {
+  const navigate = useNavigate();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-8">
-      {properties.map((property) => (
+      {properties.map(property => (
         <PropertyCard
           key={property.id}
           title={property.name}
@@ -15,19 +17,21 @@ export default function PropertiesList({ properties, onDelete }) {
           price={`${property.preco_minimo?.toLocaleString()} € – ${property.preco_maximo?.toLocaleString()} €`}
           street={property.street}
           district={String(property.district)}
-          onClick={() => location.href = `/edit-property/${property.id}`}
+          onView={() => navigate(`/edit-property/${property.id}`)}
+          onEdit={() => navigate(`/edit-property/${property.id}`)}
           actions={
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(property);
-              }}
-              className="text-red-500 hover:text-red-700 transition"
-              title="Apagar"
-            >
-              <Trash2 size={20} />
-            </button>
+            onDelete && (
+              <button
+                onClick={e => { e.stopPropagation(); onDelete(property); }}
+                className="text-red-500 hover:text-red-700 transition"
+                title="Apagar"
+              >
+                <Trash2 size={20} />
+              </button>
+            )
           }
+          showView={showView}
+          showEdit={showEdit}
         />
       ))}
     </div>
@@ -36,5 +40,7 @@ export default function PropertiesList({ properties, onDelete }) {
 
 PropertiesList.propTypes = {
   properties: PropTypes.array.isRequired,
-  onDelete: PropTypes.func.isRequired,
+  onDelete: PropTypes.func,
+  showView: PropTypes.bool,
+  showEdit: PropTypes.bool,
 };
