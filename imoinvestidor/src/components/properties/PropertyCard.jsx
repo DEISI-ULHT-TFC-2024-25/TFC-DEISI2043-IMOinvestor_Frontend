@@ -21,9 +21,11 @@ export const PropertyCard = ({
   showView = true,
   showEdit = true,
 }) => (
-  <div className={`bg-white rounded shadow p-4 flex flex-col justify-between w-full h-full relative ${className}`}>
+  <div
+    className={`bg-white rounded shadow p-4 flex flex-col justify-between w-full h-full relative ${className}`}
+  >
     {actions && (
-      <div className="absolute top-2 right-2 flex gap-2 z-10">
+      <div className="absolute top-2 right-2 z-10">
         {actions}
       </div>
     )}
@@ -34,7 +36,11 @@ export const PropertyCard = ({
       <div className="flex justify-between items-start">
         <h4 className="font-semibold text-[#0A2647]">{title}</h4>
         {onToggleFavorite && (
-          <button onClick={onToggleFavorite} title="Favorito" className="text-[#CFAF5E]">
+          <button
+            onClick={onToggleFavorite}
+            title="Favorito"
+            className="text-[#CFAF5E] cursor-pointer"
+          >
             {isFavorited ? <Heart fill="#CFAF5E" size={20} /> : <HeartOff size={20} />}
           </button>
         )}
@@ -69,15 +75,15 @@ export const PropertyCard = ({
       {showEdit && (
         <button
           onClick={onEdit}
-          className="bg-white border border-[#CFAF5E] text-[#0A2647] px-3 py-1 rounded shadow"
+          className="bg-white border border-[#CFAF5E] text-[#0A2647] px-3 py-1 rounded shadow cursor-pointer"
         >
           Editar
         </button>
       )}
       {showView && (
         <button
-          className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer"
           onClick={onView}
+          className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer"
         >
           Ver
         </button>

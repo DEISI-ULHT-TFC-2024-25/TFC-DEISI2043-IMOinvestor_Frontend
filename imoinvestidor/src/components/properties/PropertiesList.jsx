@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { PropertyCard } from "@properties/PropertyCard";
+import DeleteButton from "@common/DeleteButton";
 
 export default function PropertiesList({ properties, onDelete, onView, showView, showEdit }) {
   const navigate = useNavigate();
@@ -21,13 +22,11 @@ export default function PropertiesList({ properties, onDelete, onView, showView,
           onEdit={() => navigate(`/edit-property/${property.id}`)}
           actions={
             onDelete && (
-              <button
+              <DeleteButton
                 onClick={e => { e.stopPropagation(); onDelete(property); }}
-                className="text-red-500 hover:text-red-700 transition"
-                title="Apagar"
-              >
-                <Trash2 size={20} />
-              </button>
+                title="Apagar imóvel"
+                size={22}
+              />            
             )
           }
           showView={showView}
