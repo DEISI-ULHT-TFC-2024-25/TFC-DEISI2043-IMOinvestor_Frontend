@@ -64,7 +64,7 @@ export async function getPropertyById(id) {
 }
 
 export async function createProperty(data, csrfToken = '') {
-  const res = await fetch(`${API_BASE}/property/create/`, {
+  const res = await fetch(`${API_BASE}/property/`, {
     method: 'POST',
     headers: authHeaders(csrfToken),
     body: JSON.stringify(data),
@@ -74,7 +74,7 @@ export async function createProperty(data, csrfToken = '') {
 }
 
 export async function updateProperty(id, data, csrfToken = '') {
-  const res = await fetch(`${API_BASE}/property/${id}/update/`, {
+  const res = await fetch(`${API_BASE}/property/${id}`, {
     method: 'PUT',
     headers: authHeaders(csrfToken),
     body: JSON.stringify(data),
@@ -84,7 +84,7 @@ export async function updateProperty(id, data, csrfToken = '') {
 }
 
 export async function partialUpdateProperty(id, data, csrfToken = '') {
-  const res = await fetch(`${API_BASE}/property/${id}/update/`, {
+  const res = await fetch(`${API_BASE}/property/${id}`, {
     method: 'PATCH',
     headers: authHeaders(csrfToken),
     body: JSON.stringify(data),
@@ -94,7 +94,7 @@ export async function partialUpdateProperty(id, data, csrfToken = '') {
 }
 
 export async function deleteProperty(id, csrfToken = '') {
-  const res = await fetch(`${API_BASE}/property/${id}/delete/`, {
+  const res = await fetch(`${API_BASE}/property/${id}`, {
     method: 'DELETE',
     headers: authHeaders(csrfToken),
   });

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUser, updateUser } from "@services/authService";
-import { updateUserProfile } from "@services/userService";
+import { getUser, updateUser, updateProfile  } from "@services/authService";
 import { getOrganizationById } from "@services/organizationService";
 import useAuth from "@hooks/useAuth";
 
@@ -67,7 +66,7 @@ export default function UserSettingsPage() {
     const updatedData = { ...formData, [field]: value };
     setFormData(updatedData);
 
-    updateUserProfile(updatedData)
+    updateProfile(updatedData)
       .then(() => {
         const updated = updateUser(updatedData);
         setUser?.(updated);

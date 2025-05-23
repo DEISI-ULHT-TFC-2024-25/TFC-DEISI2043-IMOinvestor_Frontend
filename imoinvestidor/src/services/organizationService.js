@@ -1,6 +1,6 @@
 export const fetchOrganizations = async () => {
     try {
-      const response = await fetch("/api/organization/list/", {
+      const response = await fetch("/api/organization/", {
         method: "GET",
         headers: {
           "Accept": "application/json"
