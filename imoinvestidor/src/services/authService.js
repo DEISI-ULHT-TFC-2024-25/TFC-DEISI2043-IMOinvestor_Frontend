@@ -1,24 +1,10 @@
-const API_BASE = import.meta.env.DEV
-  ? '/api'
-  : import.meta.env.VITE_API_URL.replace(/\/$/, '');
-
-function authHeaders() {
-  const token = localStorage.getItem('authToken');
-  return {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
-}
+import { api } from './apiClient';
 
 export async function login({ user_name, password }) {
-  const res = await fetch(`${API_BASE}/user/login/`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify({ user_name, password }),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || 'Erro ao fazer login.');
+  const { data, status } = await api.post('/user/login/', { user_name, password });
+  if (status !== 200) {
+    throw new Error(data.detail || 'Erro ao fazer login.');
+  }
 
   const userData = {
     id:               data.user_id,
@@ -61,67 +47,37 @@ export async function register(userData) {
     created_by:    userData.email,
   };
 
-  const res = await fetch(`${API_BASE}/user/create/`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(payload),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Erro ao registar utilizador.');
+  const { data, status } = await api.post('/user/', payload);
+  if (status !== 201 && status !== 200) {
+    throw new Error(data.message || 'Erro ao registar utilizador.');
+  }
   return data;
 }
 
-export async function deleteUser(id) {
-  const API_BASE = import.meta.env.DEV
-    ? '/api'
-    : import.meta.env.VITE_API_URL.replace(/\/$/, '');
-
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`${API_BASE}/user/${id}/delete/`, {
-    method: 'DELETE',
-    headers: {
-      'Accept': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  });
-
-  if (res.status === 204) {
-    const current = JSON.parse(localStorage.getItem('user') || '{}');
-    if (current.id === id) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-    }
-    return true;
-  } else {
-    let err;
-    try {
-      const data = await res.json();
-      err = data.detail || data.message || res.statusText;
-    } catch {
-      err = res.statusText;
-    }
-    throw new Error(`Não foi possível eliminar o utilizador: ${err}`);
-  }
-}
 
 export async function updateProfile(updates) {
   const stored = localStorage.getItem('user');
   if (!stored) throw new Error('Utilizador não autenticado.');
 
   const { id } = JSON.parse(stored);
-  const res = await fetch(`${API_BASE}/user/update/`, {
-    method: 'PUT',
-    headers: authHeaders(),
-    body: JSON.stringify(updates),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.message || 'Erro ao atualizar utilizador.');
+  const { data, status } = await api.put(`/user/${id}/`, updates);
+  if (status !== 200) {
+    throw new Error(data.message || 'Erro ao atualizar utilizador.');
+  }
 
   const newUser = { ...JSON.parse(stored), ...data };
   localStorage.setItem('user', JSON.stringify(newUser));
-
   return newUser;
+}
+
+export async function deleteUser(id) {
+  const response = await api.delete(`/user/${id}/delete/`);
+  if (response.status === 204) {
+    const current = JSON.parse(localStorage.getItem('user') || '{}');
+    if (current.id === id) logout();
+    return true;
+  }
+  throw new Error('Não foi possível eliminar o utilizador.');
 }
 
 
