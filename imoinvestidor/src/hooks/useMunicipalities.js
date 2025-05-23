@@ -1,50 +1,43 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
+import { loadAllMunicipalities, loadByDistrict } from '@services/municipalityService';
 
 export default function useMunicipalities(initialDistrictId = null) {
   const [municipalities, setMunicipalities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const loadByDistrict = useCallback(async (districtId = null) => {
-    try {
+  const fetch = useCallback(
+    async (districtId = null) => {
       setLoading(true);
       setError(null);
-
-      let endpoint = "";
-      let options = {};
-
-      if (districtId) {
-        endpoint = "/api/municipality/municipalityByDistrict/";
-        options = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ district_id: Number(districtId) }),
-        };
-      } else {
-        endpoint = "/api/municipality/allMunicipalities/";
-        options = { method: "GET" };
+      try {
+        const data = districtId
+          ? await loadByDistrict(districtId)
+          : await loadAllMunicipalities();
+        const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+        setMunicipalities(sorted);
+        return sorted;
+      } catch (err) {
+        console.error(err);
+        setError('Erro ao carregar municípios');
+        setMunicipalities([]);
+        return [];
+      } finally {
+        setLoading(false);
       }
-
-      const res = await fetch(endpoint, options);
-      if (!res.ok) throw new Error("Erro ao carregar municípios");
-
-      const data = await res.json();
-      const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-      setMunicipalities(sorted);
-      return sorted;
-    } catch (err) {
-      console.error("Erro ao carregar municípios:", err);
-      setError("Erro ao carregar municípios");
-      setMunicipalities([]);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
-    loadByDistrict(initialDistrictId);
-  }, [initialDistrictId, loadByDistrict]);
+    fetch(initialDistrictId);
+  }, [initialDistrictId, fetch]);
 
-  return { municipalities, loadByDistrict, loading, error };
+  return {
+    municipalities,
+    loadByDistrict: fetch,
+    setMunicipalities,
+    loading,
+    error,
+  };
 }

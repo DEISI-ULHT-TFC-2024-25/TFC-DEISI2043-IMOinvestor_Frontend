@@ -4,10 +4,14 @@ export async function handleDistrictChange({
   loadByDistrict,
   setDistrict,
   setMunicipality,
+  setMunicipalities,
 }) {
   setDistrict(newDistrict);
 
   const municipios = await loadByDistrict(newDistrict);
+  setMunicipalities(
+    municipios.sort((a, b) => a.name.localeCompare(b.name))
+  );
 
   const isStillValid = municipios.some(
     (m) => String(m.id) === String(currentMunicipality)
@@ -15,5 +19,9 @@ export async function handleDistrictChange({
 
   if (isStillValid) {
     setMunicipality(String(currentMunicipality));
+  } else {
+    setMunicipality('');
   }
+
+  return municipios;
 }

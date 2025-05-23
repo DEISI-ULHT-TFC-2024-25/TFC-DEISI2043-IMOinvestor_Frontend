@@ -1,27 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { fetchDistricts } from '@services/districtService';
 
 export default function useDistricts() {
   const [districts, setDistricts] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
 
   useEffect(() => {
-    const loadDistricts = async () => {
+    (async () => {
+      setLoading(true);
       try {
-        const res = await fetch("/api/district/");
-        if (!res.ok) throw new Error("Erro HTTP");
-
-        const data = await res.json();
-        setDistricts(data.sort((a, b) => a.name.localeCompare(b.name)));
+        const list = await fetchDistricts();
+        setDistricts(list);
       } catch (err) {
-        console.error("Erro ao carregar distritos:", err);
-        setError("Erro ao carregar distritos");
+        console.error(err);
+        setError('Erro ao carregar distritos');
       } finally {
         setLoading(false);
       }
-    };
-
-    loadDistricts();
+    })();
   }, []);
 
   return { districts, loading, error };
