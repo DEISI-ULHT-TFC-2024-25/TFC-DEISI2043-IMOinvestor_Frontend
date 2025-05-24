@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import InputField from "@common/InputField";
 import SelectField from "@common/SelectField";
 import TextAreaField from "@common/TextAreaField";
@@ -10,26 +10,35 @@ import { steps } from "@constants/propertySteps";
 import useDistricts from "@hooks/useDistricts";
 import useMunicipalities from "@hooks/useMunicipalities";
 import { handleDistrictChange } from "@utils/locationUtils";
+import { 
+  createPropertyMedia, 
+  getPropertyMediasByProperty, 
+  updatePropertyMedia, 
+  deletePropertyMedia 
+} from "@services/propertyMediaService";
+import DeleteButton from "@common/DeleteButton";
 
 const extraInfos = [
-  "varanda",
-  "duplex",
-  "piscina",
-  "elevador",
-  "garagem",
-  "terraço",
-  "jardim",
-  "acessibilidade para pessoas com mobilidade reduzida",
+  "varanda","duplex","piscina","elevador",
+  "garagem","terraço","jardim","acessibilidade para pessoas com mobilidade reduzida",
 ];
 
-export default function PropertyForm({ title, initialData = {}, onSubmit, submitLabel }) {
+export default function PropertyForm({
+  title,
+  initialData = {},
+  onSubmit,
+  submitLabel,
+}) {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({});
   const [priceRange, setPriceRange] = useState([0, 2000000]);
   const { districts } = useDistricts();
-  const { municipalities, loadByDistrict } = useMunicipalities();
+  const { municipalities, loadByDistrict, setMunicipalities } = useMunicipalities();
   const [isDesktop, setIsDesktop] = useState(false);
   const [formError, setFormError] = useState(null);
+
+  const MAX_IMAGES = 8;
+  const [images, setImages] = useState(Array(MAX_IMAGES).fill(null));
 
   useEffect(() => {
     const checkIfDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -59,36 +68,44 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
           return acc;
         }, {}),
       });
-      setPriceRange([initialData.preco_minimo, initialData.preco_maximo]);
-    }
-  }, [initialData]);
 
-  const nextStep = (e) => {
-    e.preventDefault();
-    setFormError(null);
-    setStep((s) => Math.min(s + 1, steps.length - 1));
-  };
-  const prevStep = (e) => {
-    e.preventDefault();
-    setFormError(null);
-    setStep((s) => Math.max(s - 1, 0));
-  };
+      getPropertyMediasByProperty(initialData.id).then((mediaList) => {
+        const slots = Array(MAX_IMAGES).fill(null);
+        mediaList.slice(0, MAX_IMAGES).forEach((m, i) => {
+          slots[i] = { id: m.id, file: null, url: m.file };
+        });
+        setImages(slots);
+        setInitialSlots(slots);
+      });
+
+      setPriceRange([initialData.preco_minimo, initialData.preco_maximo]);
+
+      loadByDistrict(initialData.district)
+        .then(setMunicipalities)
+        .catch(console.error);
+    } else {
+      loadByDistrict(null)
+        .then(setMunicipalities)
+        .catch(console.error);
+    }
+  }, [initialData, loadByDistrict, setMunicipalities]);
+
+  const nextStep = (e) => { e.preventDefault(); setFormError(null); setStep(s => Math.min(s+1, steps.length-1)); };
+  const prevStep = (e) => { e.preventDefault(); setFormError(null); setStep(s => Math.max(s-1, 0)); };
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
-
     if (name === "distrito") {
       await handleDistrictChange({
         newDistrict: String(value),
         currentMunicipality: formData.municipio,
         loadByDistrict,
-        setDistrict: (val) =>
-          setFormData((f) => ({ ...f, distrito: String(val) })),
-        setMunicipality: (val) =>
-          setFormData((f) => ({ ...f, municipio: String(val) })),
+        setDistrict: (v) => setFormData(f => ({ ...f, distrito: v })),
+        setMunicipality: (v) => setFormData(f => ({ ...f, municipio: v })),
+        setMunicipalities,
       });
     } else {
-      setFormData((f) => ({ ...f, [name]: String(value) }));
+      setFormData(f => ({ ...f, [name]: String(value) }));
     }
   };
 
@@ -96,9 +113,26 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     setFormData((f) => ({ ...f, [`extra_${info}`]: !f[`extra_${info}`] }));
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFileChange = (i) => (e) => {
+    const file = e.target.files?.[0] || null;
+    setImages((imgs) => {
+      const c = [...imgs];
+      c[i] = file ? { id: null, file, url: null } : null;
+      return c;
+    });
+  };
+
+  const handleRemoveImage = (i) => () => {
+    setImages((imgs) => {
+      const c = [...imgs];
+      c[i] = null;
+      return c;
+    });
+  };
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (isDesktop || step === steps.length - 1) {
+    try {
       const payload = {
         name: formData.nome,
         property_type: formData.tipo,
@@ -115,14 +149,44 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         nova_construcao: formData.novaConstrucao,
         certificado_energetico: formData.certificado,
         descricao: formData.descricao,
-        imagens: [],
         informacoes_adicionais: Object.keys(formData)
           .filter((k) => k.startsWith("extra_") && formData[k])
           .map((k) => k.replace("extra_", "")),
       };
-      onSubmit(payload);
-    } else {
-      nextStep(e);
+
+      const property = await onSubmit(payload);
+
+      await Promise.all(
+        images.map(async (slot, idx) => {
+          const init = initialSlots[idx];
+
+          if (!slot && init && init.id) {
+            await deletePropertyMedia(init.id);
+            return;
+          }
+
+          if (slot && slot.file) {
+            if (slot.id) {
+              await updatePropertyMedia(slot.id, {
+                file: slot.file,
+                mediaType: "image",
+                propertyId: property.id,
+              });
+            } else {
+              await createPropertyMedia({
+                file: slot.file,
+                mediaType: "image",
+                propertyId: property.id,
+              });
+            }
+          }
+
+        })
+      );
+
+    } catch (err) {
+      console.error("Erro ao submeter:", err);
+      setFormError(err.message || "Erro ao guardar imóvel.");
     }
   };
 
@@ -136,12 +200,22 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-4">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="border-2 border-dashed border-gray-300 rounded h-24 flex items-center justify-center cursor-pointer hover:border-[#CFAF5E]"
-          >
-            <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
+        {images.map((slot, i) => (
+          <div key={i} className="relative border-2 border-dashed border-gray-300 rounded h-24 overflow-hidden">
+            {slot ? (
+              <>
+                <img
+                  src={slot.file ? URL.createObjectURL(slot.file) : slot.url}
+                  className="w-full h-full object-cover"
+                />
+                <DeleteButton onClick={handleRemoveImage(i)} />
+              </>
+            ) : (
+              <label className="flex h-full w-full items-center justify-center cursor-pointer hover:border-[#CFAF5E]">
+                <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange(i)} />
+              </label>
+            )}
           </div>
         ))}
       </div>
@@ -149,7 +223,9 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
       <CheckboxGroup
         label="Informações Adicionais"
         options={extraInfos}
-        selectedOptions={extraInfos.filter((info) => formData[`extra_${info}`])}
+        selectedOptions={extraInfos.filter(
+          info => formData[`extra_${info}`]
+        )}
         onChange={handleCheckboxChange}
       />
     </>
@@ -176,10 +252,11 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
             if (f.type === "dynamic-select") {
               const opts =
                 f.dynamicOptionsKey === "districts"
-                  ? districts.map((d) => ({ label: d.name, value: d.id }))
-                  : municipalities.map((m) => ({ label: m.name, value: m.id }));
+                  ? districts.map(d => ({ label: d.name, value: d.id }))
+                  : municipalities.map(m => ({ label: m.name, value: m.id }));
               return (
                 <SelectField
+                  key={i}
                   label={f.label}
                   name={f.name}
                   options={opts}
@@ -206,26 +283,35 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />
       )}
 
-      {!isDesktop && step === 2 && renderLastStep()}
+      {!isDesktop && step === steps.length - 1 && renderLastStep()}
     </div>
   );
 
   const isLast = step === steps.length - 1;
 
   return (
-    <form onSubmit={handleFormSubmit} className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+    <form
+      onSubmit={handleFormSubmit}
+      className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-4xl mx-auto"
+    >
       {formError && <div className="text-red-600 mb-4">{formError}</div>}
 
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-[#0A2647]">{title}</h2>
-        {!isDesktop && <p className="text-sm text-gray-500">Passo {step + 1} de {steps.length}</p>}
+        {!isDesktop && (
+          <p className="text-sm text-gray-500">
+            Passo {step + 1} de {steps.length}
+          </p>
+        )}
       </div>
 
       {isDesktop ? (
         <>
           {steps.map((s, i) => (
             <div key={i} className="mb-8">
-              <h3 className="text-xl font-semibold border-b pb-2 mb-4">{s.title}</h3>
+              <h3 className="text-xl font-semibold border-b pb-2 mb-4">
+                {s.title}
+              </h3>
               {renderFields(s)}
               {i === steps.length - 1 && renderLastStep()}
             </div>
@@ -241,17 +327,27 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
           {renderFields(steps[step])}
           <div className="flex justify-between mt-6">
             {step > 0 ? (
-              <button type="button" onClick={prevStep} className="px-4 py-2 bg-gray-200 rounded">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="px-4 py-2 bg-gray-200 rounded"
+              >
                 <ChevronLeft size={16} /> Anterior
               </button>
-            ) : <div />}
+            ) : (
+              <div />
+            )}
 
             {isLast ? (
               <button type="submit" className="px-6 py-2 bg-[#CFAF5E] rounded">
                 {submitLabel}
               </button>
             ) : (
-              <button type="button" onClick={nextStep} className="px-6 py-2 bg-[#CFAF5E] rounded">
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-6 py-2 bg-[#CFAF5E] rounded"
+              >
                 Seguinte <ChevronRight size={16} />
               </button>
             )}
@@ -263,8 +359,8 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
 }
 
 PropertyForm.propTypes = {
-  title: PropTypes.string.isRequired,
+  title:       PropTypes.string.isRequired,
   initialData: PropTypes.object,
-  onSubmit: PropTypes.func.isRequired,
+  onSubmit:    PropTypes.func.isRequired,
   submitLabel: PropTypes.string.isRequired,
 };
