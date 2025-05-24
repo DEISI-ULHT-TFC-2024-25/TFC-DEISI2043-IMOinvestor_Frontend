@@ -12,7 +12,7 @@ function normalizeProperty(raw) {
   };
 }
 
-export async function getProperties() {
+export async function fetchProperties() {
   const { data } = await api.get('/property/');
   return data.map(normalizeProperty);
 }

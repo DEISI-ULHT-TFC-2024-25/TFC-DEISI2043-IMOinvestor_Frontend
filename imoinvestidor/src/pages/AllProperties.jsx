@@ -1,11 +1,11 @@
-import { getProperties } from "@services/propertyService";
+import { fetchProperties } from "@services/propertyService";
 import PropertiesManager from "@properties/PropertiesManager";
 
 export default function AllPropertiesPage() {
   return (
     <PropertiesManager
       title="Todas as Propriedades"
-      fetchProperties={getProperties}
+      fetchProperties={fetchProperties}
       showView={true}
       showEdit={false}
       showDelete={true}
