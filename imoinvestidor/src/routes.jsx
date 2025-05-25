@@ -14,6 +14,7 @@ import RoleRoute from "@routes/RoleRoute";
 import NotFound from "@pages/NotFound";
 import AllProperties from "@pages/AllProperties";
 import UserSettings from "@pages/UserSettings";
+import CreateAdd from "@pages/CreateAdd";
 
 
 export default function AppRoutes() {
@@ -45,6 +46,7 @@ export default function AppRoutes() {
         <Route path="edit-property/:id" element={<EditProperty />} />
         <Route path="all-properties" element={<AllProperties />} />
         <Route path="profile" element={<UserSettings />} />
+        <Route path="create-add" element={<CreateAdd />} />
 
         <Route path="*" element={<NotFound />} />
       </Route>

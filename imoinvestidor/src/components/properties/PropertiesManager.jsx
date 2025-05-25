@@ -19,6 +19,9 @@ export default function PropertiesManager({
   showEdit = true,
   showDelete = true,
   emptyStateMessage = "Nenhuma propriedade encontrada.",
+  selectionMode = false,
+  onPropertySelect = null,
+  selectedProperty = null,
 }) {
   const navigate = useNavigate();
   const { removeProperty } = useDeleteProperty();
@@ -69,7 +72,7 @@ export default function PropertiesManager({
     <section className="p-4 sm:p-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-xl sm:text-2xl font-semibold text-[#0A2647]">{title}</h1>
-        {showEdit && (
+        {showEdit && !selectionMode && (
           <button
             onClick={() => navigate("/create-property")}
             className="bg-[#CFAF5E] text-white px-5 py-2 rounded-md hover:bg-[#b89a4e] transition text-sm sm:text-base"
@@ -91,7 +94,7 @@ export default function PropertiesManager({
               currentMunicipality: selectedMunicipality,
               loadByDistrict,
               setDistrict: setSelectedDistrict,
-              setMunicipality: setSelectedToView => setSelectedMunicipality(String(e.target.value))
+              setMunicipality: setSelectedMunicipality => setSelectedMunicipality(String(e.target.value))
             });
           }}
           options={districts.map(d => ({ label: d.name, value: String(d.id) }))}
@@ -127,10 +130,13 @@ export default function PropertiesManager({
         <>
           <PropertiesList
             properties={filtered}
-            onDelete={showDelete ? setSelectedToDelete : undefined}
+            onDelete={showDelete && !selectionMode ? setSelectedToDelete : undefined}
             onView={showView ? setSelectedToView : undefined}
             showView={showView}
             showEdit={showEdit}
+            selectionMode={selectionMode}
+            onPropertySelect={onPropertySelect}
+            selectedProperty={selectedProperty}
           />
 
           <PropertyDetails
@@ -159,4 +165,7 @@ PropertiesManager.propTypes = {
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
+  selectionMode: PropTypes.bool,
+  onPropertySelect: PropTypes.func,
+  selectedProperty: PropTypes.object,
 };

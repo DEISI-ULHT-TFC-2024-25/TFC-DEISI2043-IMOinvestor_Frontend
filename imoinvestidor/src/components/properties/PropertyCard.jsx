@@ -30,7 +30,7 @@ export const PropertyCard = ({
       </div>
     )}
 
-    <div>
+    <div className="flex-1">
       <div className={`bg-gray-300 rounded mb-3 ${imageClassName}`}></div>
 
       <div className="flex justify-between items-start">
@@ -65,28 +65,32 @@ export const PropertyCard = ({
       </div>
     </div>
 
-    {!hidePrice && price && (
-      <div className="absolute bottom-4 left-4 text-[#CFAF5E] font-bold">
-        {price}
-      </div>
-    )}
-
-    <div className="flex justify-end items-center mt-4 gap-2">
-      {showEdit && (
-        <button
-          onClick={onEdit}
-          className="bg-white border border-[#CFAF5E] text-[#0A2647] px-3 py-1 rounded shadow cursor-pointer"
-        >
-          Editar
-        </button>
+    <div className="mt-4 space-y-3">
+      {!hidePrice && price && (
+        <div className="text-[#CFAF5E] font-bold text-sm sm:text-base leading-tight">
+          {price}
+        </div>
       )}
-      {showView && (
-        <button
-          onClick={onView}
-          className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer"
-        >
-          Ver
-        </button>
+
+      {(showView || showEdit) && (
+        <div className="flex justify-end items-center gap-2">
+          {showEdit && (
+            <button
+              onClick={onEdit}
+              className="bg-white border border-[#CFAF5E] text-[#0A2647] px-3 py-1 rounded shadow cursor-pointer text-sm hover:bg-[#CFAF5E] hover:text-white transition-colors"
+            >
+              Editar
+            </button>
+          )}
+          {showView && (
+            <button
+              onClick={onView}
+              className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer text-sm hover:bg-[#b89a4e] transition-colors"
+            >
+              Ver
+            </button>
+          )}
+        </div>
       )}
     </div>
   </div>
