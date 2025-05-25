@@ -77,7 +77,7 @@ export const PropertyCard = ({
           {showEdit && (
             <button
               onClick={onEdit}
-              className="bg-white border border-[#CFAF5E] text-[#0A2647] px-3 py-1 rounded shadow cursor-pointer text-sm hover:bg-[#CFAF5E] hover:text-white transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm"
             >
               Editar
             </button>
@@ -85,7 +85,7 @@ export const PropertyCard = ({
           {showView && (
             <button
               onClick={onView}
-              className="bg-[#CFAF5E] text-[#0A2647] px-4 py-2 rounded shadow-lg cursor-pointer text-sm hover:bg-[#b89a4e] transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm"
             >
               Ver
             </button>
