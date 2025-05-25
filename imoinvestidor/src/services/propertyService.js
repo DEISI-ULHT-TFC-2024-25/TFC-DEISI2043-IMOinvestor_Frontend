@@ -46,3 +46,13 @@ export async function deleteProperty(id) {
   await api.delete(`/property/${id}/`);
   return { success: true };
 }
+
+export async function getPropertiesWithAnnouncement() {
+  const { data } = await api.get('/property/with-announcement/');
+  return data.map(normalizeProperty);
+}
+
+export async function getPropertiesWithoutAnnouncement() {
+  const { data } = await api.get('/property/without-announcement/');
+  return data.map(normalizeProperty);
+}
