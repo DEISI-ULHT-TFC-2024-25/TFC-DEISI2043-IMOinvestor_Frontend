@@ -9,11 +9,11 @@ export default function useUpdateProperty() {
     setLoading(true);
     setError(null);
     try {
-      await updateProperty(id, data);
-      return true;
+      const updated = await updateProperty(id, data);
+      return updated;
     } catch (err) {
       setError(err.message || 'Erro desconhecido');
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }

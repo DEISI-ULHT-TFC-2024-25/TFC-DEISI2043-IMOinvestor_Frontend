@@ -11,7 +11,7 @@ export default function CreateProperty() {
   const handleCreate = async (payload) => {
     if (!user || !user.organization_ids?.length) {
       alert("Utilizador sem organização atribuída.");
-      return;
+      return null;
     }
 
     const finalPayload = {
@@ -19,8 +19,10 @@ export default function CreateProperty() {
       organization_id: user.organization_ids[0],
     };
 
-    const success = await submitProperty(finalPayload);
-    if (success) navigate("/my-properties");
+    const property = await submitProperty(finalPayload);
+    if (property?.id) navigate("/my-properties");
+
+    return property;
   };
 
   return (

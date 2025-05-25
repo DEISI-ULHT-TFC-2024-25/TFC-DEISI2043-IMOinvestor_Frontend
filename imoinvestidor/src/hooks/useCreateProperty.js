@@ -12,10 +12,10 @@ export default function useCreateProperty() {
     try {
       const response = await createProperty(data);
       setCreatedProperty(response);
-      return true;
+      return response;
     } catch (err) {
       setError(err.message || 'Erro desconhecido');
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }

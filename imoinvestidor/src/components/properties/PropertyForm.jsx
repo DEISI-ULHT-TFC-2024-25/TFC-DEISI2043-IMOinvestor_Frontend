@@ -16,7 +16,6 @@ import {
   updatePropertyMedia, 
   deletePropertyMedia 
 } from "@services/propertyMediaService";
-import DeleteButton from "@common/DeleteButton";
 
 const extraInfos = [
   "varanda","duplex","piscina","elevador",
@@ -39,6 +38,7 @@ export default function PropertyForm({
 
   const MAX_IMAGES = 8;
   const [images, setImages] = useState(Array(MAX_IMAGES).fill(null));
+  const [initialSlots, setInitialSlots] = useState(Array(MAX_IMAGES).fill(null));
 
   useEffect(() => {
     const checkIfDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -69,14 +69,21 @@ export default function PropertyForm({
         }, {}),
       });
 
-      getPropertyMediasByProperty(initialData.id).then((mediaList) => {
-        const slots = Array(MAX_IMAGES).fill(null);
-        mediaList.slice(0, MAX_IMAGES).forEach((m, i) => {
-          slots[i] = { id: m.id, file: null, url: m.file };
+      if (initialData.id) {
+        
+        getPropertyMediasByProperty(initialData.id).then((mediaList) => {
+          
+          const slots = Array(MAX_IMAGES).fill(null);
+          mediaList.slice(0, MAX_IMAGES).forEach((m, i) => {
+            slots[i] = { id: m.id, file: null, url: m.file };
+          });
+          
+          setImages(slots);
+          setInitialSlots(slots);
+        }).catch((err) => {
+          console.error('❌ Error loading images:', err);
         });
-        setImages(slots);
-        setInitialSlots(slots);
-      });
+      }
 
       setPriceRange([initialData.preco_minimo, initialData.preco_maximo]);
 
@@ -90,8 +97,17 @@ export default function PropertyForm({
     }
   }, [initialData, loadByDistrict, setMunicipalities]);
 
-  const nextStep = (e) => { e.preventDefault(); setFormError(null); setStep(s => Math.min(s+1, steps.length-1)); };
-  const prevStep = (e) => { e.preventDefault(); setFormError(null); setStep(s => Math.max(s-1, 0)); };
+  const nextStep = (e) => { 
+    e.preventDefault(); 
+    setFormError(null); 
+    setStep(s => Math.min(s+1, steps.length-1)); 
+  };
+  
+  const prevStep = (e) => { 
+    e.preventDefault(); 
+    setFormError(null); 
+    setStep(s => Math.max(s-1, 0)); 
+  };
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -115,9 +131,11 @@ export default function PropertyForm({
 
   const handleFileChange = (i) => (e) => {
     const file = e.target.files?.[0] || null;
+    
     setImages((imgs) => {
       const c = [...imgs];
-      c[i] = file ? { id: null, file, url: null } : null;
+      const newSlot = file ? { id: null, file, url: null } : null;
+      c[i] = newSlot;
       return c;
     });
   };
@@ -132,6 +150,7 @@ export default function PropertyForm({
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setFormError(null);
     try {
       const payload = {
         name: formData.nome,
@@ -156,36 +175,48 @@ export default function PropertyForm({
 
       const property = await onSubmit(payload);
 
-      await Promise.all(
-        images.map(async (slot, idx) => {
+      if (property && property.id) {
+        const imagePromises = images.map(async (slot, idx) => {
           const init = initialSlots[idx];
 
           if (!slot && init && init.id) {
-            await deletePropertyMedia(init.id);
+            try {
+              await deletePropertyMedia(init.id);
+            } catch (err) {
+            }
             return;
           }
 
           if (slot && slot.file) {
-            if (slot.id) {
-              await updatePropertyMedia(slot.id, {
-                file: slot.file,
-                mediaType: "image",
-                propertyId: property.id,
-              });
-            } else {
-              await createPropertyMedia({
-                file: slot.file,
-                mediaType: "image",
-                propertyId: property.id,
-              });
-            }
-          }
+            const mediaData = {
+              file: slot.file,
+              mediaType: "image",
+              propertyId: property.id,
+            };
 
-        })
-      );
+            try {
+              if (init && init.id) {
+                const result = await updatePropertyMedia(init.id, mediaData);
+              } else {
+                const result = await createPropertyMedia(mediaData);
+              }
+            } catch (err) {
+              console.error(`Failed to process image at slot ${idx}:`, err);
+            }
+          } else if (slot && !slot.file && slot.url) {
+            console.log(`Slot ${idx} has existing image, no changes needed`);
+          } else {
+            console.log(`Slot ${idx} is empty, no action needed`);
+          }
+        });
+        
+        await Promise.all(imagePromises);
+      } else {
+        console.warn('Property submission did not return a valid property object');
+      }
 
     } catch (err) {
-      console.error("Erro ao submeter:", err);
+      console.error("Error during form submission:", err);
       setFormError(err.message || "Erro ao guardar imóvel.");
     }
   };
@@ -199,25 +230,45 @@ export default function PropertyForm({
         onChange={handleInputChange}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-4">
-        {images.map((slot, i) => (
-          <div key={i} className="relative border-2 border-dashed border-gray-300 rounded h-24 overflow-hidden">
-            {slot ? (
-              <>
-                <img
-                  src={slot.file ? URL.createObjectURL(slot.file) : slot.url}
-                  className="w-full h-full object-cover"
-                />
-                <DeleteButton onClick={handleRemoveImage(i)} />
-              </>
-            ) : (
-              <label className="flex h-full w-full items-center justify-center cursor-pointer hover:border-[#CFAF5E]">
-                <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
-                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange(i)} />
-              </label>
-            )}
-          </div>
-        ))}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Imagens do Imóvel
+        </label>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {images.map((slot, i) => (
+            <div key={i} className="relative border-2 border-dashed border-gray-300 rounded h-24 overflow-hidden">
+              {slot ? (
+                <>
+                  <img
+                    src={slot.file ? URL.createObjectURL(slot.file) : slot.url}
+                    alt={`Property image ${i + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage(i)}
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </>
+              ) : (
+                <label className="flex h-full w-full items-center justify-center cursor-pointer hover:border-[#CFAF5E] transition-colors">
+                  <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleFileChange(i)} 
+                  />
+                </label>
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="text-sm text-gray-500 mt-2">
+          Pode adicionar até {MAX_IMAGES} imagens. Formatos aceites: JPG, PNG, GIF.
+        </p>
       </div>
 
       <CheckboxGroup
@@ -294,7 +345,11 @@ export default function PropertyForm({
       onSubmit={handleFormSubmit}
       className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-4xl mx-auto"
     >
-      {formError && <div className="text-red-600 mb-4">{formError}</div>}
+      {formError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {formError}
+        </div>
+      )}
 
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-[#0A2647]">{title}</h2>
@@ -317,7 +372,10 @@ export default function PropertyForm({
             </div>
           ))}
           <div className="flex justify-end">
-            <button type="submit" className="px-8 py-3 bg-[#CFAF5E] rounded shadow">
+            <button 
+              type="submit" 
+              className="px-8 py-3 bg-[#CFAF5E] text-white rounded shadow hover:bg-opacity-90 transition-colors"
+            >
               {submitLabel}
             </button>
           </div>
@@ -330,25 +388,28 @@ export default function PropertyForm({
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-4 py-2 bg-gray-200 rounded"
+                className="flex items-center px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
               >
-                <ChevronLeft size={16} /> Anterior
+                <ChevronLeft size={16} className="mr-1" /> Anterior
               </button>
             ) : (
               <div />
             )}
 
             {isLast ? (
-              <button type="submit" className="px-6 py-2 bg-[#CFAF5E] rounded">
+              <button 
+                type="submit" 
+                className="px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90 transition-colors"
+              >
                 {submitLabel}
               </button>
             ) : (
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-6 py-2 bg-[#CFAF5E] rounded"
+                className="flex items-center px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90 transition-colors"
               >
-                Seguinte <ChevronRight size={16} />
+                Seguinte <ChevronRight size={16} className="ml-1" />
               </button>
             )}
           </div>

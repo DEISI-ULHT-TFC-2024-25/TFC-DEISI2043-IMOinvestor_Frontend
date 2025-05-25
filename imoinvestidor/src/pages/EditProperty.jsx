@@ -26,7 +26,7 @@ export default function EditProperty() {
   const handleEdit = async (payload) => {
     if (!user || !user.organization_ids?.length) {
       alert("Utilizador sem organização atribuída.");
-      return;
+      return null;
     }
 
     const finalPayload = {
@@ -34,10 +34,12 @@ export default function EditProperty() {
       organization_id: user.organization_ids[0],
     };
 
-    const success = await submitUpdate(id, finalPayload);
-    if (success) navigate("/my-properties");
-  };
+    const updatedProperty = await submitUpdate(id, finalPayload);
+    if (updatedProperty?.id) navigate("/my-properties");
 
+    return updatedProperty;
+  };
+  
   if (!initialData) return <p>A carregar...</p>;
 
   return (
