@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
+  Check,
   Building,
   MapPin,
   Image as ImageIcon,
@@ -244,13 +245,21 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
       {!isDesktop && renderMobileStepper()}
       {isDesktop ? (
         <>
-          {steps.map((s, i) => (
-            <div key={i} className="mb-8">
-              <h3 className="text-xl font-semibold border-b pb-2 mb-4">{s.title}</h3>
-              {renderFields(s)}
-              {i === steps.length - 1 && renderLastStep()}
-            </div>
-          ))}
+          {steps.map((s, i) => {
+            const Icon = icons[i];
+            return (
+              <div key={i} className="mb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full border-2 bg-[#CFAF5E] border-[#CFAF5E] text-white">
+                    <Icon size={16} />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#0A2647]">{s.title}</h3>
+                </div>
+                {renderFields(s)}
+                {i === steps.length - 1 && renderLastStep()}
+              </div>
+            );
+          })}
           <div className="flex justify-end">
             <button type="submit" className="px-8 py-3 bg-[#CFAF5E] text-white rounded shadow hover:bg-opacity-90">{submitLabel}</button>
           </div>
