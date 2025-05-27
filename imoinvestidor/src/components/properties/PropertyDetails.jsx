@@ -34,16 +34,26 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
 
   const formatPrice = (min, max) => {
     if (min && max) {
-      return `${min.toLocaleString()} € – ${max.toLocaleString()} €`;
+      return {
+        range: `${min.toLocaleString()} € – ${max.toLocaleString()} €`,
+        minPrice: `${min.toLocaleString()} €`,
+        maxPrice: `${max.toLocaleString()} €`
+      };
     }
-    return 'Preço sob consulta';
+    return {
+      range: 'Preço sob consulta',
+      minPrice: null,
+      maxPrice: null
+    };
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black opacity-50" onClick={onClose} />
+  const priceData = formatPrice(property.preco_minimo, property.preco_maximo);
 
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center lg:p-4">
+      <div className="absolute inset-0 bg-black opacity-50 hidden lg:block" onClick={onClose} />
+
+      <div className="relative bg-white lg:rounded-3xl shadow-2xl w-full max-w-4xl h-full lg:max-h-[90vh] overflow-hidden">
         <div className="bg-gradient-to-r from-[#0A2647] to-[#0d2f52] text-white p-6 relative">
           <button
             onClick={onClose}
@@ -66,26 +76,32 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
           </div>
         </div>
 
-        <div className="overflow-y-auto max-h-[calc(90vh-140px)]">
-          <div className="border-b bg-gray-100">
+        <div className="overflow-y-auto h-[calc(100vh-140px)] lg:max-h-[calc(90vh-140px)] scrollbar-hide">
+          <div className="bg-gray-100">
             {hasImages ? (
-              <SliderWrapper
-                slidesToShow={1}
-                scrollByPage={false}
-                itemWidth="w-full"
-                itemHeight="h-[200px] sm:h-[300px] md:h-[400px] lg:h-[480px]"
-                className="rounded-b-2xl overflow-hidden"
-              >
-                {processedMedia.map((src, index) => (
-                  <img
-                    key={index}
-                    src={src}
-                    alt={`Imagem ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.src = placeholderImg; }}
-                  />
-                ))}
-              </SliderWrapper>
+              <div className="relative">
+                <SliderWrapper
+                  slidesToShow={1}
+                  scrollByPage={false}
+                  itemWidth="w-full"
+                  itemHeight="h-[60vh] sm:h-[55vh] md:h-[400px] lg:h-[480px]"
+                  className="overflow-hidden"
+                >
+                  {processedMedia.map((src, index) => (
+                    <div key={index} className="relative w-full h-full bg-gray-100 flex items-center justify-center">
+                      <img
+                        src={src}
+                        alt={`Imagem ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.src = placeholderImg; }}
+                      />
+                    </div>
+                  ))}
+                </SliderWrapper>
+                <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+                  1 / {processedMedia.length}
+                </div>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-48 md:h-64 text-gray-500">
                 <div className="text-center">
@@ -99,18 +115,40 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
           <div className="p-6 md:p-8">
             <div className="bg-white border-2 border-[#CFAF5E] rounded-2xl p-6 mb-8">
               <h3 className="text-lg font-semibold mb-2 text-gray-700">Preço</h3>
-              <p className="text-2xl md:text-3xl font-bold text-[#CFAF5E]">
-                {formatPrice(property.preco_minimo, property.preco_maximo)}
-              </p>
+
+              <div className="block sm:hidden">
+                {priceData.minPrice && priceData.maxPrice ? (
+                  <div className="space-y-1">
+                    <div className="text-xl font-bold text-[#CFAF5E] leading-tight">{priceData.minPrice}</div>
+                    <div className="text-sm text-gray-500 font-medium">até</div>
+                    <div className="text-xl font-bold text-[#CFAF5E] leading-tight">{priceData.maxPrice}</div>
+                  </div>
+                ) : (
+                  <div className="text-xl font-bold text-[#CFAF5E] leading-tight break-words">{priceData.range}</div>
+                )}
+              </div>
+
+              <div className="hidden sm:block">
+                {priceData.minPrice && priceData.maxPrice ? (
+                  <div className="space-y-1">
+                    <div className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">{priceData.minPrice}</div>
+                    <div className="text-sm text-gray-500 font-medium">até</div>
+                    <div className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">{priceData.maxPrice}</div>
+                  </div>
+                ) : (
+                  <p className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">{priceData.range}</p>
+                )}
+              </div>
+
               {property.roi && (
                 <p className="text-sm mt-2 text-gray-600">ROI: {property.roi}%</p>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <FeatureCard icon={<Bed />} label="Quartos" value={property.tipologia} />
-              <FeatureCard icon={<Bath />} label="Casas de banho" value={property.numero_casas_banho} />
-              <FeatureCard icon={<Ruler />} label="m² úteis" value={`${property.area_util} m²`} />
+              <FeatureCard icon={<Bed className="text-white" />} label="Quartos" value={property.tipologia} />
+              <FeatureCard icon={<Bath className="text-white" />} label="Casas de banho" value={property.numero_casas_banho} />
+              <FeatureCard icon={<Ruler className="text-white" />} label="m² úteis" value={`${property.area_util} m²`} />
             </div>
 
             <div className="space-y-6">
@@ -126,7 +164,7 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
 function FeatureCard({ icon, label, value }) {
   return (
     <div className="bg-gray-50 rounded-xl p-4 text-center">
-      <div className="w-12 h-12 bg-[#0A2647] rounded-full flex items-center justify-center mx-auto mb-3">
+      <div className="w-12 h-12 bg-[#0A2647] rounded-full flex items-center justify-center mx-auto mb-3 text-white">
         {icon}
       </div>
       <p className="text-2xl font-bold text-[#0A2647] mb-1">{value}</p>
@@ -156,9 +194,7 @@ function DetailsSection({ property }) {
 
       {property.descricao && (
         <div>
-          <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">
-            Descrição
-          </h3>
+          <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">Descrição</h3>
           <p className="text-gray-700 leading-relaxed">{property.descricao}</p>
         </div>
       )}
