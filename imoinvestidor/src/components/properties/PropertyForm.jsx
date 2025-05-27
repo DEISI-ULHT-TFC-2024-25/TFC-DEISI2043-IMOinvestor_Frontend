@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  Building,
+  MapPin,
+  Image as ImageIcon,
+} from "lucide-react";
 import InputField from "@common/InputField";
 import SelectField from "@common/SelectField";
 import TextAreaField from "@common/TextAreaField";
@@ -10,24 +17,21 @@ import { steps } from "@constants/propertySteps";
 import useDistricts from "@hooks/useDistricts";
 import useMunicipalities from "@hooks/useMunicipalities";
 import { handleDistrictChange } from "@utils/locationUtils";
-import { 
-  createPropertyMedia, 
-  getPropertyMediasByProperty, 
-  updatePropertyMedia, 
-  deletePropertyMedia 
+import {
+  createPropertyMedia,
+  getPropertyMediasByProperty,
+  updatePropertyMedia,
+  deletePropertyMedia,
 } from "@services/propertyMediaService";
 
 const extraInfos = [
-  "varanda","duplex","piscina","elevador",
-  "garagem","terraço","jardim","acessibilidade para pessoas com mobilidade reduzida",
+  "varanda", "duplex", "piscina", "elevador",
+  "garagem", "terraço", "jardim", "acessibilidade para pessoas com mobilidade reduzida",
 ];
 
-export default function PropertyForm({
-  title,
-  initialData = {},
-  onSubmit,
-  submitLabel,
-}) {
+const icons = [Building, MapPin, ImageIcon];
+
+export default function PropertyForm({ title, initialData = {}, onSubmit, submitLabel }) {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({});
   const [priceRange, setPriceRange] = useState([0, 2000000]);
@@ -41,10 +45,10 @@ export default function PropertyForm({
   const [initialSlots, setInitialSlots] = useState(Array(MAX_IMAGES).fill(null));
 
   useEffect(() => {
-    const checkIfDesktop = () => setIsDesktop(window.innerWidth >= 1024);
-    checkIfDesktop();
-    window.addEventListener("resize", checkIfDesktop);
-    return () => window.removeEventListener("resize", checkIfDesktop);
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -69,45 +73,28 @@ export default function PropertyForm({
         }, {}),
       });
 
-      if (initialData.id) {
-        
-        getPropertyMediasByProperty(initialData.id).then((mediaList) => {
-          
-          const slots = Array(MAX_IMAGES).fill(null);
-          mediaList.slice(0, MAX_IMAGES).forEach((m, i) => {
-            slots[i] = { id: m.id, file: null, url: m.file };
-          });
-          
-          setImages(slots);
-          setInitialSlots(slots);
-        }).catch((err) => {
-          console.error('❌ Error loading images:', err);
-        });
-      }
-
       setPriceRange([initialData.preco_minimo, initialData.preco_maximo]);
+      loadByDistrict(initialData.district).then(setMunicipalities).catch(console.error);
 
-      loadByDistrict(initialData.district)
-        .then(setMunicipalities)
-        .catch(console.error);
+      if (initialData.id) {
+        getPropertyMediasByProperty(initialData.id)
+          .then((mediaList) => {
+            const slots = Array(MAX_IMAGES).fill(null);
+            mediaList.slice(0, MAX_IMAGES).forEach((m, i) => {
+              slots[i] = { id: m.id, file: null, url: m.file };
+            });
+            setImages(slots);
+            setInitialSlots(slots);
+          })
+          .catch(console.error);
+      }
     } else {
-      loadByDistrict(null)
-        .then(setMunicipalities)
-        .catch(console.error);
+      loadByDistrict(null).then(setMunicipalities).catch(console.error);
     }
   }, [initialData, loadByDistrict, setMunicipalities]);
 
-  const nextStep = (e) => { 
-    e.preventDefault(); 
-    setFormError(null); 
-    setStep(s => Math.min(s+1, steps.length-1)); 
-  };
-  
-  const prevStep = (e) => { 
-    e.preventDefault(); 
-    setFormError(null); 
-    setStep(s => Math.max(s-1, 0)); 
-  };
+  const nextStep = (e) => { e.preventDefault(); setFormError(null); setStep((s) => Math.min(s + 1, steps.length - 1)); };
+  const prevStep = (e) => { e.preventDefault(); setFormError(null); setStep((s) => Math.max(s - 1, 0)); };
 
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
@@ -131,22 +118,14 @@ export default function PropertyForm({
 
   const handleFileChange = (i) => (e) => {
     const file = e.target.files?.[0] || null;
-    
     setImages((imgs) => {
       const c = [...imgs];
-      const newSlot = file ? { id: null, file, url: null } : null;
-      c[i] = newSlot;
+      c[i] = file ? { id: null, file, url: null } : null;
       return c;
     });
   };
 
-  const handleRemoveImage = (i) => () => {
-    setImages((imgs) => {
-      const c = [...imgs];
-      c[i] = null;
-      return c;
-    });
-  };
+  const handleRemoveImage = (i) => () => setImages((imgs) => { const c = [...imgs]; c[i] = null; return c; });
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -168,53 +147,21 @@ export default function PropertyForm({
         nova_construcao: formData.novaConstrucao,
         certificado_energetico: formData.certificado,
         descricao: formData.descricao,
-        informacoes_adicionais: Object.keys(formData)
-          .filter((k) => k.startsWith("extra_") && formData[k])
-          .map((k) => k.replace("extra_", "")),
+        informacoes_adicionais: Object.keys(formData).filter((k) => k.startsWith("extra_") && formData[k]).map((k) => k.replace("extra_", "")),
       };
 
       const property = await onSubmit(payload);
 
-      if (property && property.id) {
-        const imagePromises = images.map(async (slot, idx) => {
+      if (property?.id) {
+        await Promise.all(images.map(async (slot, idx) => {
           const init = initialSlots[idx];
-
-          if (!slot && init && init.id) {
-            try {
-              await deletePropertyMedia(init.id);
-            } catch (err) {
-            }
-            return;
+          if (!slot && init?.id) return deletePropertyMedia(init.id);
+          if (slot?.file) {
+            const data = { file: slot.file, mediaType: "image", propertyId: property.id };
+            return init?.id ? updatePropertyMedia(init.id, data) : createPropertyMedia(data);
           }
-
-          if (slot && slot.file) {
-            const mediaData = {
-              file: slot.file,
-              mediaType: "image",
-              propertyId: property.id,
-            };
-
-            try {
-              if (init && init.id) {
-                const result = await updatePropertyMedia(init.id, mediaData);
-              } else {
-                const result = await createPropertyMedia(mediaData);
-              }
-            } catch (err) {
-              console.error(`Failed to process image at slot ${idx}:`, err);
-            }
-          } else if (slot && !slot.file && slot.url) {
-            console.log(`Slot ${idx} has existing image, no changes needed`);
-          } else {
-            console.log(`Slot ${idx} is empty, no action needed`);
-          }
-        });
-        
-        await Promise.all(imagePromises);
-      } else {
-        console.warn('Property submission did not return a valid property object');
+        }));
       }
-
     } catch (err) {
       console.error("Error during form submission:", err);
       setFormError(err.message || "Erro ao guardar imóvel.");
@@ -223,62 +170,31 @@ export default function PropertyForm({
 
   const renderLastStep = () => (
     <>
-      <TextAreaField
-        label="Descrição"
-        name="descricao"
-        value={formData.descricao || ""}
-        onChange={handleInputChange}
-      />
-
+      <TextAreaField label="Descrição" name="descricao" value={formData.descricao || ""} onChange={handleInputChange} />
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Imagens do Imóvel
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Imagens do Imóvel</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((slot, i) => (
             <div key={i} className="relative border-2 border-dashed border-gray-300 rounded h-24 overflow-hidden">
               {slot ? (
                 <>
-                  <img
-                    src={slot.file ? URL.createObjectURL(slot.file) : slot.url}
-                    alt={`Property image ${i + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage(i)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                  >
+                  <img src={slot.file ? URL.createObjectURL(slot.file) : slot.url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
+                  <button type="button" onClick={handleRemoveImage(i)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
                     <Trash2 size={12} />
                   </button>
                 </>
               ) : (
-                <label className="flex h-full w-full items-center justify-center cursor-pointer hover:border-[#CFAF5E] transition-colors">
+                <label className="flex h-full w-full items-center justify-center cursor-pointer hover:border-[#CFAF5E]">
                   <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handleFileChange(i)} 
-                  />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleFileChange(i)} />
                 </label>
               )}
             </div>
           ))}
         </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Pode adicionar até {MAX_IMAGES} imagens. Formatos aceites: JPG, PNG, GIF.
-        </p>
+        <p className="text-sm text-gray-500 mt-2">Pode adicionar até {MAX_IMAGES} imagens.</p>
       </div>
-
-      <CheckboxGroup
-        label="Informações Adicionais"
-        options={extraInfos}
-        selectedOptions={extraInfos.filter(
-          info => formData[`extra_${info}`]
-        )}
-        onChange={handleCheckboxChange}
-      />
+      <CheckboxGroup label="Informações Adicionais" options={extraInfos} selectedOptions={extraInfos.filter((info) => formData[`extra_${info}`])} onChange={handleCheckboxChange} />
     </>
   );
 
@@ -288,96 +204,55 @@ export default function PropertyForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stepDef.fields.map((f, i) => {
             const val = formData[f.name] || "";
-            if (f.type === "select") {
-              return (
-                <SelectField
-                  key={i}
-                  label={f.label}
-                  name={f.name}
-                  options={f.options}
-                  value={val}
-                  onChange={handleInputChange}
-                />
-              );
-            }
-            if (f.type === "dynamic-select") {
-              const opts =
-                f.dynamicOptionsKey === "districts"
-                  ? districts.map(d => ({ label: d.name, value: d.id }))
-                  : municipalities.map(m => ({ label: m.name, value: m.id }));
-              return (
-                <SelectField
-                  key={i}
-                  label={f.label}
-                  name={f.name}
-                  options={opts}
-                  value={String(val)}
-                  onChange={handleInputChange}
-                />
-              );
-            }
-            return (
-              <InputField
-                key={i}
-                label={f.label}
-                name={f.name}
-                type={f.inputType || "text"}
-                value={val}
-                onChange={handleInputChange}
-              />
-            );
+            const options = f.dynamicOptionsKey === "districts" ? districts.map(d => ({ label: d.name, value: d.id })) :
+                             f.dynamicOptionsKey === "municipalities" ? municipalities.map(m => ({ label: m.name, value: m.id })) : f.options;
+            return f.type === "select" || f.type === "dynamic-select"
+              ? <SelectField key={i} label={f.label} name={f.name} options={options} value={val} onChange={handleInputChange} />
+              : <InputField key={i} label={f.label} name={f.name} type={f.inputType || "text"} value={val} onChange={handleInputChange} />;
           })}
         </div>
       )}
-
-      {stepDef.includePriceSlider && (
-        <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />
-      )}
-
+      {stepDef.includePriceSlider && <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />}
       {!isDesktop && step === steps.length - 1 && renderLastStep()}
     </div>
   );
 
+  const renderMobileStepper = () => {
+    const { title } = steps[step];
+    const Icon = icons[step];
+
+    return (
+      <div className="flex flex-col items-center mb-6 md:hidden">
+        <div className="w-12 h-12 mb-2 flex items-center justify-center rounded-full border-2 bg-[#CFAF5E] border-[#CFAF5E] text-white">
+          <Icon size={24} />
+        </div>
+        <p className="text-sm text-gray-500">Passo {step + 1} de {steps.length}</p>
+        <h3 className="text-base font-medium text-[#0A2647]">{title}</h3>
+      </div>
+    );
+  };
+
   const isLast = step === steps.length - 1;
 
   return (
-    <form
-      onSubmit={handleFormSubmit}
-      className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-4xl mx-auto"
-    >
-      {formError && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {formError}
-        </div>
-      )}
-
+    <form onSubmit={handleFormSubmit} className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+      {formError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{formError}</div>}
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-[#0A2647]">{title}</h2>
-        {!isDesktop && (
-          <p className="text-sm text-gray-500">
-            Passo {step + 1} de {steps.length}
-          </p>
-        )}
+        {!isDesktop && <p className="text-sm text-gray-500">Passo {step + 1} de {steps.length}</p>}
       </div>
-
+      {!isDesktop && renderMobileStepper()}
       {isDesktop ? (
         <>
           {steps.map((s, i) => (
             <div key={i} className="mb-8">
-              <h3 className="text-xl font-semibold border-b pb-2 mb-4">
-                {s.title}
-              </h3>
+              <h3 className="text-xl font-semibold border-b pb-2 mb-4">{s.title}</h3>
               {renderFields(s)}
               {i === steps.length - 1 && renderLastStep()}
             </div>
           ))}
           <div className="flex justify-end">
-            <button 
-              type="submit" 
-              className="px-8 py-3 bg-[#CFAF5E] text-white rounded shadow hover:bg-opacity-90 transition-colors"
-            >
-              {submitLabel}
-            </button>
+            <button type="submit" className="px-8 py-3 bg-[#CFAF5E] text-white rounded shadow hover:bg-opacity-90">{submitLabel}</button>
           </div>
         </>
       ) : (
@@ -385,30 +260,14 @@ export default function PropertyForm({
           {renderFields(steps[step])}
           <div className="flex justify-between mt-6">
             {step > 0 ? (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex items-center px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-              >
+              <button type="button" onClick={prevStep} className="flex items-center px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
                 <ChevronLeft size={16} className="mr-1" /> Anterior
               </button>
-            ) : (
-              <div />
-            )}
-
+            ) : <div />}
             {isLast ? (
-              <button 
-                type="submit" 
-                className="px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90 transition-colors"
-              >
-                {submitLabel}
-              </button>
+              <button type="submit" className="px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90">{submitLabel}</button>
             ) : (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="flex items-center px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90 transition-colors"
-              >
+              <button type="button" onClick={nextStep} className="flex items-center px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90">
                 Seguinte <ChevronRight size={16} className="ml-1" />
               </button>
             )}
@@ -420,8 +279,8 @@ export default function PropertyForm({
 }
 
 PropertyForm.propTypes = {
-  title:       PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   initialData: PropTypes.object,
-  onSubmit:    PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   submitLabel: PropTypes.string.isRequired,
 };
