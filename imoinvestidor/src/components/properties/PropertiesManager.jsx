@@ -11,6 +11,7 @@ import PropertiesEmptyState from "@properties/PropertiesEmptyState";
 import ConfirmDialog from "@common/ConfirmDialog";
 import SelectField from "@common/SelectField";
 import PropertyDetails from "@properties/PropertyDetails";
+import { getPropertyMediasByProperty } from "@services/propertyMediaService";
 
 export default function PropertiesManager({
   fetchProperties,
@@ -39,10 +40,31 @@ export default function PropertiesManager({
   const [selectedToView, setSelectedToView] = useState(null);
 
   useEffect(() => {
-    fetchProperties()
-      .then(data => setProperties(data))
-      .catch(err => setError(err))
-      .finally(() => setLoading(false));
+    const loadPropertiesWithMedia = async () => {
+      try {
+        const rawProperties = await fetchProperties();
+
+        const propertiesWithMedia = await Promise.all(
+          rawProperties.map(async (prop) => {
+            try {
+              const media = await getPropertyMediasByProperty(prop.id);
+              return { ...prop, media };
+            } catch (err) {
+              console.warn(`Erro ao carregar media de propriedade ${prop.id}:`, err);
+              return { ...prop, media: [] };
+            }
+          })
+        );
+
+        setProperties(propertiesWithMedia);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPropertiesWithMedia();
   }, [fetchProperties]);
 
   const handleConfirmDelete = async () => {

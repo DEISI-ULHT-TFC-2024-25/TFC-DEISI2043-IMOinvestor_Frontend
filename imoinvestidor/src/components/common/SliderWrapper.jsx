@@ -37,16 +37,36 @@ const SliderWrapper = ({
   itemHeight = 'h-[320px]',
   scrollByPage = false,
   slidesToShow = 5,
+  centerModeOverride = undefined,
 }) => {
+  const childrenArray = Array.isArray(children) ? children : [children];
+  const multipleItems = childrenArray.length > 1;
+
+  // ✅ Renderiza sem slider se só houver um item
+  if (!multipleItems) {
+    return (
+      <div className={`relative w-full ${className}`}>
+        <div className={`px-2 ${itemWidth} ${itemHeight} flex items-stretch`}>
+          {childrenArray[0]}
+        </div>
+      </div>
+    );
+  }
+
+  const centerMode = centerModeOverride !== undefined
+    ? centerModeOverride
+    : multipleItems;
+
   const settings = {
-    centerMode: false,
-    centerPadding: '0px',
-    slidesToShow,
+    centerMode,
+    infinite: multipleItems,
+    centerPadding: centerMode ? '40px' : '0px',
+    slidesToShow: multipleItems ? slidesToShow : 1,
     slidesToScroll: scrollByPage ? slidesToShow : 1,
-    autoplay: true,
+    autoplay: multipleItems,
     autoplaySpeed: 4000,
-    arrows: true,
-    dots: true,
+    arrows: multipleItems,
+    dots: multipleItems,
     customPaging: () => (
       <button className="w-3 h-3 rounded-full bg-gray-300 transition-colors duration-300" />
     ),
@@ -63,7 +83,7 @@ const SliderWrapper = ({
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: multipleItems ? 3 : 1,
           slidesToScroll: scrollByPage ? 3 : 1,
         },
       },
@@ -72,21 +92,19 @@ const SliderWrapper = ({
         settings: {
           slidesToShow: 1,
           slidesToScroll: 1,
-          centerPadding: '40px',
-          centerMode: true,
+          centerMode,
+          centerPadding: centerMode ? '40px' : '0px',
           arrows: false,
         },
       },
     ],
   };
 
-  const wrappedChildren = Array.isArray(children)
-    ? children.map((child, i) => (
-        <div key={i} className={`px-2 ${itemWidth} ${itemHeight} flex items-stretch`}>
-          {child}
-        </div>
-      ))
-    : <div className={`px-2 ${itemWidth} ${itemHeight} flex items-stretch`}>{children}</div>;
+  const wrappedChildren = childrenArray.map((child, i) => (
+    <div key={i} className={`px-2 ${itemWidth} ${itemHeight} flex items-stretch`}>
+      {child}
+    </div>
+  ));
 
   return (
     <div className={`relative w-full ${className}`}>
@@ -104,6 +122,7 @@ SliderWrapper.propTypes = {
   itemHeight: PropTypes.string,
   scrollByPage: PropTypes.bool,
   slidesToShow: PropTypes.number,
+  centerModeOverride: PropTypes.bool,
 };
 
 export default SliderWrapper;
