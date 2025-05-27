@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { PropertyCard } from "@properties/PropertyCard";
 import DeleteButton from "@common/DeleteButton";
+import placeholderImg from '@images/placeholder.jpg';
+
+const getImageUrl = (property) => {
+  const mediaItem = property.media?.[0];
+  if (!mediaItem) return placeholderImg;
+  return mediaItem.file || mediaItem.url || placeholderImg;
+};
 
 export default function PropertiesList({ 
   properties, 
@@ -18,7 +25,6 @@ export default function PropertiesList({
   const navigate = useNavigate();
   const [selectedPropertyId, setSelectedPropertyId] = useState(selectedProperty?.id || null);
   
-  // Update internal state when selectedProperty prop changes
   useEffect(() => {
     setSelectedPropertyId(selectedProperty?.id || null);
   }, [selectedProperty]);
@@ -77,6 +83,7 @@ export default function PropertiesList({
                   />            
                 )
               }
+              imageUrl={getImageUrl(property)}
             />
           </div>
         );
