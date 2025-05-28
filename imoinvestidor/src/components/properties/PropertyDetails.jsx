@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MapPin, Home, Bed, Bath, Ruler, X } from 'lucide-react';
 import SliderWrapper from "@common/SliderWrapper";
 import placeholderImg from '@images/placeholder.jpg';
 
 export default function PropertyDetails({ property, isOpen, onClose }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
   const media = property?.media || [];
   const hasImages = media.length > 0;
 
@@ -30,6 +31,12 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentSlide(0);
+    }
+  }, [isOpen]);
+
   if (!isOpen || !property) return null;
 
   const formatPrice = (min, max) => {
@@ -48,6 +55,10 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
   };
 
   const priceData = formatPrice(property.preco_minimo, property.preco_maximo);
+
+  const handleSlideChange = (index) => {
+    setCurrentSlide(index);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center lg:p-4">
@@ -86,6 +97,7 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
                   itemWidth="w-full"
                   itemHeight="h-[60vh] sm:h-[55vh] md:h-[400px] lg:h-[480px]"
                   className="overflow-hidden"
+                  afterChange={handleSlideChange}
                 >
                   {processedMedia.map((src, index) => (
                     <div key={index} className="relative w-full h-full bg-gray-100 flex items-center justify-center">
@@ -99,7 +111,7 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
                   ))}
                 </SliderWrapper>
                 <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
-                  1 / {processedMedia.length}
+                  {currentSlide + 1} / {processedMedia.length}
                 </div>
               </div>
             ) : (

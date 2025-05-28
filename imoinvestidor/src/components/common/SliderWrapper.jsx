@@ -38,11 +38,11 @@ const SliderWrapper = ({
   scrollByPage = false,
   slidesToShow = 5,
   centerModeOverride = undefined,
+  afterChange,
 }) => {
   const childrenArray = Array.isArray(children) ? children : [children];
   const multipleItems = childrenArray.length > 1;
 
-  // ✅ Renderiza sem slider se só houver um item
   if (!multipleItems) {
     return (
       <div className={`relative w-full ${className}`}>
@@ -67,6 +67,7 @@ const SliderWrapper = ({
     autoplaySpeed: 4000,
     arrows: multipleItems,
     dots: multipleItems,
+    afterChange,
     customPaging: () => (
       <button className="w-3 h-3 rounded-full bg-gray-300 transition-colors duration-300" />
     ),
@@ -123,6 +124,7 @@ SliderWrapper.propTypes = {
   scrollByPage: PropTypes.bool,
   slidesToShow: PropTypes.number,
   centerModeOverride: PropTypes.bool,
+  afterChange: PropTypes.func,
 };
 
 export default SliderWrapper;
