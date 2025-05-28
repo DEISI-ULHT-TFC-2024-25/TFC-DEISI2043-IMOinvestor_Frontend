@@ -15,7 +15,7 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
-  const properties = [...Array(8)].map((_, i) => ({
+  const allProperties = [...Array(8)].map((_, i) => ({
     title: `Imóvel ${i + 1}`,
     tipologia: 4,
     casasBanho: 2,
@@ -27,6 +27,8 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
     isFavorited: i % 2 === 0,
     onToggleFavorite: () => console.log(`Favorito toggle no imóvel ${i + 1}`),
   }));
+
+  const properties = isMobile ? allProperties.slice(0, 3) : allProperties;
 
   return (
     <section className="p-6">
@@ -41,22 +43,15 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
       </div>
 
       {isMobile ? (
-        <div className="px-4">
-          <SliderWrapper
-            itemWidth="w-80"
-            itemHeight="h-[360px]"
-            scrollByPage={false}
-            slidesToShow={1}
-          >
-            {properties.map((props, i) => (
-              <PropertyCard
-                key={i}
-                {...props}
-                className="w-full h-full"
-                imageClassName="h-40"
-              />
-            ))}
-          </SliderWrapper>
+        <div className="flex flex-col gap-4">
+          {properties.map((props, i) => (
+            <PropertyCard
+              key={i}
+              {...props}
+              className="w-full h-[300px]"
+              imageClassName="h-36"
+            />
+          ))}
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
