@@ -110,12 +110,11 @@ export default function CreateAdScreen() {
               fetchProperties={() => Promise.resolve(properties)}
               title="Selecione a propriedade para criar anúncio"
               showView={true}
-              showEdit={false} // Remove edit button for selection mode
+              showEdit={false} // This will remove edit functionality
               showDelete={false}
-              selectionMode={true} // Enable selection mode
+              selectionMode={true}
               onPropertySelect={p => setForm(f => ({ ...f, property: p }))}
-              onView={p => setViewProperty(p)}
-              selectedProperty={form.property} // Pass the currently selected property
+              selectedProperty={form.property}
               emptyStateMessage="Nenhuma propriedade disponível para criar anúncio."
             />
             

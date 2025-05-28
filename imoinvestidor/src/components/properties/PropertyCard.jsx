@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { BedDouble, Bath, Ruler, Heart, HeartOff } from 'lucide-react';
+import { BedDouble, Bath, Ruler, Eye, Edit3, CheckCircle } from 'lucide-react';
 import placeholderImg from '@images/placeholder.jpg';
 
 export const PropertyCard = ({
@@ -13,73 +13,154 @@ export const PropertyCard = ({
   onEdit,
   hidePrice,
   className = '',
-  imageClassName = 'h-40',
-  isFavorited = false,
-  onToggleFavorite,
+  imageClassName = 'h-48 sm:h-56',
   actions = null,
   street,
   district,
   showView = true,
   showEdit = true,
   imageUrl,
+  isSelected = false,
+  onSelect,
+  selectionMode = false,
+  preco_minimo,
+  preco_maximo,
 }) => {
+  const handleCardClick = () => {
+    if (selectionMode && onSelect) {
+      onSelect();
+    }
+  };
+
   return (
-    <div className={`bg-white rounded-xl border border-gray-300 shadow-sm p-4 flex flex-col justify-between w-full h-full relative ${className}`}>
+    <div 
+      className={`bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md transform hover:scale-[1.02] ${
+        isSelected 
+          ? 'border-[#CFAF5E] ring-2 ring-[#CFAF5E]/20 shadow-lg' 
+          : 'border-gray-200 hover:border-[#CFAF5E]/50'
+      } ${selectionMode ? 'cursor-pointer' : ''} ${className}`}
+      onClick={handleCardClick}
+    >
+      {isSelected && (
+        <div className="absolute top-3 left-3 z-10 w-6 h-6 bg-[#CFAF5E] rounded-full flex items-center justify-center shadow-md">
+          <CheckCircle size={16} className="text-white" />
+        </div>
+      )}
+
       {actions && (
         <div className="absolute top-2 right-2 z-10">
           {actions}
         </div>
       )}
 
-      <div className="flex-1">
-        <div className={`rounded mb-3 overflow-hidden ${imageClassName}`}>
-          <img
-            src={imageUrl || placeholderImg}
-            alt={title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = placeholderImg;
-            }}
-          />
-        </div>
-
-        <div className="flex justify-between items-start">
-          <h4 className="font-semibold text-[#0A2647]">{title}</h4>
-          {onToggleFavorite && (
-            <button onClick={onToggleFavorite} title="Favorito" className="text-[#CFAF5E] cursor-pointer">
-              {isFavorited ? <Heart fill="#CFAF5E" size={20} /> : <HeartOff size={20} />}
+      <div className={`overflow-hidden relative ${imageClassName}`}>
+        <img
+          src={imageUrl || placeholderImg}
+          alt={title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src = placeholderImg;
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+      </div>
+      
+      <div className="p-4 sm:p-5">
+        <div className="flex justify-between items-start mb-2">
+          <h4 className="font-semibold text-[#0A2647] text-lg flex-1 pr-2 leading-tight">{title}</h4>
+          {showView && onView && !selectionMode && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+              className="text-[#CFAF5E] hover:bg-[#CFAF5E]/10 p-1 rounded-lg transition-colors flex-shrink-0 group"
+              title="Ver detalhes"
+            >
+              <Eye size={18} className="group-hover:scale-110 transition-transform" />
             </button>
           )}
         </div>
-
+        
         {(district || street) && (
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 mb-3">
             {street ? `${street}, ${district}` : district}
           </p>
         )}
-
-        <div className="text-sm text-gray-600 flex gap-4 mt-2">
-          <div className="flex items-center gap-1"><BedDouble size={16} /> {tipologia}</div>
-          <div className="flex items-center gap-1"><Bath size={16} /> {casasBanho}</div>
-          <div className="flex items-center gap-1"><Ruler size={16} /> {areaUtil} m²</div>
+        
+        <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-1">
+            <BedDouble size={16} /> 
+            <span>{tipologia}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Bath size={16} /> 
+            <span>{casasBanho}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Ruler size={16} /> 
+            <span>{areaUtil} m²</span>
+          </div>
         </div>
-      </div>
 
-      <div className="mt-4 space-y-3">
-        {!hidePrice && price && (
-          <div className="text-[#CFAF5E] font-bold text-sm sm:text-base leading-tight">
-            {price}
+        {(preco_minimo || preco_maximo) && (
+          <div className="bg-gradient-to-r from-[#CFAF5E]/10 to-[#CFAF5E]/5 p-3 rounded-lg mb-4">
+            <div className="text-xs text-gray-600 mb-1">Faixa de mercado estimada</div>
+            <div className="font-semibold text-[#0A2647]">
+              €{(preco_minimo || 0).toLocaleString()} - €{(preco_maximo || 0).toLocaleString()}
+            </div>
           </div>
         )}
-        {(showView || showEdit) && (
-          <div className="flex justify-end items-center gap-2">
-            {showEdit && (
-              <button onClick={onEdit} className="px-4 py-2 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm">
+
+        {!hidePrice && price && (
+          <div className="bg-gradient-to-r from-[#CFAF5E]/10 to-[#CFAF5E]/5 p-3 rounded-lg mb-4">
+            <div className="text-xs text-gray-600 mb-1">Preço</div>
+            <div className="text-[#CFAF5E] font-bold text-lg leading-tight">
+              {price}
+            </div>
+          </div>
+        )}
+
+        {selectionMode && onSelect && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+            className={`w-full py-2.5 px-4 rounded-xl font-medium transition-all duration-200 ${
+              isSelected
+                ? 'bg-[#CFAF5E] text-white shadow-md'
+                : 'bg-gray-100 text-[#0A2647] hover:bg-[#CFAF5E]/10 hover:text-[#CFAF5E]'
+            }`}
+          >
+            {isSelected ? 'Selecionado' : 'Selecionar'}
+          </button>
+        )}
+
+        {!selectionMode && (showView || showEdit) && (
+          <div className="flex gap-2 mt-4">
+            {showEdit && onEdit && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm"
+              >
+                <Edit3 size={16} />
                 Editar
               </button>
             )}
-            {showView && (
-              <button onClick={onView} className="px-4 py-2 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm">
+            
+            {showView && onView && !(showEdit && onEdit) && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onView();
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-[#CFAF5E] text-[#CFAF5E] font-semibold rounded-xl hover:bg-[#CFAF5E]/5 transition-all text-sm"
+              >
+                <Eye size={16} />
                 Ver
               </button>
             )}
@@ -102,12 +183,15 @@ PropertyCard.propTypes = {
   hidePrice: PropTypes.bool,
   className: PropTypes.string,
   imageClassName: PropTypes.string,
-  isFavorited: PropTypes.bool,
-  onToggleFavorite: PropTypes.func,
   actions: PropTypes.node,
   street: PropTypes.string,
   district: PropTypes.string,
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   imageUrl: PropTypes.string,
+  isSelected: PropTypes.bool,
+  onSelect: PropTypes.func,
+  selectionMode: PropTypes.bool,
+  preco_minimo: PropTypes.number,
+  preco_maximo: PropTypes.number,
 };
