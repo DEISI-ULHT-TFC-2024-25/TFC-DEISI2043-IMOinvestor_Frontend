@@ -62,42 +62,56 @@ export default function PropertiesList({
             onClick={() => handlePropertyClick(property)}
             className={`relative transition-all duration-300 ease-out ${
               selectionMode 
-                ? 'cursor-pointer hover:scale-[1.02] hover:shadow-md hover:ring-1 hover:ring-[#CFAF5E]' 
+                ? 'cursor-pointer' 
                 : ''
-            } ${isSelected ? 'ring-2 ring-[#CFAF5E] shadow-lg scale-[1.02]' : ''}`}
+            }`}
           >
             {isSelected && (
-              <div className="absolute -top-3 -right-3 z-10 bg-[#CFAF5E] text-[#0A2647] rounded-full p-2 shadow-lg border-2 border-white">
+              <div className="absolute -top-2 -right-2 z-20 bg-[#CFAF5E] text-white rounded-full p-1.5 shadow-lg border-2 border-white">
                 <Check className="h-3 w-3" />
               </div>
             )}
             
-            <PropertyCard
-              title={property.name}
-              tipologia={property.tipologia ?? "T?"}
-              casasBanho={property.numero_casas_banho ?? "0"}
-              areaUtil={property.area_util}
-              price={`${property.preco_minimo?.toLocaleString()} € – ${property.preco_maximo?.toLocaleString()} €`}
-              street={property.street}
-              district={String(property.district)}
-              onView={showView ? () => onView && onView(property) : undefined}
-              onEdit={showEdit ? () => navigate(`/edit-property/${property.id}`) : undefined}
-              showView={showView}
-              showEdit={showEdit}
-              className={`transition-all duration-300 ${
-                isSelected ? 'border-[#CFAF5E]' : ''
-              }`}
-              actions={
-                !selectionMode && onDelete && (
-                  <DeleteButton
-                    onClick={e => { e.stopPropagation(); onDelete(property); }}
-                    title="Apagar imóvel"
-                    size={22}
-                  />            
-                )
-              }
-              imageUrl={getImageUrl(property)}
-            />
+            {selectionMode && (
+              <div className={`absolute -inset-1 rounded-xl pointer-events-none transition-all duration-300 ${
+                isSelected 
+                  ? 'ring-2 ring-[#CFAF5E] ring-offset-2 ring-offset-white shadow-lg' 
+                  : 'hover:ring-1 hover:ring-[#CFAF5E]/30 hover:ring-offset-1 hover:ring-offset-white'
+              }`} />
+            )}
+            
+            <div className={`transition-all duration-300 ${
+              selectionMode && isSelected ? 'transform scale-[1.02]' : ''
+            } ${
+              selectionMode ? 'hover:transform hover:scale-[1.01]' : ''
+            }`}>
+              <PropertyCard
+                title={property.name}
+                tipologia={property.tipologia ?? "T?"}
+                casasBanho={property.numero_casas_banho ?? "0"}
+                areaUtil={property.area_util}
+                price={`${property.preco_minimo?.toLocaleString()} € – ${property.preco_maximo?.toLocaleString()} €`}
+                street={property.street}
+                district={String(property.district)}
+                onView={showView ? () => onView && onView(property) : undefined}
+                onEdit={showEdit ? () => navigate(`/edit-property/${property.id}`) : undefined}
+                showView={showView}
+                showEdit={showEdit}
+                className={`${
+                  isSelected ? 'border-[#CFAF5E] shadow-md' : ''
+                }`}
+                actions={
+                  !selectionMode && onDelete && (
+                    <DeleteButton
+                      onClick={e => { e.stopPropagation(); onDelete(property); }}
+                      title="Apagar imóvel"
+                      size={22}
+                    />            
+                  )
+                }
+                imageUrl={getImageUrl(property)}
+              />
+            </div>
           </div>
         );
       })}
