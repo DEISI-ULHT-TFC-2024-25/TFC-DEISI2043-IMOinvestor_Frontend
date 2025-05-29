@@ -9,9 +9,9 @@ import StepSetPrice from '@adds/StepSetPrice';
 import StepReviewConfirm from '@adds/StepConfirm';
 
 const steps = [
-  { id: 1, label: 'Select Property', icon: Building },
-  { id: 2, label: 'Set Price', icon: DollarSign },
-  { id: 3, label: 'Review & Confirm', icon: Eye },
+  { id: 1, label: 'Propriedade', icon: Building },
+  { id: 2, label: 'Preço', icon: DollarSign },
+  { id: 3, label: 'Confirmação', icon: Eye },
 ];
 
 export default function CreateAdScreen() {
