@@ -8,7 +8,6 @@ import placeholderImg from '@images/placeholder.jpg';
 
 const getImageUrl = (property) => {  
   if (!property.media || !Array.isArray(property.media) || property.media.length === 0) {
-    console.log('No media found for property:', property.name);
     return placeholderImg;
   }
 
