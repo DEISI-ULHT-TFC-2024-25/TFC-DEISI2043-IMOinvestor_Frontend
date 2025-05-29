@@ -51,6 +51,7 @@ export const PropertyCard = ({
         </div>
       )}
 
+      {/* Top right actions - Custom actions only */}
       {actions && (
         <div className="absolute top-2 right-2 z-10">
           {actions}
@@ -141,34 +142,17 @@ export const PropertyCard = ({
           </button>
         )}
 
-        {!selectionMode && (showView || showEdit) && (
-          <div className="flex gap-2 mt-4">
-            {showEdit && onEdit && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm"
-              >
-                <Edit3 size={16} />
-                Editar
-              </button>
-            )}
-            
-            {showView && onView && !(showEdit && onEdit) && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onView();
-                }}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-[#CFAF5E] text-[#CFAF5E] font-semibold rounded-xl hover:bg-[#CFAF5E]/5 transition-all text-sm"
-              >
-                <Eye size={16} />
-                Ver
-              </button>
-            )}
-          </div>
+        {!selectionMode && showEdit && onEdit && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm mt-4"
+          >
+            <Edit3 size={16} />
+            Editar
+          </button>
         )}
       </div>
     </div>
