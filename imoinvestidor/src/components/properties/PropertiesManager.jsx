@@ -182,7 +182,7 @@ export default function PropertiesManager({
 
 PropertiesManager.propTypes = {
   fetchProperties: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
