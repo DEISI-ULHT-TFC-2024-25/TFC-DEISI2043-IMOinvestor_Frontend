@@ -1,60 +1,11 @@
-import { ChevronLeft, ChevronRight, DollarSign, AlertTriangle, CheckCircle, Building, BedDouble, Bath, Ruler, TrendingUp, Target, BarChart3 } from 'lucide-react';
-import placeholderImg from '@images/placeholder.jpg';
-
-const PropertyCard = ({
-  title,
-  tipologia,
-  casasBanho,
-  areaUtil,
-  street,
-  district,
-  imageUrl,
-  className = ''
-}) => {
-  return (
-    <div className={`bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden ${className}`}>
-      <div className="h-32 sm:h-40 overflow-hidden">
-        <img
-          src={imageUrl || placeholderImg}
-          alt={title}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.currentTarget.src = placeholderImg;
-          }}
-        />
-      </div>
-      <div className="p-4">
-        <h4 className="font-semibold text-[#0A2647] text-lg mb-1">{title}</h4>
-        {(district || street) && (
-          <p className="text-sm text-gray-600 mb-3">
-            {street ? `${street}, ${district}` : district}
-          </p>
-        )}
-        <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <BedDouble size={16} /> 
-            <span>{tipologia}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Bath size={16} /> 
-            <span>{casasBanho}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Ruler size={16} /> 
-            <span>{areaUtil} m²</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { ChevronLeft, ChevronRight, DollarSign, AlertTriangle, CheckCircle, Building, BedDouble, Bath, Ruler, Target, BarChart3 } from 'lucide-react';
+import InputField from '@common/InputField';
 
 export default function StepSetPrice({ form, setForm, error, prev, next }) {
   const property = form.property;
   const minPrice = property?.preco_minimo || 0;
   const maxPrice = property?.preco_maximo || 0;
   const currentPrice = parseFloat(form.price) || 0;
-  const midPrice = (minPrice + maxPrice) / 2;
   
   const getPriceValidation = () => {
     if (!currentPrice) return null;
@@ -146,10 +97,19 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
             <div className="space-y-2 text-sm">
               <p className="font-medium">{property?.name}</p>
               <p className="text-blue-200">{property?.street}, {property?.district}</p>
-              <div className="flex gap-4 text-blue-200">
-                <span>{property?.tipologia}</span>
-                <span>{property?.casasBanho} WC</span>
-                <span>{property?.area_util} m²</span>
+              <div className="flex items-center flex-wrap gap-4 text-blue-100 text-sm">
+                <div className="flex items-center gap-1">
+                  <BedDouble size={16} />
+                  <span>{property?.tipologia}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Bath size={16} />
+                  <span>{property?.casasBanho} WC</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Ruler size={16} />
+                  <span>{property?.area_util} m²</span>
+                </div>
               </div>
             </div>
           </div>
@@ -159,16 +119,16 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
               <BarChart3 size={18} />
               Análise de Mercado
             </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/10 rounded-lg p-4">
-                <p className="text-sm text-blue-200">Mínimo Recomendado</p>
-                <p className="text-xl font-bold text-green-400">€{minPrice.toLocaleString()}</p>
-                <p className="text-xs text-blue-200">€{Math.round(minPrice / property?.area_util)}/m²</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[#0A2647]">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col gap-1">
+                <span className="text-sm font-medium text-gray-500">Mínimo Recomendado</span>
+                <span className="text-2xl font-bold text-green-600">€{minPrice.toLocaleString()}</span>
+                <span className="text-sm text-gray-400">€{Math.round(minPrice / property?.area_util)}/m²</span>
               </div>
-              <div className="bg-white/10 rounded-lg p-4">
-                <p className="text-sm text-blue-200">Máximo Recomendado</p>
-                <p className="text-xl font-bold text-yellow-400">€{maxPrice.toLocaleString()}</p>
-                <p className="text-xs text-blue-200">€{Math.round(maxPrice / property?.area_util)}/m²</p>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col gap-1">
+                <span className="text-sm font-medium text-gray-500">Máximo Recomendado</span>
+                <span className="text-2xl font-bold text-yellow-600">€{maxPrice.toLocaleString()}</span>
+                <span className="text-sm text-gray-400">€{Math.round(maxPrice / property?.area_util)}/m²</span>
               </div>
             </div>
           </div>
@@ -182,20 +142,17 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
               Preço de Venda
             </label>
             
-            <div className="relative max-w-md mx-auto">
-              <div className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 text-2xl font-medium">
-                €
-              </div>
-              <input
-                type="number"
-                min="0"
-                step="1000"
-                value={form.price}
-                onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
-                className="w-full pl-16 pr-6 py-4 text-3xl font-bold text-center border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CFAF5E] focus:border-[#CFAF5E] transition-all duration-200 bg-gray-50"
-                placeholder="0"
-              />
-            </div>
+            <InputField
+              label="Preço de Venda"
+              name="price"
+              type="number"
+              value={form.price}
+              onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))}
+              prefix="€"
+              required
+              className="max-w-md mx-auto text-center"
+              inputClassName="text-3xl font-bold text-center"
+            />
 
             {property?.area_util && (
               <p className="mt-2 text-lg text-gray-600">
@@ -243,7 +200,7 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
           {suggestions.length > 0 && (
             <div className="space-y-4">
               <h4 className="font-semibold text-[#0A2647] flex items-center gap-2">
-                <Target size={18} />
+                <Target size={18} className="text-[#CFAF5E]"/>
                 Sugestões de Posicionamento
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
