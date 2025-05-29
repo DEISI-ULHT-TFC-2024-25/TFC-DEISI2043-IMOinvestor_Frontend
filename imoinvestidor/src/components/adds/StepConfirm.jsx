@@ -1,5 +1,6 @@
 import { ChevronLeft, Eye, Building, Calendar, CheckCircle } from 'lucide-react';
 import { PropertyCard } from '@properties/PropertyCard';
+import PricePositionBar from '@common/PricePositionBar';
 
 export default function StepConfirm({ form, prev, onCreate, existingAds, loading, success }) {
   const property = form.property;
@@ -61,37 +62,19 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
 
       <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100">
         <div className="text-center mb-6">
-          <div className="text-4xl font-bold text-[#0A2647] mb-2">
-            €{price.toLocaleString()}
-          </div>
+          <div className="text-4xl font-bold text-[#0A2647] mb-2">€{price.toLocaleString()}</div>
           {property?.area_util && (
             <div className="text-lg text-gray-600">
               €{Math.round(price / property.area_util)}/m²
             </div>
           )}
         </div>
-
-        {minPrice && maxPrice && (
-          <div className="bg-gray-50 rounded-xl p-4">
-            <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden mb-2">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 via-amber-500 to-orange-600"></div>
-              <div 
-                className="absolute top-0 right-0 h-full bg-gray-200"
-                style={{ width: `${100 - pricePosition}%` }}
-              ></div>
-              {price && (
-                <div 
-                  className="absolute top-0 w-1 h-full bg-[#0A2647] shadow-lg transform -translate-x-0.5"
-                  style={{ left: `${pricePosition}%` }}
-                ></div>
-              )}
-            </div>
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>€{minPrice.toLocaleString()}</span>
-              <span>€{maxPrice.toLocaleString()}</span>
-            </div>
-          </div>
-        )}
+        <PricePositionBar
+          currentPrice={price}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          showPlaceholder={false}
+        />
       </div>
 
       {existingAds.length > 0 && (
