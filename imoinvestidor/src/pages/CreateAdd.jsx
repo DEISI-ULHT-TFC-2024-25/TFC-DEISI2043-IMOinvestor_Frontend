@@ -79,22 +79,26 @@ export default function CreateAdScreen() {
   };
 
   const renderStepper = () => (
-    <div className="flex items-center space-x-4 mb-8">
-      {steps.map(({ id, label, icon: Icon }) => {
-        const isActive = id === step;
-        const isDone = id < step;
-        return (
-          <div key={id} className="flex-1 flex items-center">
+  <div className="flex items-center justify-center mb-8">
+    {steps.map(({ id, label, icon: Icon }, index) => {
+      const isActive = id === step;
+      const isDone = id < step;
+      return (
+        <React.Fragment key={id}>
+          <div className="flex flex-col items-center">
             <div className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${isDone ? 'bg-[#CFAF5E] border-[#CFAF5E] text-white' : isActive ? 'border-[#CFAF5E] text-[#CFAF5E]' : 'border-gray-300 text-gray-400'}`}>
               {isDone ? <Check size={16} /> : <Icon size={16} />}
             </div>
-            <span className={`ml-2 text-sm font-medium ${isActive || isDone ? 'text-[#0A2647]' : 'text-gray-400'}`}>{label}</span>
-            {id < steps.length && <div className="flex-1 h-px bg-gray-200 mx-4" />}
+            <span className={`mt-2 text-sm font-medium ${isActive || isDone ? 'text-[#0A2647]' : 'text-gray-400'}`}>{label}</span>
           </div>
-        );
-      })}
-    </div>
-  );
+          {index < steps.length - 1 && (
+            <div className="w-24 h-px bg-gray-200 mx-4" />
+          )}
+        </React.Fragment>
+      );
+    })}
+  </div>
+);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0A2647]10 p-4">
