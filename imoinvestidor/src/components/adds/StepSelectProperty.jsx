@@ -20,7 +20,7 @@ export default function StepSelectProperty({ form, setForm, next, properties }) 
         <button
           onClick={next}
           disabled={!form.property}
-          className="flex items-center gap-2 px-6 py-3 bg-[#CFAF5E] text-[#0A2647] rounded-lg disabled:bg-gray-300 disabled:text-gray-500 transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#CFAF5E] to-[#b89a4e] text-white px-8 py-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium order-1 sm:order-2"
         >
           Próximo <ChevronRight size={16} />
         </button>

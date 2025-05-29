@@ -32,7 +32,7 @@ export default function StepReviewConfirm({ form, prev, onCreate, existingAds, l
         <button
           onClick={onCreate}
           disabled={loading || success}
-          className="flex items-center gap-2 bg-[#CFAF5E] text-[#0A2647] px-6 py-2 rounded-lg disabled:opacity-50 hover:bg-[#b89a4e] transition-colors"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-[#CFAF5E] to-[#b89a4e] text-white px-8 py-3 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 font-medium order-1 sm:order-2"
         >
           {loading ? 'A criar...' : success ? 'Criado!' : 'Criar Anúncio'}
         </button>
