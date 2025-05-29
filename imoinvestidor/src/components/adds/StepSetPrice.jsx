@@ -134,7 +134,6 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
           <DollarSign size={32} className="text-white" />
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold text-[#0A2647] mb-2">Defina o Preço</h2>
-        <p className="text-gray-600">Posicione estrategicamente o seu imóvel no mercado</p>
       </div>
 
       <div className="bg-gradient-to-br from-[#0A2647] to-[#1a3a5f] rounded-2xl p-6 text-white">
