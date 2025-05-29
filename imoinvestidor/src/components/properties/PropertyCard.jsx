@@ -34,12 +34,16 @@ export const PropertyCard = ({
 
   return (
     <div 
-      className={`bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md transform hover:scale-[1.02] ${
+      className={`bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all duration-200 ${
+        selectionMode 
+          ? 'hover:shadow-md transform hover:scale-[1.02] cursor-pointer' 
+          : ''
+      } ${
         isSelected 
           ? 'border-[#CFAF5E] ring-2 ring-[#CFAF5E]/20 shadow-lg' 
-          : 'border-gray-200 hover:border-[#CFAF5E]/50'
-      } ${selectionMode ? 'cursor-pointer' : ''} ${className}`}
-      onClick={handleCardClick}
+          : 'border-gray-200'
+      } ${className}`}
+      onClick={selectionMode ? handleCardClick : undefined}
     >
       {isSelected && (
         <div className="absolute top-3 left-3 z-10 w-6 h-6 bg-[#CFAF5E] rounded-full flex items-center justify-center shadow-md">

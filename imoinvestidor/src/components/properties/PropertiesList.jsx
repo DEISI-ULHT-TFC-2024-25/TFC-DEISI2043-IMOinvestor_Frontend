@@ -6,10 +6,26 @@ import { PropertyCard } from "@properties/PropertyCard";
 import DeleteButton from "@common/DeleteButton";
 import placeholderImg from '@images/placeholder.jpg';
 
-const getImageUrl = (property) => {
-  const mediaItem = property.media?.[0];
-  if (!mediaItem) return placeholderImg;
-  return mediaItem.file || mediaItem.url || placeholderImg;
+const getImageUrl = (property) => {  
+  if (!property.media || !Array.isArray(property.media) || property.media.length === 0) {
+    console.log('No media found for property:', property.name);
+    return placeholderImg;
+  }
+
+  const mediaItem = property.media[0];
+
+  const imageUrl = mediaItem.file || 
+                   mediaItem.url || 
+                   mediaItem.image || 
+                   mediaItem.file_url ||
+                   mediaItem.media_url ||
+                   null;
+
+  if (!imageUrl) {
+    return placeholderImg;
+  }
+
+  return imageUrl;
 };
 
 export default function PropertiesList({ 
@@ -44,14 +60,12 @@ export default function PropertiesList({
         return (
           <div
             key={property.id}
-            className={`relative ${selectionMode ? 'cursor-pointer' : ''} ${
-              isSelected 
-                ? 'ring-2 ring-[#CFAF5E] shadow-lg shadow-yellow-100 transform scale-[1.02]' 
-                : selectionMode 
-                ? 'hover:ring-1 hover:ring-[#CFAF5E] hover:shadow-md' 
-                : ''
-            } transition-all duration-300 ease-out`}
             onClick={() => handlePropertyClick(property)}
+            className={`relative transition-all duration-300 ease-out ${
+              selectionMode 
+                ? 'cursor-pointer hover:scale-[1.02] hover:shadow-md hover:ring-1 hover:ring-[#CFAF5E]' 
+                : ''
+            } ${isSelected ? 'ring-2 ring-[#CFAF5E] shadow-lg scale-[1.02]' : ''}`}
           >
             {isSelected && (
               <div className="absolute -top-3 -right-3 z-10 bg-[#CFAF5E] text-[#0A2647] rounded-full p-2 shadow-lg border-2 border-white">

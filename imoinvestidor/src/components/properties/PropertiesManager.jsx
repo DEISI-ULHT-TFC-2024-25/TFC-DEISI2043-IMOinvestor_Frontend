@@ -116,7 +116,7 @@ export default function PropertiesManager({
               currentMunicipality: selectedMunicipality,
               loadByDistrict,
               setDistrict: setSelectedDistrict,
-              setMunicipality: setSelectedMunicipality => setSelectedMunicipality(String(e.target.value))
+              setMunicipality: setSelectedMunicipality
             });
           }}
           options={districts.map(d => ({ label: d.name, value: String(d.id) }))}
