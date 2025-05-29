@@ -1,12 +1,21 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Building } from 'lucide-react';
 import PropertiesManager from '@properties/PropertiesManager';
 
 export default function StepSelectProperty({ form, setForm, next, properties }) {
   return (
     <div className="space-y-6">
+
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#CFAF5E] to-[#b89a4e] rounded-full mb-4">
+          <Building size={32} className="text-white" />
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#0A2647] mb-2">
+          Selecione a Propriedade
+        </h2>
+      </div>
+
       <PropertiesManager
         fetchProperties={() => Promise.resolve(properties)}
-        title="Selecione a propriedade para criar anúncio"
         showView={true}
         showEdit={false}
         showDelete={false}
