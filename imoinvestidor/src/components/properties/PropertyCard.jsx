@@ -32,6 +32,8 @@ export const PropertyCard = ({
     }
   };
 
+  const hasPriceRange = preco_minimo || preco_maximo;
+
   return (
     <div 
       className={`bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all duration-200 ${
@@ -108,23 +110,31 @@ export const PropertyCard = ({
           </div>
         </div>
 
-        {(preco_minimo || preco_maximo) && (
-          <div className="bg-gradient-to-r from-[#CFAF5E]/10 to-[#CFAF5E]/5 p-3 rounded-lg mb-4">
-            <div className="text-xs text-gray-600 mb-1">Faixa de mercado estimada</div>
-            <div className="font-semibold text-[#0A2647]">
-              €{(preco_minimo || 0).toLocaleString()} - €{(preco_maximo || 0).toLocaleString()}
-            </div>
+        <div className={`bg-gradient-to-r from-[#CFAF5E]/10 to-[#CFAF5E]/5 p-3 rounded-lg mb-4 ${
+          selectionMode || !hasPriceRange ? 'opacity-0 pointer-events-none' : ''
+        }`}>
+          <div className="text-xs text-gray-600 mb-1">
+            {!selectionMode && hasPriceRange ? 'Faixa de mercado estimada' : 'Placeholder'}
           </div>
-        )}
+          <div className="font-semibold text-[#0A2647] h-6 flex items-center">
+            {!selectionMode && hasPriceRange ? (
+              `€${(preco_minimo || 0).toLocaleString()} - €${(preco_maximo || 0).toLocaleString()}`
+            ) : (
+              'Placeholder text'
+            )}
+          </div>
+        </div>
 
-        {!hidePrice && price && (
-          <div className="bg-gradient-to-r from-[#CFAF5E]/10 to-[#CFAF5E]/5 p-3 rounded-lg mb-4">
-            <div className="text-xs text-gray-600 mb-1">Preço</div>
-            <div className="text-[#CFAF5E] font-bold text-lg leading-tight">
-              {price}
-            </div>
+        <div className={`bg-gradient-to-r from-[#CFAF5E]/10 to-[#CFAF5E]/5 p-3 rounded-lg mb-4 ${
+          hidePrice || !price ? 'opacity-0 pointer-events-none' : ''
+        }`}>
+          <div className="text-xs text-gray-600 mb-1">
+            {!hidePrice && price ? 'Preço' : 'Placeholder'}
           </div>
-        )}
+          <div className="text-[#CFAF5E] font-bold text-lg leading-tight h-7 flex items-center">
+            {!hidePrice && price ? price : 'Placeholder price'}
+          </div>
+        </div>
 
         {selectionMode && onSelect && (
           <button
