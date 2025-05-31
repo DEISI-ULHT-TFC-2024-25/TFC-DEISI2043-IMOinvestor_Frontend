@@ -35,7 +35,6 @@ export default function PropertiesManager({
   const [selectedToDelete, setSelectedToDelete] = useState(null);
   const [selectedToView, setSelectedToView] = useState(null);
 
-  // Initialize filters state
   const [filters, setFilters] = useState({
     tipo: "",
     tipologia: "",
@@ -52,7 +51,6 @@ export default function PropertiesManager({
     extraInfos: [],
   });
 
-  // Use municipalities hook with the district from filters
   const { municipalities, loadByDistrict } = useMunicipalities(filters.distrito);
 
   useEffect(() => {
@@ -83,7 +81,6 @@ export default function PropertiesManager({
     loadPropertiesWithMedia();
   }, [fetchProperties]);
 
-  // Handle filter changes
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
   };
@@ -101,30 +98,19 @@ export default function PropertiesManager({
     setTimeout(() => setSuccessMessage(""), 3000);
   };
 
-  // Debug logging
-  console.log("Total properties:", properties.length);
-  console.log("Current filters:", filters);
-  console.log("Search term:", searchTerm);
-
-  // FILTERING LOGIC
   const filtered = properties.filter((property) => {
-    // 1) Search term (by name)
     const matchSearch = searchTerm
       ? property.name.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
 
-    // 2) Property type ("tipo")
-    //    ← CHANGE HERE: use `property.property_type` instead of `property.tipo`
     const matchType = filters.tipo
       ? property.property_type === filters.tipo
       : true;
 
-    // 3) Tipologia (we expect "T1", "T2", ..., "T9+" exactly)
     const matchTypology = filters.tipologia
       ? property.tipologia === filters.tipologia
       : true;
 
-    // 4) Número de casas de banho
     const propBathCount = parseInt(property.numero_casas_banho, 10) || 0;
     const matchBathrooms = filters.casasBanho
       ? filters.casasBanho === "4+"
@@ -132,7 +118,6 @@ export default function PropertiesManager({
         : propBathCount === parseInt(filters.casasBanho, 10)
       : true;
 
-    // 5) District & Municipality
     const matchDistrict = filters.distrito
       ? String(property.district) === String(filters.distrito)
       : true;
@@ -140,26 +125,22 @@ export default function PropertiesManager({
       ? String(property.municipality) === String(filters.municipio)
       : true;
 
-    // 6) New construction
     const matchNewConstruction = filters.novaConstrucao
       ? filters.novaConstrucao === "Sim"
         ? property.nova_construcao === true || property.nova_construcao === "Sim"
         : property.nova_construcao === false || property.nova_construcao === "Não" || !property.nova_construcao
       : true;
 
-    // 7) Energy certificate
     const matchCertificate = filters.certificado
       ? property.certificado_energetico === filters.certificado
       : true;
 
-    // 8) Price range
     const [minPrice, maxPrice] = filters.priceRange || [0, 2000000];
     const propertyMinPrice = property.preco_minimo || 0;
     const propertyMaxPrice = property.preco_maximo || propertyMinPrice || 0;
     const matchPriceRange =
       propertyMinPrice <= maxPrice && propertyMaxPrice >= minPrice;
 
-    // 9) Area filters
     const matchAreaUtilMin = filters.areaUtilMin
       ? (property.area_util || 0) >= parseInt(filters.areaUtilMin, 10)
       : true;
@@ -173,7 +154,6 @@ export default function PropertiesManager({
       ? (property.area_bruta || 0) <= parseInt(filters.areaBrutaMax, 10)
       : true;
 
-    // 10) Extra infos (comodidades) → use the real key "informacoes_adicionais"
     const propertyExtras = property.informacoes_adicionais || [];
     const matchExtraInfos =
       filters.extraInfos && filters.extraInfos.length > 0
@@ -186,7 +166,6 @@ export default function PropertiesManager({
           })
         : true;
 
-    // Debug only the first property
     if (properties.length > 0 && properties.indexOf(property) === 0) {
       console.log("Sample property structure:", property);
       console.log("Filter matches:", {
@@ -207,7 +186,6 @@ export default function PropertiesManager({
       });
     }
 
-    // Combine all filters
     return (
       matchSearch &&
       matchType &&
@@ -254,7 +232,6 @@ export default function PropertiesManager({
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Filters Sidebar */}
         <div className="lg:w-80 flex-shrink-0">
           <PropertyFilters
             filters={filters}
@@ -265,7 +242,6 @@ export default function PropertiesManager({
           />
         </div>
 
-        {/* Main Content */}
         <div className="flex-1">
           <div className="mb-6">
             <PropertiesSearchBar
