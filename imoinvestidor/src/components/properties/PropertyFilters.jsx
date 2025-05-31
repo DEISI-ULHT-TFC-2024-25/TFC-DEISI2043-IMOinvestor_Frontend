@@ -82,24 +82,27 @@ const PropertyFilters = ({
     });
   };
 
-  const hasActiveFilters = () => {
-    return (
-      filters.tipo ||
-      filters.tipologia ||
-      filters.casasBanho ||
-      filters.distrito ||
-      filters.municipio ||
-      filters.novaConstrucao ||
-      filters.certificado ||
-      filters.priceRange?.[0] > 0 ||
-      filters.priceRange?.[1] < 2000000 ||
-      filters.areaUtilMin ||
-      filters.areaUtilMax ||
-      filters.areaBrutaMin ||
-      filters.areaBrutaMax ||
-      (filters.extraInfos && filters.extraInfos.length > 0)
-    );
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    
+    if (filters.tipo) count++;
+    if (filters.tipologia) count++;
+    if (filters.casasBanho) count++;
+    if (filters.distrito) count++;
+    if (filters.municipio) count++;
+    if (filters.novaConstrucao) count++;
+    if (filters.certificado) count++;
+    if (filters.priceRange?.[0] > 0 || filters.priceRange?.[1] < 2000000) count++;
+    if (filters.areaUtilMin) count++;
+    if (filters.areaUtilMax) count++;
+    if (filters.areaBrutaMin) count++;
+    if (filters.areaBrutaMax) count++;
+    if (filters.extraInfos && filters.extraInfos.length > 0) count++;
+    
+    return count;
   };
+
+  const hasActiveFilters = () => getActiveFiltersCount() > 0;
 
   const FilterContent = () => (
     <div className="space-y-4 p-4">
@@ -306,7 +309,7 @@ const PropertyFilters = ({
           </h3>
           {hasActiveFilters() && (
             <span className="text-xs bg-[#CFAF5E] text-white px-2 py-1 rounded-full">
-              Ativos
+              {getActiveFiltersCount()}
             </span>
           )}
         </div>
@@ -329,8 +332,12 @@ const PropertyFilters = ({
           <Filter size={18} className="mr-2" />
           <span className="font-medium">Filtros</span>
           {hasActiveFilters() && (
-            <span className="ml-2 text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">
-              Ativos
+            <span className={`ml-2 text-xs px-2 py-1 rounded-full font-medium ${
+              hasActiveFilters() 
+                ? "bg-white text-[#CFAF5E]" 
+                : "bg-white bg-opacity-20"
+            }`}>
+              {getActiveFiltersCount()}
             </span>
           )}
         </div>
