@@ -8,14 +8,26 @@ export default function MyProperties() {
   const user = getUser();
   const orgId = user?.organization_ids?.[0];
   const [orgName, setOrgName] = useState("Organização");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (orgId) {
       getOrganizationById(orgId)
         .then(org => setOrgName(org.name))
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    } else if (user) {
+      setLoading(false);
     }
-  }, [orgId]);
+  }, [orgId, user]);
+
+  if (loading || !user || !orgId) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-600">A carregar propriedades...</p>
+      </div>
+    );
+  }
 
   return (
     <PropertiesManager
