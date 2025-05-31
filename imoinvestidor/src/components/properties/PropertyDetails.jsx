@@ -40,13 +40,17 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
   if (!isOpen || !property) return null;
 
   const formatPrice = (min, max) => {
-    if (min && max) {
+    const numMin = Number(min) || 0;
+    const numMax = Number(max) || 0;
+
+    if (numMax > 0) {
       return {
-        range: `${min.toLocaleString()} € – ${max.toLocaleString()} €`,
-        minPrice: `${min.toLocaleString()} €`,
-        maxPrice: `${max.toLocaleString()} €`
+        range: `${numMin.toLocaleString()} € – ${numMax.toLocaleString()} €`,
+        minPrice: `${numMin.toLocaleString()} €`,
+        maxPrice: `${numMax.toLocaleString()} €`
       };
     }
+
     return {
       range: 'Preço sob consulta',
       minPrice: null,
@@ -62,7 +66,10 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center lg:p-4">
-      <div className="absolute inset-0 bg-black opacity-50 hidden lg:block" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black opacity-50 hidden lg:block"
+        onClick={onClose}
+      />
 
       <div className="relative bg-white lg:rounded-3xl shadow-2xl w-full max-w-4xl h-full lg:max-h-[90vh] overflow-hidden">
         <div className="bg-gradient-to-r from-[#0A2647] to-[#0d2f52] text-white p-6 relative">
@@ -74,12 +81,17 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
             <X className="w-5 h-5 text-black" />
           </button>
 
-          <h2 className="text-2xl md:text-3xl font-bold mb-2 pr-12">{property.name}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2 pr-12">
+            {property.name}
+          </h2>
 
           <div className="flex flex-wrap items-center gap-4 text-sm md:text-base opacity-90">
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              <span>{property.municipalityName || property.municipality}, {property.districtName || property.district}</span>
+              <span>
+                {property.municipalityName || property.municipality},{" "}
+                {property.districtName || property.district}
+              </span>
             </div>
             <div className="px-3 py-1 bg-[#CFAF5E] text-[#0A2647] rounded-full text-xs font-semibold">
               {property.property_type}
@@ -100,12 +112,17 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
                   afterChange={handleSlideChange}
                 >
                   {processedMedia.map((src, index) => (
-                    <div key={index} className="relative w-full h-full bg-gray-100 flex items-center justify-center">
+                    <div
+                      key={index}
+                      className="relative w-full h-full bg-gray-100 flex items-center justify-center"
+                    >
                       <img
                         src={src}
                         alt={`Imagem ${index + 1}`}
                         className="w-full h-full object-cover"
-                        onError={(e) => { e.currentTarget.src = placeholderImg; }}
+                        onError={(e) => {
+                          e.currentTarget.src = placeholderImg;
+                        }}
                       />
                     </div>
                   ))}
@@ -131,24 +148,36 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
               <div className="block sm:hidden">
                 {priceData.minPrice && priceData.maxPrice ? (
                   <div className="space-y-1">
-                    <div className="text-xl font-bold text-[#CFAF5E] leading-tight">{priceData.minPrice}</div>
+                    <div className="text-xl font-bold text-[#CFAF5E] leading-tight">
+                      {priceData.minPrice}
+                    </div>
                     <div className="text-sm text-gray-500 font-medium">até</div>
-                    <div className="text-xl font-bold text-[#CFAF5E] leading-tight">{priceData.maxPrice}</div>
+                    <div className="text-xl font-bold text-[#CFAF5E] leading-tight">
+                      {priceData.maxPrice}
+                    </div>
                   </div>
                 ) : (
-                  <div className="text-xl font-bold text-[#CFAF5E] leading-tight break-words">{priceData.range}</div>
+                  <div className="text-xl font-bold text-[#CFAF5E] leading-tight break-words">
+                    {priceData.range}
+                  </div>
                 )}
               </div>
 
               <div className="hidden sm:block">
                 {priceData.minPrice && priceData.maxPrice ? (
                   <div className="space-y-1">
-                    <div className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">{priceData.minPrice}</div>
+                    <div className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">
+                      {priceData.minPrice}
+                    </div>
                     <div className="text-sm text-gray-500 font-medium">até</div>
-                    <div className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">{priceData.maxPrice}</div>
+                    <div className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">
+                      {priceData.maxPrice}
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">{priceData.range}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-[#CFAF5E] leading-tight">
+                    {priceData.range}
+                  </p>
                 )}
               </div>
 
@@ -158,9 +187,21 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <FeatureCard icon={<Bed className="text-white" />} label="Quartos" value={property.tipologia} />
-              <FeatureCard icon={<Bath className="text-white" />} label="Casas de banho" value={property.numero_casas_banho} />
-              <FeatureCard icon={<Ruler className="text-white" />} label="m² úteis" value={`${property.area_util} m²`} />
+              <FeatureCard
+                icon={<Bed className="text-white" />}
+                label="Quartos"
+                value={property.tipologia}
+              />
+              <FeatureCard
+                icon={<Bath className="text-white" />}
+                label="Casas de banho"
+                value={property.numero_casas_banho}
+              />
+              <FeatureCard
+                icon={<Ruler className="text-white" />}
+                label="m² úteis"
+                value={`${property.area_util} m²`}
+              />
             </div>
 
             <div className="space-y-6">
@@ -195,18 +236,38 @@ function DetailsSection({ property }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DetailItem label="Área Útil" value={`${property.area_util} m²`} />
           <DetailItem label="Área Bruta" value={`${property.area_bruta} m²`} />
-          <DetailItem label="Distrito" value={`${property.districtName || property.district}`} />
-          <DetailItem label="Município" value={`${property.municipalityName || property.municipality}`} />
+          <DetailItem
+            label="Distrito"
+            value={`${property.districtName || property.district}`}
+          />
+          <DetailItem
+            label="Município"
+            value={`${property.municipalityName || property.municipality}`}
+          />
           <DetailItem label="Código Postal" value={property.postal_code} />
-          {property.street && <DetailItem label="Rua" value={property.street} className="md:col-span-2" />}
-          <DetailItem label="Nova Construção" value={property.nova_construcao ? 'Sim' : 'Não'} />
-          <DetailItem label="Certificado Energético" value={property.certificado_energetico} />
+          {property.street && (
+            <DetailItem
+              label="Rua"
+              value={property.street}
+              className="md:col-span-2"
+            />
+          )}
+          <DetailItem
+            label="Nova Construção"
+            value={property.nova_construcao ? 'Sim' : 'Não'}
+          />
+          <DetailItem
+            label="Certificado Energético"
+            value={property.certificado_energetico}
+          />
         </div>
       </div>
 
       {property.descricao && (
         <div>
-          <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">Descrição</h3>
+          <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">
+            Descrição
+          </h3>
           <p className="text-gray-700 leading-relaxed">{property.descricao}</p>
         </div>
       )}
@@ -218,7 +279,10 @@ function DetailsSection({ property }) {
           </h3>
           <div className="flex flex-wrap gap-2">
             {property.informacoes_adicionais.map((info, index) => (
-              <span key={index} className="px-3 py-1 bg-[#CFAF5E] bg-opacity-20 text-[#0A2647] rounded-full text-sm font-medium">
+              <span
+                key={index}
+                className="px-3 py-1 bg-[#CFAF5E] bg-opacity-20 text-[#0A2647] rounded-full text-sm font-medium"
+              >
                 {info}
               </span>
             ))}
