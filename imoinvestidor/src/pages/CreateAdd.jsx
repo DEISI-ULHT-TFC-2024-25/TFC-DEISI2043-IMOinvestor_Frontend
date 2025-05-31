@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Check, Building, DollarSign, Eye } from 'lucide-react';
 import PropertyDetails from '@properties/PropertyDetails';
 import { fetchAnnouncements, createAnnouncement } from '@services/announcementService';
-import { fetchProperties } from '@services/propertyService';
+import { getPropertiesByOrganization } from '@services/propertyService';
+import { getUser } from '@services/authService';
 
 import StepSelectProperty from '@adds/StepSelectProperty';
 import StepSetPrice from '@adds/StepSetPrice';
@@ -25,9 +26,16 @@ export default function CreateAdScreen() {
   const [viewProperty, setViewProperty] = useState(null);
 
   useEffect(() => {
-    fetchProperties()
-      .then(data => setProperties(data))
-      .catch(() => setError('Não foi possível carregar propriedades'));
+    const user = getUser();
+    const orgId = user?.organization_ids?.[0];
+    
+    if (orgId) {
+      getPropertiesByOrganization(orgId)
+        .then(data => setProperties(data))
+        .catch(() => setError('Não foi possível carregar propriedades'));
+    } else {
+      setError('Organização não encontrada');
+    }
   }, []);
 
   useEffect(() => {
