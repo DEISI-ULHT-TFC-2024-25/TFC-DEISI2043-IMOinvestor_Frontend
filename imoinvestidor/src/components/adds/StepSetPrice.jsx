@@ -139,10 +139,6 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
       <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100">
         <div className="space-y-6">
           <div className="text-center">
-            <label className="block text-xl font-semibold text-[#0A2647] mb-4">
-              Preço de Venda
-            </label>
-            
             <InputField
               label="Preço de Venda"
               name="price"
@@ -151,7 +147,9 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
               onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))}
               prefix="€"
               required
-              className="max-w-md mx-auto text-center"
+              preventNegative
+              placeholder="Insira o preço de venda"
+              className="max-w-md mx-auto"
               inputClassName="text-3xl font-bold text-center"
             />
 

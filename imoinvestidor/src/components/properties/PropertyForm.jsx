@@ -207,9 +207,25 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
             const val = formData[f.name] || "";
             const options = f.dynamicOptionsKey === "districts" ? districts.map(d => ({ label: d.name, value: d.id })) :
                              f.dynamicOptionsKey === "municipalities" ? municipalities.map(m => ({ label: m.name, value: m.id })) : f.options;
-            return f.type === "select" || f.type === "dynamic-select"
-              ? <SelectField key={i} label={f.label} name={f.name} options={options} value={val} onChange={handleInputChange} />
-              : <InputField key={i} label={f.label} name={f.name} type={f.inputType || "text"} value={val} onChange={handleInputChange} />;
+            
+            if (f.type === "select" || f.type === "dynamic-select") {
+              return <SelectField key={i} label={f.label} name={f.name} options={options} value={val} onChange={handleInputChange} />;
+            } else {
+              return (
+                <InputField 
+                  key={i} 
+                  label={f.label} 
+                  name={f.name} 
+                  type={f.inputType || "text"} 
+                  value={val} 
+                  onChange={handleInputChange}
+                  required={f.required}
+                  placeholder={f.placeholder}
+                  preventNegative={f.inputType === "number"}
+                  min={f.min}
+                />
+              );
+            }
           })}
         </div>
       )}

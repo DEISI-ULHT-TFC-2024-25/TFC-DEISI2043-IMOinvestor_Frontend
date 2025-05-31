@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Filter, ChevronDown } from "lucide-react";
 import Modal from "@common/Modal";
 import SelectField from "@common/SelectField";
+import InputField from "@common/InputField";
 import PriceRangeSlider from "@common/PriceRangeSlider";
 import CheckboxGroup from "@common/CheckboxGroup";
 import { handleDistrictChange } from "@utils/locationUtils";
@@ -105,8 +106,8 @@ const PropertyFilters = ({
   const hasActiveFilters = () => getActiveFiltersCount() > 0;
 
   const FilterContent = () => (
-    <div className="space-y-4 p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-6 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <SelectField
           label="Tipo de Imóvel"
           name="tipo"
@@ -132,7 +133,7 @@ const PropertyFilters = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <SelectField
           label="Nº Casas de Banho"
           name="casasBanho"
@@ -162,7 +163,7 @@ const PropertyFilters = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <SelectField
           label="Distrito"
           name="distrito"
@@ -190,7 +191,7 @@ const PropertyFilters = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <SelectField
           label="Certificado Energético"
           name="certificado"
@@ -208,9 +209,10 @@ const PropertyFilters = ({
           ]}
           placeholder="Qualquer certificação"
         />
+        <div></div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <label className="block text-sm font-medium text-gray-700">
           Intervalo de Preço
         </label>
@@ -223,60 +225,58 @@ const PropertyFilters = ({
       <div className="space-y-4">
         <h4 className="text-sm font-medium text-gray-700">Área Útil (m²)</h4>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <input
-              type="number"
-              placeholder="Mín."
-              value={filters.areaUtilMin || ""}
-              onChange={(e) =>
-                handleFilterChange("areaUtilMin", e.target.value)
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
-            />
-          </div>
-          <div>
-            <input
-              type="number"
-              placeholder="Máx."
-              value={filters.areaUtilMax || ""}
-              onChange={(e) =>
-                handleFilterChange("areaUtilMax", e.target.value)
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
-            />
-          </div>
+          <InputField
+            name="areaUtilMin"
+            type="number"
+            value={filters.areaUtilMin || ""}
+            onChange={(e) => handleFilterChange("areaUtilMin", e.target.value)}
+            placeholder="Mín."
+            inputClassName="focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
+            preventNegative={true}
+          />
+          <InputField
+            name="areaUtilMax"
+            type="number"
+            value={filters.areaUtilMax || ""}
+            onChange={(e) => handleFilterChange("areaUtilMax", e.target.value)}
+            placeholder="Máx."
+            inputClassName="focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
+            preventNegative={true}
+          />
         </div>
       </div>
 
       <div className="space-y-4">
         <h4 className="text-sm font-medium text-gray-700">Área Bruta (m²)</h4>
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <input
-              type="number"
-              placeholder="Mín."
-              value={filters.areaBrutaMin || ""}
-              onChange={(e) =>
-                handleFilterChange("areaBrutaMin", e.target.value)
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
-            />
-          </div>
-          <div>
-            <input
-              type="number"
-              placeholder="Máx."
-              value={filters.areaBrutaMax || ""}
-              onChange={(e) =>
-                handleFilterChange("areaBrutaMax", e.target.value)
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
-            />
-          </div>
+          <InputField
+            name="areaBrutaMin"
+            type="number"
+            value={filters.areaBrutaMin || ""}
+            onChange={(e) => {
+              const value = Math.max(0, parseFloat(e.target.value) || 0);
+              handleFilterChange("areaBrutaMin", value.toString());
+            }}
+            placeholder="Mín."
+            inputClassName="focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
+            min="0"
+          />
+          <InputField
+            name="areaBrutaMax"
+            type="number"
+            value={filters.areaBrutaMax || ""}
+            onChange={(e) => {
+              const value = Math.max(0, parseFloat(e.target.value) || 0);
+              handleFilterChange("areaBrutaMax", value.toString());
+            }}
+            placeholder="Máx."
+            inputClassName="focus:ring-2 focus:ring-[#CFAF5E] focus:border-transparent"
+            min="0"
+          />
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <CheckboxGroup
           label="Comodidades"
           options={extraInfos}
