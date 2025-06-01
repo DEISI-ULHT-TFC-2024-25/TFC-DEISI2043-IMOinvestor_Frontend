@@ -1,19 +1,42 @@
 import { ChevronLeft, Eye, Building, Calendar, CheckCircle } from 'lucide-react';
 import { PropertyCard } from '@properties/PropertyCard';
 import PricePositionBar from '@common/PricePositionBar';
+import { useState, useEffect } from 'react';
+import { getPropertiesWithAnnouncement } from '@services/propertyService';
 
 export default function StepConfirm({ form, prev, onCreate, existingAds, loading, success }) {
+  const [hasExistingAnnouncement, setHasExistingAnnouncement] = useState(false);
+  const [loadingCheck, setLoadingCheck] = useState(false);
+  
   const property = form.property;
   const price = parseFloat(form.price) || 0;
   const minPrice = property?.preco_minimo || 0;
   const maxPrice = property?.preco_maximo || 0;
   
+  useEffect(() => {
+    const checkForExistingAnnouncement = async () => {
+      if (!property?.id) return;
+      
+      setLoadingCheck(true);
+      try {
+        const propertiesWithAds = await getPropertiesWithAnnouncement();
+        const hasAd = propertiesWithAds.some(prop => prop.id === property.id);
+        setHasExistingAnnouncement(hasAd);
+      } catch (error) {
+        console.error('Error checking for existing announcements:', error);
+        setHasExistingAnnouncement(false);
+      } finally {
+        setLoadingCheck(false);
+      }
+    };
+
+    checkForExistingAnnouncement();
+  }, [property?.id]);
+  
   const getPricePosition = () => {
     if (!price || !minPrice || !maxPrice) return 0;
     return Math.max(0, Math.min(100, ((price - minPrice) / (maxPrice - minPrice)) * 100));
   };
-
-  const pricePosition = getPricePosition();
 
   const getImageUrl = (property) => {
     if (!property?.media || !Array.isArray(property.media) || property.media.length === 0) {
@@ -77,45 +100,50 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
         />
       </div>
 
-      {existingAds.length > 0 && (
+      {loadingCheck && (
         <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100">
-          <h4 className="font-semibold text-[#0A2647] mb-4 flex items-center gap-2">
-            <Calendar size={18} />
-            Anúncios Existentes ({existingAds.length})
-          </h4>
-          <div className="space-y-3">
-            {existingAds.map(ad => (
-              <div key={ad.id} className="flex items-center justify-between p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-amber-400 rounded-full"></div>
-                  <div>
-                    <div className="text-[#0A2647] font-semibold">
-                      €{(ad.price || 0).toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      {property?.area_util && ad.price ? 
-                        `€${Math.round(ad.price / property.area_util)}/m²` : 
-                        'Preço por m² não disponível'
-                      }
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-gray-500">
-                    {ad.listed_date ? new Date(ad.listed_date).toLocaleDateString('pt-PT') : 'Data não disponível'}
-                  </div>
-                  <div className="text-xs text-amber-600 font-medium">Ativo</div>
-                </div>
-              </div>
-            ))}
+          <div className="flex items-center justify-center gap-2 text-gray-500">
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+            Verificando anúncios existentes...
           </div>
         </div>
       )}
 
+      {!loadingCheck && hasExistingAnnouncement && (
+        <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100">
+          <h4 className="font-semibold text-[#0A2647] mb-4 flex items-center gap-2">
+            <Calendar size={18} />
+            Anúncio Existente
+          </h4>
+          <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-amber-400 rounded-full"></div>
+              <div>
+                <div className="text-[#0A2647] font-semibold">
+                  Esta propriedade já possui um anúncio ativo
+                </div>
+                <div className="text-sm text-gray-600">
+                  O anúncio existente será substituído pelo novo
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <strong>Atenção:</strong> Criar um novo anúncio irá substituir o anúncio atual desta propriedade.
+            </p>
+          </div>
+        </div>
+      )}
+
+
+
       {success && (
         <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border-2 border-green-200">
           <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
-          <span className="text-green-700 font-medium">Anúncio criado com sucesso!</span>
+          <span className="text-green-700 font-medium">
+            {hasExistingAnnouncement ? 'Anúncio atualizado com sucesso!' : 'Anúncio criado com sucesso!'}
+          </span>
         </div>
       )}
 
@@ -135,16 +163,16 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
           {loading ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              A criar...
+              {hasExistingAnnouncement ? 'A atualizar...' : 'A criar...'}
             </>
           ) : success ? (
             <>
               <CheckCircle size={18} />
-              Criado!
+              {hasExistingAnnouncement ? 'Atualizado!' : 'Criado!'}
             </>
           ) : (
             <>
-              Criar Anúncio
+              {hasExistingAnnouncement ? 'Atualizar Anúncio' : 'Criar Anúncio'}
               <Building size={18} />
             </>
           )}

@@ -62,19 +62,37 @@ export default function CreateAdScreen() {
   const prev = () => setStep(s => Math.max(1, s - 1));
 
   const onCreate = () => {
+    const user = getUser();
+    
+    if (!user) {
+      setError('Utilizador não autenticado');
+      return;
+    }
+    
     setLoading(true);
-    createAnnouncement({
-      property: form.property.id,
-      price: parseFloat(form.price),
-      organization: form.property.organization ?? 1,
-      created_by: 'current_user',
-      last_modified_by: 'current_user',
-    })
+    
+    const announcementData = {
+      created_by: user.user_name,
+      created_date: new Date().toISOString(),
+      last_modified_by: user.user_name,
+      last_modified_date: new Date().toISOString(),
+      expiry_date: null,
+      price: parseFloat(form.price).toString(),
+      is_active: true,
+      organization: parseInt(form.property.organization || user.organization_ids?.[0]),
+      property: parseInt(form.property.id)
+    };
+    
+    createAnnouncement(announcementData)
       .then(() => {
         setSuccess(true);
         setTimeout(() => reset(), 1500);
       })
-      .catch(() => setError('Erro ao criar anúncio'))
+      .catch((error) => {
+        console.error('Error creating announcement:', error);
+        console.error('Error response:', error.response?.data);
+        setError('Erro ao criar anúncio');
+      })
       .finally(() => setLoading(false));
   };
 
