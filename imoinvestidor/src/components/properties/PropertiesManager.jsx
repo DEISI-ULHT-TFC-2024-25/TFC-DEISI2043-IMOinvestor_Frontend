@@ -166,26 +166,6 @@ export default function PropertiesManager({
           })
         : true;
 
-    if (properties.length > 0 && properties.indexOf(property) === 0) {
-      console.log("Sample property structure:", property);
-      console.log("Filter matches:", {
-        matchSearch,
-        matchType,
-        matchTypology,
-        matchBathrooms,
-        matchDistrict,
-        matchMunicipality,
-        matchNewConstruction,
-        matchCertificate,
-        matchPriceRange,
-        matchAreaUtilMin,
-        matchAreaUtilMax,
-        matchAreaBrutaMin,
-        matchAreaBrutaMax,
-        matchExtraInfos,
-      });
-    }
-
     return (
       matchSearch &&
       matchType &&
@@ -204,7 +184,6 @@ export default function PropertiesManager({
     );
   });
 
-  console.log("Filtered properties:", filtered.length);
 
   if (loading)
     return <section className="p-6 text-center">A carregar propriedades…</section>;
