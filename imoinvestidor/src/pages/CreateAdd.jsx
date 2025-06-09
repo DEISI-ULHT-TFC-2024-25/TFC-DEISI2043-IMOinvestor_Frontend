@@ -5,9 +5,9 @@ import { fetchAnnouncements, createAnnouncement } from '@services/announcementSe
 import { getPropertiesByOrganization } from '@services/propertyService';
 import { getUser } from '@services/authService';
 
-import StepSelectProperty from '@adds/StepSelectProperty';
-import StepSetPrice from '@adds/StepSetPrice';
-import StepReviewConfirm from '@adds/StepConfirm';
+import StepSelectProperty from '@announcements/StepSelectProperty';
+import StepSetPrice from '@announcements/StepSetPrice';
+import StepReviewConfirm from '@announcements/StepConfirm';
 
 const steps = [
   { id: 1, label: 'Propriedade', icon: Building },

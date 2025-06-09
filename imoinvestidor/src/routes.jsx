@@ -15,6 +15,7 @@ import NotFound from "@pages/NotFound";
 import AllProperties from "@pages/AllProperties";
 import UserSettings from "@pages/UserSettings";
 import CreateAdd from "@pages/CreateAdd";
+import MyAnnouncements from "@pages/MyAnnouncements";
 
 
 export default function AppRoutes() {
@@ -45,8 +46,12 @@ export default function AppRoutes() {
         <Route path="create-property" element={<CreateProperty />} />
         <Route path="edit-property/:id" element={<EditProperty />} />
         <Route path="all-properties" element={<AllProperties />} />
+        
         <Route path="profile" element={<UserSettings />} />
+        
         <Route path="create-add" element={<CreateAdd />} />
+        <Route path="my-announcements" element={<MyAnnouncements />} />
+
 
         <Route path="*" element={<NotFound />} />
       </Route>

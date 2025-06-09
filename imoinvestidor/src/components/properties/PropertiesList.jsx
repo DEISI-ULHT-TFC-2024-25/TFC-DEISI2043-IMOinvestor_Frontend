@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { PropertyCard } from "@properties/PropertyCard";
 import DeleteButton from "@common/DeleteButton";
