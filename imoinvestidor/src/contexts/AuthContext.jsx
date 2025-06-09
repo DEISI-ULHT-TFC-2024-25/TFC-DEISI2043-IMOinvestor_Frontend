@@ -3,7 +3,6 @@ import * as authService from "@services/authService";
 import PropTypes from "prop-types";
 import ROLES from "@constants/roles.js";
 
-
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -17,6 +16,9 @@ export const AuthProvider = ({ children }) => {
       setUser(storedUser);
     }
   }, []);
+
+  const normalizeRoles = (roles) =>
+    Array.isArray(roles) ? roles : roles ? [roles] : [];
 
   const login = async (credentials) => {
     setLoading(true);
@@ -38,16 +40,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const roles = normalizeRoles(user?.role);
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoggedIn: !!user,
-        hasRole: (role) => user?.role?.includes(role),
-        isAdmin: user?.role?.includes(ROLES.SYS_ADMIN),
-        isAgent: user?.role?.includes(ROLES.AGENT),
-        isInvestor: user?.role?.includes(ROLES.INVESTOR),
-        isPromotor: user?.role?.includes(ROLES.PROMOTOR),
+        hasRole: (role) => roles.includes(role),
+        isAdmin: roles.includes(ROLES.SYS_ADMIN),
+        isAgent: roles.includes(ROLES.AGENT),
+        isInvestor: roles.includes(ROLES.INVESTOR),
+        isPromotor: roles.includes(ROLES.PROMOTOR),
         login,
         logout,
         loading,

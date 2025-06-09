@@ -5,15 +5,17 @@ import useRole from "@hooks/useRole";
 import logo from "@images/logo.png";
 import LanguageSelector from "@layout/LanguageSelector";
 import UserDropdown from "@layout/UserDropdown";
+import ROLES from "@constants/roles";
 
 export default function Header() {
   const { isLoggedIn } = useAuth();
   const { hasAnyRole, hasRole } = useRole();
 
-  const showCreateButton = isLoggedIn ? hasAnyRole(["AGENT", "PROMOTOR"]) : true;
-  const createButtonLink = isLoggedIn ? "/create-add" : "/login";
+  const canCreateAd = hasAnyRole([ROLES.AGENT, ROLES.PROMOTOR]);
+  const isAdmin = hasRole(ROLES.SYS_ADMIN);
 
-  const isAdmin = hasRole("SYS_ADMIN");
+  const showCreateButton = !isLoggedIn || canCreateAd;
+  const createButtonLink = isLoggedIn ? "/create-add" : "/login";
 
   return (
     <nav className="bg-[#0A2647] text-white px-6 shadow-md">
