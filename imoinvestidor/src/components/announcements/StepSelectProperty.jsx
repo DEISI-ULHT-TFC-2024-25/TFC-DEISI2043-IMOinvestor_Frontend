@@ -1,5 +1,5 @@
 import { ChevronRight, Building } from 'lucide-react';
-import PropertiesManager from '@properties/PropertiesManager';
+import ItemsManager from '@common/ItemsManager';
 
 export default function StepSelectProperty({ form, setForm, next, properties }) {
   return (
@@ -14,14 +14,15 @@ export default function StepSelectProperty({ form, setForm, next, properties }) 
         </h2>
       </div>
 
-      <PropertiesManager
-        fetchProperties={() => Promise.resolve(properties)}
+      <ItemsManager
+        listType="property"
+        fetchItems={() => Promise.resolve(properties)}
         showView={true}
         showEdit={false}
         showDelete={false}
         selectionMode={true}
-        onPropertySelect={p => setForm(f => ({ ...f, property: p }))}
-        selectedProperty={form.property}
+        onItemSelect={p => setForm(f => ({ ...f, property: p }))}
+        selectedItem={form.property}
         emptyStateMessage="Nenhuma propriedade disponível para criar anúncio."
       />
 
