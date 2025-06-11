@@ -17,6 +17,8 @@ import AllProperties from "@pages/AllProperties";
 import UserSettings from "@pages/UserSettings";
 import CreateAdd from "@pages/CreateAdd";
 import MyAnnouncements from "@pages/MyAnnouncements";
+import AdminDashboard from "@pages/AdminDashboard";
+import AdminUsersPage from "@pages/AdminUsersPage";
 
 // Rotas personalizadas
 import PublicRoute from "@routes/PublicRoute";
@@ -55,6 +57,24 @@ export default function AppRoutes() {
           element={
             <RoleRoute allowedRoles={[ROLES.SYS_ADMIN]}>
               <Health />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="admin"
+          element={
+            <RoleRoute allowedRoles={[ROLES.SYS_ADMIN]}>
+              <AdminDashboard />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="admin/users"
+          element={
+            <RoleRoute allowedRoles={[ROLES.SYS_ADMIN]}>
+              <AdminUsersPage />
             </RoleRoute>
           }
         />
