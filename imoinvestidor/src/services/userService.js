@@ -19,6 +19,7 @@ function normalizeUser(raw) {
     lastModifiedDate: raw.last_modified_date ? new Date(raw.last_modified_date) : null,
     institutionIds: Array.isArray(raw.institution_ids) ? raw.institution_ids : [],
     roleId: raw.role_id,
+    role: raw.role || '',
   };
 }
 
