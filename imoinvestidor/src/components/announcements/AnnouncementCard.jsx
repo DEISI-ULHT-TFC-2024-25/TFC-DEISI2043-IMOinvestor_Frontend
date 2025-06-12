@@ -1,158 +1,129 @@
 import PropTypes from 'prop-types';
 import { Eye, Edit3 } from 'lucide-react';
 import placeholderImg from '@images/placeholder.jpg';
-
 import { BaseCard } from '@common/BaseCard';
 import { PriceBlock } from '@common/PriceBlock';
 import { SelectorBadge } from '@common/SelectorBadge';
 
-export const AnnouncementCard = ({
+export function AnnouncementCard({
   announcement,
   onView,
   onEdit,
-  className = '',
-  imageClassName = 'h-48 sm:h-56',
   actions = null,
   showView = true,
   showEdit = true,
-  isSelected = false,
-  onSelect,
   selectionMode = false,
-}) => {
+  onSelect,
+  isSelected,
+  className = '',
+}) {
+  const { property, preco_definitivo, is_active } = announcement;
   const {
-    property: {
-      title,
-      tipologia,
-      numero_casas_banho: casasBanho,
-      area_util: areaUtil,
-      street,
-      district,
-      imageUrl,
-      media = [],
-    } = {},
-    preco_definitivo,
-  } = announcement || {};
+    title,
+    tipologia = '',
+    numero_casas_banho: casasBanho = 0,
+    area_util: areaUtil = 0,
+    street,
+    district,
+    imageUrl,
+    media = [],
+  } = property || {};
 
   const imgSrc =
     imageUrl ||
     (media.length > 0 ? (media[0].file || media[0].url) : null) ||
     placeholderImg;
 
-  const handleCardClick = () => {
-    if (selectionMode && onSelect) onSelect();
-  };
-
   return (
     <div
-      className={`bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all duration-200 ${
-        selectionMode
-          ? 'hover:shadow-md transform hover:scale-[1.02] cursor-pointer'
-          : ''
+      className={`relative bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all ${
+        selectionMode ? 'cursor-pointer hover:shadow-md scale-102' : ''
       } ${
         isSelected
-          ? 'border-[#CFAF5E] ring-2 ring-[#CFAF5E]/20 shadow-lg'
+          ? 'border-[#CFAF5E] ring-2 ring-[#CFAF5E]/20'
           : 'border-gray-200'
       } ${className}`}
-      onClick={selectionMode ? handleCardClick : undefined}
+      onClick={selectionMode ? onSelect : undefined}
     >
       <SelectorBadge isSelected={isSelected} />
+
+      <div
+        className={`absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded ${
+          is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`}
+      >
+        {is_active ? 'Ativo' : 'Inativo'}
+      </div>
+
       {actions && <div className="absolute top-2 right-2 z-10">{actions}</div>}
 
-      <div className={`overflow-hidden relative ${imageClassName}`}> 
-        <img
-          src={imgSrc}
-          alt={title}
-          className="w-full h-full object-cover"
-          onError={(e) => { e.currentTarget.src = placeholderImg; }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-      </div>
+      <BaseCard
+        title={title}
+        tipologia={tipologia}
+        casasBanho={casasBanho}
+        areaUtil={areaUtil}
+        imageUrl={imgSrc}
+      />
 
       <div className="p-4 sm:p-5">
         <div className="flex justify-between items-start mb-2">
-          <h4 className="font-semibold text-[#0A2647] text-lg flex-1 pr-2 leading-tight">
+          <h4 className="text-lg font-semibold flex-1 leading-tight text-[#0A2647]">
             {title}
           </h4>
           {showView && onView && !selectionMode && (
             <button
-              onClick={(e) => { e.stopPropagation(); onView(); }}
-              className="text-[#CFAF5E] hover:bg-[#CFAF5E]/10 p-1 rounded-lg transition-colors flex-shrink-0 group"
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+              className="p-1 rounded-lg text-[#CFAF5E] hover:bg-[#CFAF5E]/10 transition"
               title="Ver detalhes"
             >
-              <Eye size={18} className="group-hover:scale-110 transition-transform" />
+              <Eye size={18} />
             </button>
           )}
         </div>
 
-        {(district || street) && (
+        {(street || district) && (
           <p className="text-sm text-gray-600 mb-3">
             {street ? `${street}, ${district}` : district}
           </p>
         )}
 
-        <BaseCard
-          title={title}
-          tipologia={tipologia}
-          casasBanho={casasBanho}
-          areaUtil={areaUtil}
-        />
-
         <PriceBlock
           hasRange={false}
-          price={preco_definitivo != null ? `€${preco_definitivo.toLocaleString()}` : '-'}
-          hidePrice={false}
-          selectionMode={selectionMode}
+          price={
+            preco_definitivo != null
+              ? `€${preco_definitivo.toLocaleString()}`
+              : '-'
+          }
         />
-
-        {selectionMode && onSelect && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onSelect(); }}
-            className={`w-full py-2.5 px-4 rounded-xl font-medium transition-all duration-200 ${
-              isSelected
-                ? 'bg-[#CFAF5E] text-white shadow-md'
-                : 'bg-gray-100 text-[#0A2647] hover:bg-[#CFAF5E]/10 hover:text-[#CFAF5E]'
-            }`}
-          >
-            {isSelected ? 'Selecionado' : 'Selecionar'}
-          </button>
-        )}
 
         {!selectionMode && showEdit && onEdit && (
           <button
-            onClick={(e) => { e.stopPropagation(); onEdit(); }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm mt-4"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transition"
           >
-            <Edit3 size={16} />
-            Editar
+            <Edit3 size={16} /> Editar
           </button>
         )}
       </div>
     </div>
   );
-};
+}
 
 AnnouncementCard.propTypes = {
-  announcement: PropTypes.shape({
-    property: PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      tipologia: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      numero_casas_banho: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      area_util: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      street: PropTypes.string,
-      district: PropTypes.string,
-      imageUrl: PropTypes.string,
-      media: PropTypes.array,
-    }).isRequired,
-    preco_definitivo: PropTypes.number,
-  }).isRequired,
-  onView: PropTypes.func,
-  onEdit: PropTypes.func,
-  className: PropTypes.string,
-  imageClassName: PropTypes.string,
-  actions: PropTypes.node,
-  showView: PropTypes.bool,
-  showEdit: PropTypes.bool,
-  isSelected: PropTypes.bool,
-  onSelect: PropTypes.func,
+  announcement:  PropTypes.object.isRequired,
+  onView:        PropTypes.func,
+  onEdit:        PropTypes.func,
+  actions:       PropTypes.node,
+  showView:      PropTypes.bool,
+  showEdit:      PropTypes.bool,
   selectionMode: PropTypes.bool,
+  onSelect:      PropTypes.func,
+  isSelected:    PropTypes.bool,
+  className:     PropTypes.string,
 };

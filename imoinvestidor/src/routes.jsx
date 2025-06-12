@@ -16,6 +16,7 @@ import EditProperty from "@pages/EditProperty";
 import AllProperties from "@pages/AllProperties";
 import UserSettings from "@pages/UserSettings";
 import CreateAdd from "@pages/CreateAdd";
+import EditAnnouncement from "@pages/EditAnnouncement";
 import MyAnnouncements from "@pages/MyAnnouncements";
 import AdminDashboard from "@pages/AdminDashboard";
 import AdminUsersPage from "@pages/AdminUsersPage";
@@ -126,6 +127,15 @@ export default function AppRoutes() {
           element={
             <RoleRoute allowedRoles={[ROLES.SYS_ADMIN, ROLES.AGENT, ROLES.PROMOTOR]}>
               <MyAnnouncements />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path="edit-announcement/:id"
+          element={
+            <RoleRoute allowedRoles={[ROLES.SYS_ADMIN, ROLES.AGENT, ROLES.PROMOTOR]}>
+              <EditAnnouncement />
             </RoleRoute>
           }
         />

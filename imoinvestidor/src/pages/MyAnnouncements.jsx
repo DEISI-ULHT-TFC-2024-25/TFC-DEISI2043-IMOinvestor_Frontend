@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getUser } from '@services/authService';
 import { getOrganizationById } from '@services/organizationService';
 import AnnouncementsManager from '@announcements/AnnouncementsManager';
-import { fetchAnnouncements } from '@services/announcementService';
+import { fetchAnnouncementsByOrganization } from '@services/announcementService';
 
 export default function MyAnnouncements() {
   const user = getUser();
@@ -29,7 +29,7 @@ export default function MyAnnouncements() {
   return (
     <AnnouncementsManager
       title={`Anúncios da Organização: ${orgName}`}
-      fetchAnnouncements={() => fetchAnnouncements({ organization: orgId })}
+      fetchAnnouncements={() => fetchAnnouncementsByOrganization()}
       showView
       showEdit
       showDelete

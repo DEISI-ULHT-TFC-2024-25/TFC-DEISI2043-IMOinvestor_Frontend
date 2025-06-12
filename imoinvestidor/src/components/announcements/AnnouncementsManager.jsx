@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import PropTypes from 'prop-types';
 import AnnouncementsList from '@announcements/AnnouncementsList';
 import ConfirmDialog from '@common/ConfirmDialog';
 import AnnouncementDetails from '@pages/AnnouncementDetails';
 import PropertyFilters from '@properties/PropertyFilters';
 import PropertiesSearchBar from '@properties/PropertiesSearchBar';
-
+import { getPropertyMediasByProperty } from '@services/propertyMediaService';
 import useDeleteAnnouncement from '@hooks/useDeleteAnnouncement';
 import useDistricts from '@hooks/useDistricts';
 import useMunicipalities from '@hooks/useMunicipalities';
-import { getPropertyMediasByProperty } from '@services/propertyMediaService';
 
 export default function AnnouncementsManager({
   fetchAnnouncements,
@@ -19,94 +17,89 @@ export default function AnnouncementsManager({
   showView = true,
   showEdit = true,
   showDelete = true,
-  selectionMode = false,
-  onAnnouncementSelect = null,
-  selectedAnnouncement = null,
 }) {
   const navigate = useNavigate();
   const { removeAnnouncement } = useDeleteAnnouncement();
   const { districts } = useDistricts();
-
-  const [announcements, setAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [toDelete, setToDelete] = useState(null);
-  const [toView, setToView] = useState(null);
-
-  const [filters, setFilters] = useState({
-    tipo: '', tipologia: '', casasBanho: '',
-    distrito: '', municipio: '', novaConstrucao: '',
-    certificado: '', priceRange: [0,2000000],
-    areaUtilMin: '', areaUtilMax: '',
-    areaBrutaMin: '', areaBrutaMax: '',
-    extraInfos: [],
+  const [allAnnouncements, setAllAnnouncements] = useState([]);
+  const [loading, setLoading]                   = useState(true);
+  const [error, setError]                       = useState(null);
+  const [toDelete, setToDelete]                 = useState(null);
+  const [toView, setToView]                     = useState(null);
+  const [successMsg, setSuccessMsg]             = useState('');
+  const [searchTerm, setSearchTerm]             = useState('');
+  const [filters, setFilters]                   = useState({
+    district:      '',
+    municipality:  '',
+    priceRange:    [0, 2000000],
+    property_type: '',
   });
-
-  const { municipalities, loadByDistrict } = useMunicipalities(filters.distrito);
+  const { municipalities, loadByDistrict } = useMunicipalities(filters.district);
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await fetchAnnouncements();
+    setLoading(true);
+    fetchAnnouncements()
+      .then(async (data) => {
         const withMedia = await Promise.all(
-          data.map(async (anun) => {
-            const prop = anun.property;
-            try {
-              const media = await getPropertyMediasByProperty(prop.id);
-              return { ...anun, property: { ...prop, media } };
-            } catch {
-              return { ...anun, property: { ...prop, media: [] } };
-            }
+          data.map(async (an) => {
+            const media = await getPropertyMediasByProperty(an.property?.id).catch(() => []);
+            return {
+              ...an,
+              property: {
+                ...an.property,
+                media,
+                // ensure every field we read below is at least an empty string
+                title:          an.property?.title || '',
+                district:       an.property?.district || '',
+                municipality:   an.property?.municipality || '',
+                property_type:  an.property?.property_type || '',
+              },
+            };
           })
         );
-        setAnnouncements(withMedia);
-      } catch (e) {
-        setError(e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+        setAllAnnouncements(withMedia);
+      })
+      .catch(setError)
+      .finally(() => setLoading(false));
   }, [fetchAnnouncements]);
 
   const confirmDelete = async () => {
     if (!toDelete) return;
     const ok = await removeAnnouncement(toDelete.id);
     if (ok) {
-      setAnnouncements((prev) => prev.filter((a) => a.id !== toDelete.id));
-      setSuccessMessage('Anúncio apagado com sucesso!');
+      setAllAnnouncements((prev) => prev.filter((a) => a.id !== toDelete.id));
+      setSuccessMsg('Anúncio apagado com sucesso!');
     } else {
-      setSuccessMessage('Erro ao apagar anúncio.');
+      setSuccessMsg('Erro ao apagar anúncio.');
     }
     setToDelete(null);
-    setTimeout(() => setSuccessMessage(''), 3000);
+    setTimeout(() => setSuccessMsg(''), 3000);
   };
 
-  // filtering logic omitted for brevity; reuse from ItemsManager
-  const filtered = announcements.filter(anun => {
-    // e.g. filter by searchTerm and priceRange on anun.price
-    return true;
-  });
+  const filteredAnnouncements = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    const [minP, maxP] = filters.priceRange;
+    return allAnnouncements.filter((an) => {
+      const prop = an.property || {};
+      const title = (prop.title || '').toLowerCase();
+      if (term && !title.includes(term)) return false;
+      if (filters.district && String(prop.district) !== String(filters.district)) return false;
+      if (filters.municipality && String(prop.municipality) !== String(filters.municipality)) return false;
+      if (filters.property_type && prop.property_type !== filters.property_type) return false;
+      const price = parseFloat(an.price || '0');
+      if (price < minP || price > maxP) return false;
+      return true;
+    });
+  }, [allAnnouncements, searchTerm, filters]);
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-gray-600">A carregar anúncios...</div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="p-6 text-center text-red-600">Erro: {error.message}</div>
-    );
-  }
+  if (loading) return <p className="p-6 text-center">A carregar anúncios…</p>;
+  if (error)   return <p className="p-6 text-center text-red-600">Erro: {error.message}</p>;
 
   return (
     <section className="p-4 max-w-7xl mx-auto">
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-semibold">{title}</h1>
-        {showEdit && !selectionMode && (
+        {showEdit && (
           <button
             onClick={() => navigate('/create-announcement')}
             className="px-4 py-2 bg-[#CFAF5E] text-white rounded"
@@ -115,6 +108,21 @@ export default function AnnouncementsManager({
           </button>
         )}
       </header>
+
+      {successMsg && (
+        <div className="p-3 mb-4 bg-green-100 text-green-800 rounded">
+          {successMsg}
+        </div>
+      )}
+
+      {toDelete && (
+        <ConfirmDialog
+          message={`Apagar anúncio de "${toDelete.property?.title || ''}"?`}
+          isOpen={true}
+          onCancel={() => setToDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      )}
 
       <div className="flex gap-6">
         <aside className="w-72">
@@ -133,37 +141,20 @@ export default function AnnouncementsManager({
             setSearchTerm={setSearchTerm}
           />
 
-          {successMessage && (
-            <div className="p-3 bg-green-100 text-green-800 rounded">
-              {successMessage}
-            </div>
-          )}
-
-          {toDelete && (
-            <ConfirmDialog
-              message={`Apagar anúncio de "${toDelete.property.name}"?`}
-              onCancel={() => setToDelete(null)}
-              onConfirm={confirmDelete}
-            />
-          )}
-
           <AnnouncementsList
-            announcements={filtered}
+            announcements={filteredAnnouncements}
             loading={loading}
-            onDelete={showDelete && !selectionMode ? setToDelete : undefined}
+            onDelete={showDelete ? setToDelete : undefined}
             onView={showView ? setToView : undefined}
-            onEdit={showEdit ? a => navigate(`/edit-announcement/${a.id}`) : undefined}
+            onEdit={showEdit ? (a) => navigate(`/edit-announcement/${a.id}`) : undefined}
             showView={showView}
             showEdit={showEdit}
-            selectionMode={selectionMode}
-            onSelectAnnouncement={onAnnouncementSelect}
-            selectedAnnouncement={selectedAnnouncement}
           />
 
           {toView && (
             <AnnouncementDetails
               announcement={toView}
-              isOpen={!!toView}
+              isOpen={true}
               onClose={() => setToView(null)}
             />
           )}
@@ -175,12 +166,8 @@ export default function AnnouncementsManager({
 
 AnnouncementsManager.propTypes = {
   fetchAnnouncements: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  showView: PropTypes.bool,
-  showEdit: PropTypes.bool,
-  showDelete: PropTypes.bool,
-  emptyStateMessage: PropTypes.string,
-  selectionMode: PropTypes.bool,
-  onAnnouncementSelect: PropTypes.func,
-  selectedAnnouncement: PropTypes.object,
+  title:              PropTypes.string,
+  showView:           PropTypes.bool,
+  showEdit:           PropTypes.bool,
+  showDelete:         PropTypes.bool,
 };

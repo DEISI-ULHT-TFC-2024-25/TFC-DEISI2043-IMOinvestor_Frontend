@@ -5,6 +5,12 @@ export async function fetchAnnouncements(filters = {}) {
   return response.data;
 }
 
+export async function fetchAnnouncementsByOrganization(ordering = '') {
+  const params = ordering ? { ordering } : {};
+  const response = await api.get('/announcement/my-organization/', { params });
+  return response.data;
+}
+
 export async function fetchAnnouncementById(id) {
   const response = await api.get(`/announcement/${id}/`);
   return response.data;
@@ -22,4 +28,5 @@ export async function updateAnnouncement(id, data) {
 
 export async function deleteAnnouncement(id) {
   await api.delete(`/announcement/${id}/`);
+  return true;
 }
