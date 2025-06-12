@@ -1,3 +1,4 @@
+// components/AnnouncementCard.jsx
 import PropTypes from 'prop-types';
 import { Eye, Edit3 } from 'lucide-react';
 import placeholderImg from '@images/placeholder.jpg';
@@ -14,12 +15,22 @@ export function AnnouncementCard({
   showEdit = true,
   selectionMode = false,
   onSelect,
-  isSelected,
+  isSelected = false,
   className = '',
 }) {
-  const { property, preco_definitivo, is_active } = announcement;
+  const { property = {}, price } = announcement;
+
+  // try multiple keys for the property name
+  const propTitle = property.title || '';
+  const propName  = property.name  || property.nome || property.titulo || '';
+
+  const displayTitle =
+    propTitle ||
+    propName ||
+    `Propriedade ${announcement.id}` ||
+    'Sem título';
+
   const {
-    title,
     tipologia = '',
     numero_casas_banho: casasBanho = 0,
     area_util: areaUtil = 0,
@@ -27,87 +38,91 @@ export function AnnouncementCard({
     district,
     imageUrl,
     media = [],
-  } = property || {};
+  } = property;
 
   const imgSrc =
     imageUrl ||
     (media.length > 0 ? (media[0].file || media[0].url) : null) ||
     placeholderImg;
 
+  // debug — uncomment to inspect the live object
+  // console.log('AnnouncementCard property payload:', property);
+
   return (
     <div
-      className={`relative bg-white rounded-xl border-2 shadow-sm overflow-hidden transition-all ${
-        selectionMode ? 'cursor-pointer hover:shadow-md scale-102' : ''
-      } ${
+      className={`relative bg-white rounded-xl border-2 shadow-sm overflow-hidden ${
         isSelected
-          ? 'border-[#CFAF5E] ring-2 ring-[#CFAF5E]/20'
+          ? 'border-[#CFAF5E] ring-2 ring-[#CFAF5E]/20 shadow-lg'
           : 'border-gray-200'
       } ${className}`}
       onClick={selectionMode ? onSelect : undefined}
     >
       <SelectorBadge isSelected={isSelected} />
-
-      <div
-        className={`absolute top-2 left-2 px-2 py-0.5 text-xs font-semibold rounded ${
-          is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}
-      >
-        {is_active ? 'Ativo' : 'Inativo'}
-      </div>
-
       {actions && <div className="absolute top-2 right-2 z-10">{actions}</div>}
 
       <BaseCard
-        title={title}
+        title={displayTitle}
         tipologia={tipologia}
         casasBanho={casasBanho}
         areaUtil={areaUtil}
+        street={street}
+        district={district}
         imageUrl={imgSrc}
+        imageClassName="h-48 sm:h-56"
       />
 
-      <div className="p-4 sm:p-5">
-        <div className="flex justify-between items-start mb-2">
-          <h4 className="text-lg font-semibold flex-1 leading-tight text-[#0A2647]">
-            {title}
-          </h4>
+      <div className="p-4 sm:p-5 space-y-4">
+        <div className="flex justify-between items-start">
+          <div />
           {showView && onView && !selectionMode && (
             <button
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
-                onView();
+                onView(announcement);
               }}
               className="p-1 rounded-lg text-[#CFAF5E] hover:bg-[#CFAF5E]/10 transition"
-              title="Ver detalhes"
+              title="Ver anúncio"
             >
               <Eye size={18} />
             </button>
           )}
         </div>
 
-        {(street || district) && (
-          <p className="text-sm text-gray-600 mb-3">
-            {street ? `${street}, ${district}` : district}
-          </p>
-        )}
-
         <PriceBlock
           hasRange={false}
           price={
-            preco_definitivo != null
-              ? `€${preco_definitivo.toLocaleString()}`
+            price != null
+              ? `€${parseFloat(price).toLocaleString('pt-PT')}`
               : '-'
           }
         />
 
         {!selectionMode && showEdit && onEdit && (
           <button
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
-              onEdit();
+              onEdit(announcement);
             }}
-            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transition"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:scale-105 transition-all text-sm"
           >
-            <Edit3 size={16} /> Editar
+            <Edit3 size={16} />
+            Editar
+          </button>
+        )}
+
+        {selectionMode && onSelect && (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onSelect();
+            }}
+            className={`w-full py-2.5 px-4 rounded-xl font-medium ${
+              isSelected
+                ? 'bg-[#CFAF5E] text-white shadow-md'
+                : 'bg-gray-100 text-[#0A2647] hover:bg-[#CFAF5E]/10'
+            }`}
+          >
+            {isSelected ? 'Selecionado' : 'Selecionar'}
           </button>
         )}
       </div>
@@ -116,14 +131,29 @@ export function AnnouncementCard({
 }
 
 AnnouncementCard.propTypes = {
-  announcement:  PropTypes.object.isRequired,
-  onView:        PropTypes.func,
-  onEdit:        PropTypes.func,
-  actions:       PropTypes.node,
-  showView:      PropTypes.bool,
-  showEdit:      PropTypes.bool,
+  announcement: PropTypes.shape({
+    price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    property: PropTypes.shape({
+      title: PropTypes.string,
+      name: PropTypes.string,
+      nome: PropTypes.string,
+      titulo: PropTypes.string,
+      tipologia: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      numero_casas_banho: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      area_util: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      street: PropTypes.string,
+      district: PropTypes.string,
+      imageUrl: PropTypes.string,
+      media: PropTypes.array,
+    }),
+  }).isRequired,
+  onView: PropTypes.func,
+  onEdit: PropTypes.func,
+  actions: PropTypes.node,
+  showView: PropTypes.bool,
+  showEdit: PropTypes.bool,
   selectionMode: PropTypes.bool,
-  onSelect:      PropTypes.func,
-  isSelected:    PropTypes.bool,
-  className:     PropTypes.string,
+  onSelect: PropTypes.func,
+  isSelected: PropTypes.bool,
+  className: PropTypes.string,
 };

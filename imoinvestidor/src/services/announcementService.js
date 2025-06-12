@@ -6,7 +6,9 @@ export async function fetchAnnouncements(filters = {}) {
 }
 
 export async function fetchAnnouncementsByOrganization(ordering = '') {
-  const params = ordering ? { ordering } : {};
+  const params = { expand: 'property' };
+  if (ordering) params.ordering = ordering;
+
   const response = await api.get('/announcement/my-organization/', { params });
   return response.data;
 }

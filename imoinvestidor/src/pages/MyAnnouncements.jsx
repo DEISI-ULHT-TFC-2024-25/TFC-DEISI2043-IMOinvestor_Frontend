@@ -7,32 +7,36 @@ import { fetchAnnouncementsByOrganization } from '@services/announcementService'
 export default function MyAnnouncements() {
   const user = getUser();
   const orgId = user?.organization_ids?.[0];
+
   const [orgName, setOrgName] = useState('Organização');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (orgId) {
-      getOrganizationById(orgId)
-        .then(org => setOrgName(org.name))
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    } else {
+    if (!orgId) {
       setLoading(false);
+      return;
     }
+    getOrganizationById(orgId)
+      .then(org => setOrgName(org.name))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [orgId]);
 
-  if (loading)
-    return <p className="p-6 text-center text-gray-600">A carregar anúncios…</p>;
-  if (!user || !orgId)
-    return <p className="p-6 text-center text-red-600">Organização não encontrada.</p>;
+  if (loading || !user || !orgId) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-600">A carregar anúncios...</p>
+      </div>
+    );
+  }
 
   return (
     <AnnouncementsManager
       title={`Anúncios da Organização: ${orgName}`}
       fetchAnnouncements={() => fetchAnnouncementsByOrganization()}
-      showView
-      showEdit
-      showDelete
+      showView={true}
+      showEdit={true}
+      showDelete={true}
       emptyStateMessage={`Ainda não existem anúncios para ${orgName}.`}
     />
   );
