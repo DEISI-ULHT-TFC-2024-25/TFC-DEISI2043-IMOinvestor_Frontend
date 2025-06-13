@@ -32,13 +32,13 @@ export default function AdminDashboard() {
           error: null,
         });
       } catch (err) {
-        setStats(s => ({ ...s, loading: false, error: 'Erro ao carregar estatísticas' }));
+        setStats(s => ({ ...s, loading: false, error: /*'Erro ao carregar estatísticas'*/ err.message || 'Erro ao carregar estatísticas' }));
       }
     }
     loadStats();
   }, []);
 
-  if (stats.loading) return <div className="container mx-auto p-4">Carregando dashboard...</div>;
+  if (stats.loading) return <div className="container mx-auto p-4">A carregar o dashboard...</div>;
   if (stats.error) return <div className="container mx-auto p-4 text-red-600">{stats.error}</div>;
 
   return (
