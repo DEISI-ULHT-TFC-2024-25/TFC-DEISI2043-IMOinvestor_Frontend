@@ -17,8 +17,8 @@ export async function fetchProperties() {
   return data.map(normalizeProperty);
 }
 
-export async function getPropertiesByOrganization(orgId) {
-  const { data } = await api.get(`/property/organization/${orgId}/`);
+export async function getPropertiesByOrganization() {
+  const { data } = await api.get(`/property/my-organization/`);
   return data.map(normalizeProperty);
 }
 
