@@ -149,7 +149,7 @@ export default function AppRoutes() {
           }
         />
         <Route
-          path='create-add'
+          path='create-announcement'
           element={
             <RoleRoute
               allowedRoles={[ROLES.SYS_ADMIN, ROLES.AGENT, ROLES.PROMOTOR]}

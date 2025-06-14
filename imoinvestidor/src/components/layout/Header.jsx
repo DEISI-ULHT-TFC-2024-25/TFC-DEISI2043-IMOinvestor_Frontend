@@ -15,7 +15,7 @@ export default function Header() {
   const isAdmin = hasRole(ROLES.SYS_ADMIN);
 
   const showCreateButton = !isLoggedIn || canCreateAd;
-  const createButtonLink = isLoggedIn ? "/create-add" : "/login";
+  const createButtonLink = isLoggedIn ? "/create-announcement" : "/login";
 
   return (
     <nav className="bg-[#0A2647] text-white px-6 shadow-md">
