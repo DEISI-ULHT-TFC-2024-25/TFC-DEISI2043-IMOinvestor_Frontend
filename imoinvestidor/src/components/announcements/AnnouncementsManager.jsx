@@ -6,7 +6,6 @@ import ConfirmDialog from '@common/ConfirmDialog';
 import AnnouncementDetails from '@pages/AnnouncementDetails';
 import PropertyFilters from '@properties/PropertyFilters';
 import PropertiesSearchBar from '@properties/PropertiesSearchBar';
-import { getPropertyMediasByProperty } from '@services/propertyMediaService';
 import useDeleteAnnouncement from '@hooks/useDeleteAnnouncement';
 import useDistricts from '@hooks/useDistricts';
 import useMunicipalities from '@hooks/useMunicipalities';
@@ -24,41 +23,25 @@ export default function AnnouncementsManager({
   const { districts } = useDistricts();
 
   const [allAnnouncements, setAllAnnouncements] = useState([]);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState(null);
-  const [toDelete, setToDelete]           = useState(null);
-  const [toView, setToView]               = useState(null);
-  const [successMsg, setSuccessMsg]       = useState('');
-  const [searchTerm, setSearchTerm]       = useState('');
-  const [filters, setFilters]             = useState({
-    district:      '',
-    municipality:  '',
-    priceRange:    [0, 2000000],
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [toDelete, setToDelete] = useState(null);
+  const [toView, setToView] = useState(null);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    district: '',
+    municipality: '',
+    priceRange: [0, 2000000],
     property_type: '',
   });
 
   const { municipalities, loadByDistrict } = useMunicipalities(filters.district);
 
-  // 1) fetch announcements[] (already expanded property)
-  // 2) attach media[] to each property
   useEffect(() => {
     setLoading(true);
     fetchAnnouncements()
-      .then(async (anns) => {
-        const withMedia = await Promise.all(
-          anns.map(async (an) => {
-            const media = await getPropertyMediasByProperty(an.property.id).catch(() => []);
-            return {
-              ...an,
-              property: {
-                ...an.property,
-                media,
-              },
-            };
-          })
-        );
-        setAllAnnouncements(withMedia);
-      })
+      .then((anns) => setAllAnnouncements(anns))
       .catch(setError)
       .finally(() => setLoading(false));
   }, [fetchAnnouncements]);
@@ -86,14 +69,12 @@ export default function AnnouncementsManager({
       if (filters.property_type && prop.property_type !== filters.property_type) return false;
 
       const price = parseFloat(an.price || '0');
-      if (price < minP || price > maxP) return false;
-
-      return true;
+      return price >= minP && price <= maxP;
     });
   }, [allAnnouncements, searchTerm, filters]);
 
   if (loading) return <p className="p-6 text-center">A carregar anúncios…</p>;
-  if (error)   return <p className="p-6 text-center text-red-600">Erro: {error.message}</p>;
+  if (error) return <p className="p-6 text-center text-red-600">Erro: {error.message}</p>;
 
   return (
     <section className="p-4 max-w-7xl mx-auto">
@@ -171,9 +152,9 @@ export default function AnnouncementsManager({
 
 AnnouncementsManager.propTypes = {
   fetchAnnouncements: PropTypes.func.isRequired,
-  title:              PropTypes.string,
-  showView:           PropTypes.bool,
-  showEdit:           PropTypes.bool,
-  showDelete:         PropTypes.bool,
-  emptyStateMessage:  PropTypes.string,
+  title: PropTypes.string,
+  showView: PropTypes.bool,
+  showEdit: PropTypes.bool,
+  showDelete: PropTypes.bool,
+  emptyStateMessage: PropTypes.string,
 };

@@ -1,4 +1,3 @@
-// components/AnnouncementCard.jsx
 import PropTypes from 'prop-types';
 import { Eye, Edit3 } from 'lucide-react';
 import placeholderImg from '@images/placeholder.jpg';
@@ -18,35 +17,13 @@ export function AnnouncementCard({
   isSelected = false,
   className = '',
 }) {
-  const { property = {}, price } = announcement;
-
-  // try multiple keys for the property name
-  const propTitle = property.title || '';
-  const propName  = property.name  || property.nome || property.titulo || '';
+  const { property = {}, price, is_active } = announcement;
 
   const displayTitle =
-    propTitle ||
-    propName ||
-    `Propriedade ${announcement.id}` ||
-    'Sem título';
+    property.name || property.title || `Propriedade ${announcement.id}` || 'Sem título';
 
-  const {
-    tipologia = '',
-    numero_casas_banho: casasBanho = 0,
-    area_util: areaUtil = 0,
-    street,
-    district,
-    imageUrl,
-    media = [],
-  } = property;
-
-  const imgSrc =
-    imageUrl ||
-    (media.length > 0 ? (media[0].file || media[0].url) : null) ||
-    placeholderImg;
-
-  // debug — uncomment to inspect the live object
-  // console.log('AnnouncementCard property payload:', property);
+  const imagens = Array.isArray(property.imagens) ? property.imagens : [];
+  const imgSrc = (imagens[0]?.file || imagens[0]?.url) ?? placeholderImg;
 
   return (
     <div
@@ -58,15 +35,26 @@ export function AnnouncementCard({
       onClick={selectionMode ? onSelect : undefined}
     >
       <SelectorBadge isSelected={isSelected} />
+
+      <div
+        className={`absolute top-2 left-2 z-10 px-2 py-0.5 text-xs font-semibold rounded shadow
+        ${is_active
+          ? 'bg-green-100 text-green-800 border border-green-300'
+          : 'bg-red-100 text-red-800 border border-red-300'}
+      `}
+      >
+        {is_active ? 'Ativo' : 'Inativo'}
+      </div>
+
       {actions && <div className="absolute top-2 right-2 z-10">{actions}</div>}
 
       <BaseCard
         title={displayTitle}
-        tipologia={tipologia}
-        casasBanho={casasBanho}
-        areaUtil={areaUtil}
-        street={street}
-        district={district}
+        tipologia={property.tipologia}
+        casasBanho={property.numero_casas_banho}
+        areaUtil={property.area_util}
+        street={property.street}
+        district={property.district}
         imageUrl={imgSrc}
         imageClassName="h-48 sm:h-56"
       />
@@ -133,18 +121,16 @@ export function AnnouncementCard({
 AnnouncementCard.propTypes = {
   announcement: PropTypes.shape({
     price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    is_active: PropTypes.bool,
     property: PropTypes.shape({
       title: PropTypes.string,
       name: PropTypes.string,
-      nome: PropTypes.string,
-      titulo: PropTypes.string,
       tipologia: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       numero_casas_banho: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       area_util: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       street: PropTypes.string,
-      district: PropTypes.string,
-      imageUrl: PropTypes.string,
-      media: PropTypes.array,
+      district: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      imagens: PropTypes.array,
     }),
   }).isRequired,
   onView: PropTypes.func,
