@@ -13,7 +13,7 @@ import Health from '@pages/Health';
 import MyProperties from '@pages/MyProperties';
 import CreateProperty from '@pages/CreateProperty';
 import EditProperty from '@pages/EditProperty';
-import AllProperties from '@pages/AllProperties';
+import AdminProperties from '@pages/AdminPropertiesList';
 import UserSettings from '@pages/UserSettings';
 import CreateAdd from '@pages/CreateAdd';
 import EditAnnouncement from '@pages/EditAnnouncement';
@@ -112,7 +112,7 @@ export default function AppRoutes() {
           path='all-properties'
           element={
             <RoleRoute allowedRoles={[ROLES.SYS_ADMIN]}>
-              <AllProperties />
+              <AdminProperties />
             </RoleRoute>
           }
         />

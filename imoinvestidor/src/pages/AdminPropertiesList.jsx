@@ -1,7 +1,7 @@
 import { fetchProperties } from "@services/propertyService";
 import PropertiesManager from "@properties/PropertiesManager";
 
-export default function AllPropertiesPage() {
+export default function AdminPropertiesList() {
   return (
     <PropertiesManager
       title="Todas as Propriedades"
