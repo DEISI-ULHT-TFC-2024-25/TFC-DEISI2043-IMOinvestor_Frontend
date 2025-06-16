@@ -33,7 +33,7 @@ export default function MyAnnouncements() {
   return (
     <AnnouncementsManager
       title={`Anúncios da Organização: ${orgName}`}
-      fetchAnnouncements={() => fetchAnnouncementsByOrganization()}
+      fetchAnnouncements={(filters) => fetchAnnouncementsByOrganization(filters)}
       showView={true}
       showEdit={true}
       showDelete={true}

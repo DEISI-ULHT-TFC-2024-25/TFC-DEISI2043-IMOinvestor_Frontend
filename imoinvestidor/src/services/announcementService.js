@@ -1,16 +1,21 @@
 import { api } from './apiClient';
+import { buildPropertyFilters } from '@utils/filterUtils';
 
 export async function fetchAnnouncements(filters = {}) {
+  const query = buildPropertyFilters(filters);
+  query.expand = 'property';
+
   const response = await api.get('/announcement/', { params: filters });
   return response.data;
 }
 
-export async function fetchAnnouncementsByOrganization(ordering = '') {
-  const params = { expand: 'property' };
-  if (ordering) params.ordering = ordering;
+export async function fetchAnnouncementsByOrganization(filters = {}, ordering = '') {
+  const query = buildPropertyFilters(filters);
+  query.expand = 'property';
+  if (ordering) query.ordering = ordering;
 
-  const response = await api.get('/announcement/my-organization/', { params });
-  return response.data;
+  const { data } = await api.get('/announcement/my-organization/', { params: query });
+  return data;
 }
 
 export async function fetchAnnouncementById(id) {
