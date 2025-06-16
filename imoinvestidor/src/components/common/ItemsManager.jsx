@@ -39,22 +39,35 @@ export default function ItemsManager({
   const [toView, setToView] = useState(null);
 
   const [filters, setFilters] = useState({
-    tipo: '', tipologia: '', casasBanho: '',
-    distrito: '', municipio: '', novaConstrucao: '',
-    certificado: '', priceRange: [0,2000000],
-    areaUtilMin: '', areaUtilMax: '',
-    areaBrutaMin: '', areaBrutaMax: '',
+    tipo: '', 
+    tipologia: '',
+    casasBanho: '',
+    distrito: '', 
+    municipio: '', 
+    novaConstrucao: '',
+    certificado: '',
+    priceRange: [0,2000000],
+    areaUtilMin: '', 
+    areaUtilMax: '',
+    areaBrutaMin: '', 
+    areaBrutaMax: '',
     extraInfos: [],
+    searchTerm: '',
   });
 
   const { districts } = useDistricts();
   const { municipalities, loadByDistrict } = useMunicipalities(filters.distrito);
 
+  // Update filters when search term changes
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, searchTerm }));
+  }, [searchTerm]);
+
   // Load items + media
   useEffect(() => {
     async function load() {
       try {
-        const data = await fetchItems();
+        const data = await fetchItems(filters);
         const withMedia = await Promise.all(data.map(async item => {
           const prop = listType === 'property' ? item : item.property;
           try {
@@ -76,7 +89,7 @@ export default function ItemsManager({
       }
     }
     load();
-  }, [fetchItems, listType]);
+  }, [fetchItems, listType, filters]);
 
   // Delete hooks
   const { removeProperty } = useDeleteProperty();
@@ -101,20 +114,6 @@ export default function ItemsManager({
     setToDelete(null);
     setTimeout(() => setSuccessMessage(''), 3000);
   };
-
-  // Filtering
-  const filtered = items.filter(item => {
-    const prop = listType === 'property' ? item : item.property;
-    const [minP, maxP] = filters.priceRange;
-    if (listType === 'property') {
-      const lo = prop.preco_minimo || 0;
-      const hi = prop.preco_maximo || lo;
-      return lo <= maxP && hi >= minP;
-    } else {
-      const price = parseFloat(item.price) || 0;
-      return price >= minP && price <= maxP;
-    }
-  });
 
   const ListComponent = listType === 'property' ? PropertiesList : AnnouncementsList;
 
@@ -181,14 +180,14 @@ export default function ItemsManager({
             />
           )}
 
-          {filtered.length === 0 ? (
+          {items.length === 0 ? (
             <PropertiesEmptyState message={emptyStateMessage} />
           ) : (
             <ListComponent
               {...(
                 listType === 'property'
                   ? {
-                      properties: filtered,
+                      properties: items,
                       onDelete: showDelete && !selectionMode ? setToDelete : undefined,
                       onView: showView ? setToView : undefined,
                       onEdit: p => navigate(`/edit-property/${p.id}`),
@@ -199,7 +198,7 @@ export default function ItemsManager({
                       selectedProperty: selectedItem,
                     }
                   : {
-                      announcements: filtered,
+                      announcements: items,
                       onDelete: showDelete && !selectionMode ? setToDelete : undefined,
                       onView: showView ? setToView : undefined,
                       onEdit: a => navigate(`/edit-announcement/${a.id}`),
