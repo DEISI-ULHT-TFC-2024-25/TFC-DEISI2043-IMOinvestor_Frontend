@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchAnnouncementById, updateAnnouncement } from '@services/announcementService';
-import { getPropertyById } from '@services/propertyService';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { fetchAnnouncementById } from '@services/announcementService';
+import useUpdateAnnouncement from '@hooks/useUpdateAnnouncement';
 import InputField from '@common/InputField';
 import CheckboxField from '@common/CheckboxField';
 import { PropertyCard } from '@properties/PropertyCard';
 import PropertyDetails from '@properties/PropertyDetails';
 import { Check, X } from 'lucide-react';
+import placeholderImg from '@images/placeholder.jpg';
 
 export default function EditAnnouncement() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [fetchError, setFetchError] = useState(null);
 
   const [announcement, setAnnouncement] = useState(null);
   const [property, setProperty] = useState(null);
@@ -25,25 +26,43 @@ export default function EditAnnouncement() {
     is_active: false,
   });
 
+  const { submitUpdate, loading: saving, error: updateError } = useUpdateAnnouncement();
+
+  // Determine return path based on where user came from
+  const getReturnPath = () => {
+    // Check if we have a return path in location state
+    if (location.state?.returnTo) {
+      return location.state.returnTo;
+    }
+    
+    // Check URL search params
+    const urlParams = new URLSearchParams(location.search);
+    const returnParam = urlParams.get('return');
+    
+    if (returnParam) {
+      return decodeURIComponent(returnParam);
+    }
+    
+    // Default fallback
+    return '/my-announcements';
+  };
+
+  const returnPath = getReturnPath();
+
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoading(true);
         const ann = await fetchAnnouncementById(id);
         setAnnouncement(ann);
-
-        if (ann.property) {
-          const prop = await getPropertyById(ann.property);
-          setProperty(prop);
-        }
-
+        setProperty(ann.property || null);
         setForm({
           price: ann.price ?? '',
           is_active: ann.is_active ?? false,
         });
       } catch (err) {
-        console.error(err);
-        setError('Erro ao carregar dados do anúncio.');
+        console.error('Error loading announcement:', err);
+        setFetchError('Erro ao carregar dados do anúncio.');
       } finally {
         setLoading(false);
       }
@@ -58,20 +77,51 @@ export default function EditAnnouncement() {
 
   const onSubmit = async e => {
     e.preventDefault();
-    setSaving(true);
-    setError(null);
-    try {
-      await updateAnnouncement(id, {
-        price: parseFloat(form.price),
-        is_active: form.is_active,
-      });
-      navigate('/my-announcements');
-    } catch (err) {
-      console.error(err);
-      setError('Erro ao atualizar anúncio. Tente novamente.');
-    } finally {
-      setSaving(false);
+
+    if (!property) {
+      return setFetchError('Imóvel associado em falta.');
     }
+
+    // Ensure we have a valid price
+    const price = parseFloat(form.price);
+    if (isNaN(price) || price < 0) {
+      return setFetchError('Por favor, insira um preço válido.');
+    }
+
+    const payload = {
+      price: price,
+      is_active: Boolean(form.is_active),
+      property: typeof property === 'object' ? property.id : property,
+    };
+
+    console.log('Submitting payload:', payload);
+    console.log('Property object:', property);
+
+    try {
+      const result = await submitUpdate(id, payload);
+      if (result) {
+        navigate(returnPath);
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      setFetchError(error.response?.data?.message || error.message || 'Erro ao atualizar anúncio');
+    }
+  };
+
+  const handleCancel = () => {
+    navigate(returnPath);
+  };
+
+  const handlePropertyEdit = () => {
+    // Pass current location info to property edit page
+    navigate(`/edit-property/${property.id}`, {
+      state: {
+        returnTo: `/edit-announcement/${id}`,
+        originalReturn: returnPath, // So property edit knows where to ultimately return
+      }
+    });
   };
 
   if (loading) {
@@ -83,14 +133,13 @@ export default function EditAnnouncement() {
     );
   }
 
-  if (error && !announcement) {
-    return <p className="p-6 text-center text-red-600">{error}</p>;
+  if (fetchError && !announcement) {
+    return <p className="p-6 text-center text-red-600">{fetchError}</p>;
   }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#0A2647] mb-2">
             Editar Anúncio #{id}
@@ -101,7 +150,7 @@ export default function EditAnnouncement() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Main Form */}
+          {/* Formulário */}
           <div className="md:col-span-2 order-2 md:order-1">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
               <div className="p-6 border-b border-gray-100">
@@ -110,68 +159,59 @@ export default function EditAnnouncement() {
                 </h2>
               </div>
 
-              <form onSubmit={onSubmit} className="p-6">
-                <div className="space-y-6">
-                  <InputField
-                    label="Preço Definitivo"
-                    name="price"
-                    type="number"
-                    required
-                    value={form.price}
+              <form onSubmit={onSubmit} className="p-6 space-y-6">
+                <InputField
+                  label="Preço Definitivo"
+                  name="price"
+                  type="number"
+                  required
+                  value={form.price}
+                  onChange={onChange}
+                  prefix="€"
+                  preventNegative
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  className="w-full"
+                />
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <CheckboxField
+                    label="Anúncio ativo"
+                    name="is_active"
+                    checked={form.is_active}
                     onChange={onChange}
-                    prefix="€"
-                    preventNegative
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    className="w-full"
                   />
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <CheckboxField
-                      label="Anúncio ativo"
-                      name="is_active"
-                      checked={form.is_active}
-                      onChange={onChange}
-                    />
-                    <p className="text-sm text-gray-500 mt-2 ml-6">
-                      {form.is_active
-                        ? 'O anúncio está visível e pode receber propostas.'
-                        : 'O anúncio está oculto e não receberá propostas.'}
-                    </p>
-                  </div>
-
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                      {error}
-                    </div>
-                  )}
+                  <p className="text-sm text-gray-500 mt-2 ml-6">
+                    {form.is_active
+                      ? 'O anúncio está visível e pode receber propostas.'
+                      : 'O anúncio está oculto e não receberá propostas.'}
+                  </p>
                 </div>
+
+                {(fetchError || updateError) && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    {typeof (fetchError || updateError) === 'string' 
+                      ? (fetchError || updateError)
+                      : 'Erro ao processar pedido'
+                    }
+                  </div>
+                )}
 
                 <div className="flex flex-col sm:flex-row gap-4 pt-8 mt-8 border-t border-gray-100">
                   <button
                     type="button"
-                    onClick={() => navigate('/my-announcements')}
+                    onClick={handleCancel}
                     className="flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium order-2 md:order-1"
                   >
                     <X size={16} className="mr-2" />
                     Cancelar
                   </button>
-                    <button
-                      type="submit"
-                      disabled={saving}
-                      className="
-                        flex items-center justify-center
-                        px-8 py-3
-                        bg-[#CFAF5E] text-white rounded-lg
-                        transform transition-all duration-200
-                        hover:scale-[1.03] hover:shadow-lg
-                        active:scale-95
-                        disabled:opacity-50
-                        font-medium
-                        order-1 md:order-2
-                      "
-                    >
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex items-center justify-center px-8 py-3 bg-[#CFAF5E] text-white rounded-lg transform transition-all duration-200 hover:scale-[1.03] hover:shadow-lg active:scale-95 disabled:opacity-50 font-medium order-1 md:order-2"
+                  >
                     {saving ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
@@ -205,17 +245,19 @@ export default function EditAnnouncement() {
                   street={property.street}
                   district={property.district ? String(property.district) : undefined}
                   imageUrl={
-                    property.imagens && property.imagens.length > 0
+                    Array.isArray(property.imagens) && property.imagens.length > 0
                       ? property.imagens[0].file || property.imagens[0].url
-                      : null
+                      : placeholderImg
                   }
                   preco_minimo={property.preco_minimo}
                   preco_maximo={property.preco_maximo}
-                  price={form.price && `€${parseFloat(form.price).toLocaleString('pt-PT')}`}
+                  price={
+                    form.price ? `€${parseFloat(form.price).toLocaleString('pt-PT')}` : undefined
+                  }
                   showView
                   showEdit
                   onView={() => setShowDetails(true)}
-                  onEdit={() => navigate(`/edit-property/${property.id}`)}
+                  onEdit={handlePropertyEdit}
                   className="shadow-lg hover:shadow-xl transition-shadow rounded-xl"
                 />
               </div>
@@ -224,7 +266,6 @@ export default function EditAnnouncement() {
         </div>
       </div>
 
-      {/* full-screen property details modal */}
       {property && (
         <PropertyDetails
           property={property}
