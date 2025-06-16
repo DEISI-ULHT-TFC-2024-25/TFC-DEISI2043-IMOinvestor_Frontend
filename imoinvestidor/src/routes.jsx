@@ -5,10 +5,10 @@ import Layout from '@layout/Layout';
 import Home from '@pages/Home';
 import Login from '@pages/Login';
 import Register from '@pages/Register';
-import Map from '@pages/Map';
 import NotFound from '@pages/NotFound';
 
 // Páginas protegidas
+import Map from '@pages/Map';
 import Health from '@pages/Health';
 import MyProperties from '@pages/MyProperties';
 import CreateProperty from '@pages/CreateProperty';
@@ -18,6 +18,7 @@ import UserSettings from '@pages/UserSettings';
 import CreateAdd from '@pages/CreateAdd';
 import EditAnnouncement from '@pages/EditAnnouncement';
 import MyAnnouncements from '@pages/MyAnnouncements';
+import AllAnnouncements from '@pages/AllAnnouncementsList';
 import AdminDashboard from '@pages/AdminDashboard';
 import AdminUsersPage from '@pages/AdminUsersPage';
 import EditUserPage from '@pages/EditUserPage';
@@ -51,7 +52,6 @@ export default function AppRoutes() {
             </PublicRoute>
           }
         />
-        <Route path='map' element={<Map />} />
 
         {/* Acesso restrito a SYS_ADMIN */}
         <Route
@@ -176,6 +176,29 @@ export default function AppRoutes() {
               allowedRoles={[ROLES.SYS_ADMIN, ROLES.AGENT, ROLES.PROMOTOR]}
             >
               <EditAnnouncement />
+            </RoleRoute>
+          }
+        />
+
+        {/* Acesso a investidores */}
+        <Route
+          path='announcements'
+          element={
+            <RoleRoute
+              allowedRoles={[ROLES.INVESTOR]}
+            >
+              <AllAnnouncements />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path='map'
+          element={
+            <RoleRoute
+              allowedRoles={[ROLES.INVESTOR]}
+            >
+              <Map />
             </RoleRoute>
           }
         />
