@@ -1,11 +1,14 @@
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { PropertyCard } from '@properties/PropertyCard';
+import { AnnouncementCard } from '@announcements/AnnouncementCard';
+import { fetchAnnouncements } from '@services/announcementService';
 
 const NewPropertiesListing = ({ isLoggedIn }) => {
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkScreen = () => setIsMobile(window.innerWidth < 1024);
@@ -14,20 +17,56 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
     return () => window.removeEventListener('resize', checkScreen);
   }, []);
 
-  const allProperties = [...Array(8)].map((_, i) => ({
-    title: `Imóvel ${i + 1}`,
-    tipologia: 4,
-    casasBanho: 2,
-    areaUtil: 126,
-    price: "600.000 €",
-    roi: "5",
-    onClick: () => isLoggedIn ? navigate(`/listagem/${i}`) : navigate('/login'),
-    hidePrice: !isLoggedIn,
-    isFavorited: i % 2 === 0,
-    onToggleFavorite: () => console.log(`Favorito toggle no imóvel ${i + 1}`),
-  }));
+  useEffect(() => {
+    const loadAnnouncements = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchAnnouncements({});
+        // Limit to 8 announcements for home page, or 3 for mobile
+        const limitedData = isMobile ? data.slice(0, 3) : data.slice(0, 8);
+        setAnnouncements(limitedData);
+      } catch (error) {
+        console.error('Error loading announcements:', error);
+        setAnnouncements([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const properties = isMobile ? allProperties.slice(0, 3) : allProperties;
+    loadAnnouncements();
+  }, [isMobile]);
+
+  const handleViewAnnouncement = (announcement) => {
+    if (isLoggedIn) {
+      navigate(`/listagem/${announcement.id}`);
+    } else {
+      navigate('/login');
+    }
+  };
+
+
+
+  if (loading) {
+    return (
+      <section className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <h3 className="text-xl font-semibold text-[#0A2647]">Novidades Imóveis</h3>
+        </div>
+        <div className="p-6 text-center text-gray-600">A carregar anúncios...</div>
+      </section>
+    );
+  }
+
+  if (!announcements.length) {
+    return (
+      <section className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <h3 className="text-xl font-semibold text-[#0A2647]">Novidades Imóveis</h3>
+        </div>
+        <div className="p-6 text-center text-gray-500">Nenhum anúncio encontrado.</div>
+      </section>
+    );
+  }
 
   return (
     <section className="p-6">
@@ -43,23 +82,34 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
 
       {isMobile ? (
         <div className="flex flex-col gap-4">
-          {properties.map((props, i) => (
-            <PropertyCard
-              key={i}
-              {...props}
-              className="w-full h-[300px]"
-              imageClassName="h-36"
+          {announcements.map((announcement) => (
+            <AnnouncementCard
+              key={announcement.id}
+              announcement={announcement}
+              onView={handleViewAnnouncement}
+              onEdit={undefined}
+              showView={true}
+              showEdit={false}
+              showStatus={false}
+              hidePrice={!isLoggedIn}
+              className="w-full"
             />
           ))}
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {properties.map((props, i) => (
-            <PropertyCard
-              key={i}
-              {...props}
-              className="w-full h-[360px]"
-              imageClassName="h-40"
+          {announcements.map((announcement) => (
+            <AnnouncementCard
+              key={announcement.id}
+              announcement={announcement}
+              onView={handleViewAnnouncement}
+              onEdit={undefined}
+              showView={true}
+              showEdit={false}
+              showStatus={false}
+              hidePrice={!isLoggedIn}
+              viewStyle="button"
+              className="w-full"
             />
           ))}
         </div>

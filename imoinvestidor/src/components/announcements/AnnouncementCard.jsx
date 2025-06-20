@@ -13,10 +13,12 @@ export function AnnouncementCard({
   showView = true,
   showEdit = true,
   showStatus = true,
+  hidePrice = false,
   selectionMode = false,
   onSelect,
   isSelected = false,
   className = '',
+  viewStyle = 'icon', // 'icon' or 'button'
 }) {
   const { property = {}, price, is_active } = announcement;
 
@@ -64,21 +66,24 @@ export function AnnouncementCard({
       />
 
       <div className="p-4 sm:p-5 space-y-4">
-        <div className="flex justify-between items-start">
-          <div />
-          {showView && onView && !selectionMode && (
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                onView(announcement);
-              }}
-              className="p-1 rounded-lg text-[#CFAF5E] hover:bg-[#CFAF5E]/10 transition"
-              title="Ver anúncio"
-            >
-              <Eye size={18} />
-            </button>
-          )}
-        </div>
+        {/* Eye icon view - only show if viewStyle is 'icon' */}
+        {viewStyle === 'icon' && (
+          <div className="flex justify-between items-start">
+            <div />
+            {showView && onView && !selectionMode && (
+              <button
+                onClick={e => {
+                  e.stopPropagation();
+                  onView(announcement);
+                }}
+                className="p-1 rounded-lg text-[#CFAF5E] hover:bg-[#CFAF5E]/10 transition"
+                title="Ver anúncio"
+              >
+                <Eye size={18} />
+              </button>
+            )}
+          </div>
+        )}
 
         <PriceBlock
           hasRange={false}
@@ -87,8 +92,25 @@ export function AnnouncementCard({
               ? `€${parseFloat(price).toLocaleString('pt-PT')}`
               : '-'
           }
+          hidePrice={hidePrice}
+          selectionMode={selectionMode}
         />
 
+        {/* View Button - only show if viewStyle is 'button' */}
+        {viewStyle === 'button' && !selectionMode && showView && onView && (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onView(announcement);
+            }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0A2647] hover:bg-[#0A2647]/90 text-white font-semibold rounded-xl shadow transition-all text-sm"
+          >
+            <Eye size={16} />
+            Ver Detalhes
+          </button>
+        )}
+
+        {/* Edit Button */}
         {!selectionMode && showEdit && onEdit && (
           <button
             onClick={e => {
@@ -102,6 +124,7 @@ export function AnnouncementCard({
           </button>
         )}
 
+        {/* Selection Button */}
         {selectionMode && onSelect && (
           <button
             onClick={e => {
@@ -143,8 +166,10 @@ AnnouncementCard.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showStatus: PropTypes.bool,
+  hidePrice: PropTypes.bool,
   selectionMode: PropTypes.bool,
   onSelect: PropTypes.func,
   isSelected: PropTypes.bool,
   className: PropTypes.string,
+  viewStyle: PropTypes.oneOf(['icon', 'button']),
 };

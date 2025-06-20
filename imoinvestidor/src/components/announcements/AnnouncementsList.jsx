@@ -37,6 +37,7 @@ export default function AnnouncementsList({
           selectionMode={selectionMode}
           onSelect={() => onSelectAnnouncement?.(anun)}
           isSelected={selectedAnnouncement?.id === anun.id}
+          viewStyle="icon"
           actions={
             !selectionMode && onDelete && (
               <button
