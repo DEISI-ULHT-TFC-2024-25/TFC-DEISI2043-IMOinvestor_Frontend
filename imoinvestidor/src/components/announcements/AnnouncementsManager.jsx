@@ -10,6 +10,28 @@ import useDeleteAnnouncement from '@hooks/useDeleteAnnouncement';
 import useDistricts from '@hooks/useDistricts';
 import useMunicipalities from '@hooks/useMunicipalities';
 
+// Helper function to convert URL filters to PropertyFilters format
+const convertToPropertyFiltersFormat = (urlFilters) => {
+  return {
+    tipo: urlFilters.property_type || '',
+    tipologia: urlFilters.tipologia || '',
+    casasBanho: urlFilters.numero_casas_banho || '',
+    distrito: urlFilters.district || '',
+    municipio: urlFilters.municipality || '',
+    novaConstrucao: urlFilters.nova_construcao || '',
+    certificado: urlFilters.certificado_energetico || '',
+    priceRange: [
+      parseInt(urlFilters.price_min) || 0,
+      parseInt(urlFilters.price_max) || 2000000
+    ],
+    areaUtilMin: urlFilters.area_util || '',
+    areaUtilMax: urlFilters.areaUtilMax || '',
+    areaBrutaMin: urlFilters.area_bruta || '',
+    areaBrutaMax: urlFilters.areaBrutaMax || '',
+    extraInfos: urlFilters.extraInfos || [],
+  };
+};
+
 export default function AnnouncementsManager({
   fetchAnnouncements,
   title,
@@ -17,6 +39,7 @@ export default function AnnouncementsManager({
   showEdit = true,
   showDelete = true,
   emptyStateMessage,
+  initialFilters = {},
 }) {
   const navigate = useNavigate();
   const { removeAnnouncement } = useDeleteAnnouncement();
@@ -28,15 +51,38 @@ export default function AnnouncementsManager({
   const [toDelete, setToDelete] = useState(null);
   const [toView, setToView] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    district: '',
-    municipality: '',
-    priceRange: [0, 2000000],
-    property_type: '',
+  
+  // Initialize searchTerm from URL filters
+  const [searchTerm, setSearchTerm] = useState(initialFilters.searchTerm || '');
+  
+  // Initialize filters with URL filters converted to PropertyFilters format
+  const [filters, setFilters] = useState(() => {
+    const defaultFilters = {
+      tipo: '',
+      tipologia: '',
+      casasBanho: '',
+      distrito: '',
+      municipio: '',
+      novaConstrucao: '',
+      certificado: '',
+      priceRange: [0, 2000000],
+      areaUtilMin: '',
+      areaUtilMax: '',
+      areaBrutaMin: '',
+      areaBrutaMax: '',
+      extraInfos: [],
+    };
+    
+    // If we have initial filters from URL, convert and merge them
+    if (Object.keys(initialFilters).length > 0) {
+      const convertedFilters = convertToPropertyFiltersFormat(initialFilters);
+      return { ...defaultFilters, ...convertedFilters };
+    }
+    
+    return defaultFilters;
   });
 
-  const { municipalities, loadByDistrict } = useMunicipalities(filters.district);
+  const { municipalities, loadByDistrict } = useMunicipalities(filters.distrito);
 
   useEffect(() => {
     setLoading(true);
@@ -63,11 +109,43 @@ export default function AnnouncementsManager({
 
     return allAnnouncements.filter((an) => {
       const prop = an.property || {};
-      if (term && !prop.name.toLowerCase().includes(term)) return false;
-      if (filters.district && String(prop.district) !== String(filters.district)) return false;
-      if (filters.municipality && String(prop.municipality) !== String(filters.municipality)) return false;
-      if (filters.property_type && prop.property_type !== filters.property_type) return false;
+      
+      // Search term filter
+      if (term && !prop.name?.toLowerCase().includes(term)) return false;
+      
+      // Location filters
+      if (filters.distrito && String(prop.district) !== String(filters.distrito)) return false;
+      if (filters.municipio && String(prop.municipality) !== String(filters.municipio)) return false;
+      
+      // Property type filter
+      if (filters.tipo && prop.property_type !== filters.tipo) return false;
+      
+      // Tipologia filter
+      if (filters.tipologia && prop.tipologia !== filters.tipologia) return false;
+      
+      // Bathrooms filter
+      if (filters.casasBanho && prop.numero_casas_banho !== filters.casasBanho) return false;
+      
+      // New construction filter
+      if (filters.novaConstrucao && prop.nova_construcao !== filters.novaConstrucao) return false;
+      
+      // Energy certificate filter
+      if (filters.certificado && prop.certificado_energetico !== filters.certificado) return false;
+      
+      // Area filters
+      if (filters.areaUtilMin && parseFloat(prop.area_util || 0) < parseFloat(filters.areaUtilMin)) return false;
+      if (filters.areaUtilMax && parseFloat(prop.area_util || 0) > parseFloat(filters.areaUtilMax)) return false;
+      if (filters.areaBrutaMin && parseFloat(prop.area_bruta || 0) < parseFloat(filters.areaBrutaMin)) return false;
+      if (filters.areaBrutaMax && parseFloat(prop.area_bruta || 0) > parseFloat(filters.areaBrutaMax)) return false;
+      
+      // Amenities filter
+      if (filters.extraInfos && filters.extraInfos.length > 0) {
+        const propExtras = prop.extra_infos || [];
+        const hasAllExtras = filters.extraInfos.every(extra => propExtras.includes(extra));
+        if (!hasAllExtras) return false;
+      }
 
+      // Price filter
       const price = parseFloat(an.price || '0');
       return price >= minP && price <= maxP;
     });
@@ -157,4 +235,5 @@ AnnouncementsManager.propTypes = {
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
+  initialFilters: PropTypes.object,
 };

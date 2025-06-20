@@ -33,10 +33,10 @@ export default function AdvancedSearchFilters({
 
     await handleDistrictChange({
       newDistrict: String(newDistrict),
-      currentMunicipality: filters.municipality || "",
+      currentMunicipality: filters.municipio || "",
       loadByDistrict,
-      setDistrict: (district) => handleFilterUpdate("district", district),
-      setMunicipality: (municipality) => handleFilterUpdate("municipality", municipality),
+      setDistrict: (district) => handleFilterUpdate("distrito", district),
+      setMunicipality: (municipality) => handleFilterUpdate("municipio", municipality),
       setMunicipalities,
     });
   };
@@ -94,9 +94,9 @@ export default function AdvancedSearchFilters({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <SelectField
               label="Tipo de Imóvel"
-              name="property_type"
-              value={filters.property_type ?? ""}
-              onChange={(e) => handleFilterUpdate("property_type", e.target.value)}
+              name="tipo"
+              value={filters.tipo ?? ""}
+              onChange={(e) => handleFilterUpdate("tipo", e.target.value)}
               options={[
                 { label: "Apartamento", value: "Apartamento" },
                 { label: "Casa", value: "Casa" },
@@ -119,9 +119,9 @@ export default function AdvancedSearchFilters({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <SelectField
               label="Casas de Banho"
-              name="numero_casas_banho"
-              value={filters.numero_casas_banho ?? ""}
-              onChange={(e) => handleFilterUpdate("numero_casas_banho", e.target.value)}
+              name="casasBanho"
+              value={filters.casasBanho ?? ""}
+              onChange={(e) => handleFilterUpdate("casasBanho", e.target.value)}
               options={[
                 { label: "1", value: "1" },
                 { label: "2", value: "2" },
@@ -133,9 +133,9 @@ export default function AdvancedSearchFilters({
             />
             <SelectField
               label="Nova Construção"
-              name="nova_construcao"
-              value={filters.nova_construcao ?? ""}
-              onChange={(e) => handleFilterUpdate("nova_construcao", e.target.value)}
+              name="novaConstrucao"
+              value={filters.novaConstrucao ?? ""}
+              onChange={(e) => handleFilterUpdate("novaConstrucao", e.target.value)}
               options={[
                 { label: "Sim", value: "Sim" },
                 { label: "Não", value: "Não" },
@@ -147,20 +147,20 @@ export default function AdvancedSearchFilters({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <SelectField
               label="Distrito"
-              name="district"
-              value={String(filters.district || "")}
+              name="distrito"
+              value={String(filters.distrito || "")}
               onChange={handleDistrictFilterChange}
               options={districts.map((d) => ({ label: d.name, value: String(d.id) }))}
               placeholder="Todos os distritos"
             />
             <SelectField
               label="Município"
-              name="municipality"
-              value={String(filters.municipality || "")}
-              onChange={(e) => handleFilterUpdate("municipality", e.target.value)}
+              name="municipio"
+              value={String(filters.municipio || "")}
+              onChange={(e) => handleFilterUpdate("municipio", e.target.value)}
               options={municipalities.map((m) => ({ label: m.name, value: String(m.id) }))}
               placeholder="Todos os municípios"
-              disabled={!filters.district}
+              disabled={!filters.distrito}
             />
           </div>
 
@@ -173,9 +173,6 @@ export default function AdvancedSearchFilters({
               priceRange={filters.priceRange || [0, 2000000]}
               setPriceRange={(range) => {
                 handleFilterUpdate("priceRange", range);
-                // Also update the API fields
-                handleFilterUpdate("price_min", range[0]);
-                handleFilterUpdate("price_max", range[1]);
               }}
             />
           </div>
@@ -184,9 +181,9 @@ export default function AdvancedSearchFilters({
         <div className="space-y-4">
           <SelectField
             label="Certificado Energético"
-            name="certificado_energetico"
-            value={filters.certificado_energetico ?? ""}
-            onChange={(e) => handleFilterUpdate("certificado_energetico", e.target.value)}
+            name="certificado"
+            value={filters.certificado ?? ""}
+            onChange={(e) => handleFilterUpdate("certificado", e.target.value)}
             options={["A+", "A", "B", "B-", "C", "D", "E", "F"].map((v) => ({ label: v, value: v }))}
             placeholder="Certificado Energético"
           />
@@ -197,10 +194,10 @@ export default function AdvancedSearchFilters({
             <div className="grid grid-cols-2 gap-4">
               <InputField
                 label="Área Útil Mínima (m²)"
-                name="area_util"
+                name="areaUtilMin"
                 type="number"
-                value={filters.area_util || ""}
-                onChange={(e) => handleFilterUpdate("area_util", e.target.value)}
+                value={filters.areaUtilMin || ""}
+                onChange={(e) => handleFilterUpdate("areaUtilMin", e.target.value)}
                 placeholder="Mínima"
               />
               <InputField
@@ -219,10 +216,10 @@ export default function AdvancedSearchFilters({
             <div className="grid grid-cols-2 gap-4">
               <InputField
                 label="Área Bruta Mínima (m²)"
-                name="area_bruta"
+                name="areaBrutaMin"
                 type="number"
-                value={filters.area_bruta ?? ""}
-                onChange={(e) => handleFilterUpdate("area_bruta", e.target.value)}
+                value={filters.areaBrutaMin ?? ""}
+                onChange={(e) => handleFilterUpdate("areaBrutaMin", e.target.value)}
                 placeholder="Mínima"
               />
               <InputField

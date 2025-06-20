@@ -10,8 +10,9 @@ export default function AllAnnouncements() {
   return (
     <AnnouncementsManager
       title=""
-      key={searchParams.toString()} // força render ao mudar
+      key={searchParams.toString()}
       fetchAnnouncements={() => fetchAnnouncements(filters)}
+      initialFilters={filters}
       showView={false}
       showEdit={false}
       showDelete={false}

@@ -24,19 +24,17 @@ export default function HeroSearch({
 
   const clearFilters = () => {
     setFilters({
-      property_type: "",
+      tipo: "",
       tipologia: "",
-      numero_casas_banho: "",
-      district: "",
-      municipality: "",
-      nova_construcao: "",
-      certificado_energetico: "",
-      price_min: "",
-      price_max: "",
-      area_util: "",
-      area_bruta: "",
+      casasBanho: "",
+      distrito: "",
+      municipio: "",
+      novaConstrucao: "",
+      certificado: "",
       priceRange: [0, 2000000],
+      areaUtilMin: "",
       areaUtilMax: "",
+      areaBrutaMin: "",
       areaBrutaMax: "",
       extraInfos: [],
       roiMinimo: "",
@@ -46,17 +44,17 @@ export default function HeroSearch({
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (filters.property_type) count++;
+    if (filters.tipo) count++;
     if (filters.tipologia) count++;
-    if (filters.numero_casas_banho) count++;
-    if (filters.district) count++;
-    if (filters.municipality) count++;
-    if (filters.nova_construcao) count++;
-    if (filters.certificado_energetico) count++;
+    if (filters.casasBanho) count++;
+    if (filters.distrito) count++;
+    if (filters.municipio) count++;
+    if (filters.novaConstrucao) count++;
+    if (filters.certificado) count++;
     if (filters.priceRange?.[0] > 0 || filters.priceRange?.[1] < 2000000) count++;
-    if (filters.area_util) count++;
+    if (filters.areaUtilMin) count++;
     if (filters.areaUtilMax) count++;
-    if (filters.area_bruta) count++;
+    if (filters.areaBrutaMin) count++;
     if (filters.areaBrutaMax) count++;
     if (filters.extraInfos?.length > 0) count++;
     if (filters.roiMinimo) count++;
@@ -159,9 +157,9 @@ export default function HeroSearch({
                   Busca: "{searchTerm}"
                 </span>
               )}
-              {filters.property_type && (
+              {filters.tipo && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-white text-sm text-[#0A2647] rounded-md border">
-                  {filters.property_type}
+                  {filters.tipo}
                 </span>
               )}
               {filters.tipologia && (
@@ -169,12 +167,12 @@ export default function HeroSearch({
                   {filters.tipologia}
                 </span>
               )}
-              {filters.numero_casas_banho && (
+              {filters.casasBanho && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-white text-sm text-[#0A2647] rounded-md border">
-                  {filters.numero_casas_banho} WC
+                  {filters.casasBanho} WC
                 </span>
               )}
-              {filters.district && (
+              {filters.distrito && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-white text-sm text-[#0A2647] rounded-md border">
                   <MapPin className="h-3 w-3" />
                   Distrito
@@ -185,7 +183,7 @@ export default function HeroSearch({
                   +{filters.extraInfos.length} comodidades
                 </span>
               )}
-              {(filters.price_min || filters.price_max) && (
+              {(filters.priceRange?.[0] > 0 || filters.priceRange?.[1] < 2000000) && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-white text-sm text-[#0A2647] rounded-md border">
                   Intervalo de preço
                 </span>
