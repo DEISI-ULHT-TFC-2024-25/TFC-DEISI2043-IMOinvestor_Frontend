@@ -16,6 +16,7 @@ export default function AllAnnouncements() {
       showView={false}
       showEdit={false}
       showDelete={false}
+      showStatus={false}
       emptyStateMessage="Ainda não existem anúncios disponíveis."
     />
   );

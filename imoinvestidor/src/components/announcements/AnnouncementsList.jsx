@@ -10,6 +10,7 @@ export default function AnnouncementsList({
   onEdit,
   showView,
   showEdit,
+  showStatus = true,
   selectionMode,
   onSelectAnnouncement,
   selectedAnnouncement,
@@ -30,6 +31,7 @@ export default function AnnouncementsList({
           announcement={anun}
           showView={showView}
           showEdit={showEdit}
+          showStatus={showStatus}
           onView={() => onView?.(anun)}
           onEdit={() => onEdit?.(anun)}
           selectionMode={selectionMode}
@@ -60,6 +62,7 @@ AnnouncementsList.propTypes = {
   onEdit:               PropTypes.func,
   showView:             PropTypes.bool,
   showEdit:             PropTypes.bool,
+  showStatus:           PropTypes.bool,
   selectionMode:        PropTypes.bool,
   onSelectAnnouncement: PropTypes.func,
   selectedAnnouncement: PropTypes.object,

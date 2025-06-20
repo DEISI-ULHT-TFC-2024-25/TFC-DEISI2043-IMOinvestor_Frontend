@@ -12,6 +12,7 @@ export function AnnouncementCard({
   actions = null,
   showView = true,
   showEdit = true,
+  showStatus = true,
   selectionMode = false,
   onSelect,
   isSelected = false,
@@ -36,15 +37,18 @@ export function AnnouncementCard({
     >
       <SelectorBadge isSelected={isSelected} />
 
-      <div
-        className={`absolute top-2 left-2 z-10 px-2 py-0.5 text-xs font-semibold rounded shadow
-        ${is_active
-          ? 'bg-green-100 text-green-800 border border-green-300'
-          : 'bg-red-100 text-red-800 border border-red-300'}
-      `}
-      >
-        {is_active ? 'Ativo' : 'Inativo'}
-      </div>
+      {/* Only show status badge if showStatus is true */}
+      {showStatus && (
+        <div
+          className={`absolute top-2 left-2 z-10 px-2 py-0.5 text-xs font-semibold rounded shadow
+          ${is_active
+            ? 'bg-green-100 text-green-800 border border-green-300'
+            : 'bg-red-100 text-red-800 border border-red-300'}
+        `}
+        >
+          {is_active ? 'Ativo' : 'Inativo'}
+        </div>
+      )}
 
       {actions && <div className="absolute top-2 right-2 z-10">{actions}</div>}
 
@@ -138,6 +142,7 @@ AnnouncementCard.propTypes = {
   actions: PropTypes.node,
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
+  showStatus: PropTypes.bool,
   selectionMode: PropTypes.bool,
   onSelect: PropTypes.func,
   isSelected: PropTypes.bool,

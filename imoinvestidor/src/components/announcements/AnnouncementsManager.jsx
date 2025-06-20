@@ -38,6 +38,7 @@ export default function AnnouncementsManager({
   showView = true,
   showEdit = true,
   showDelete = true,
+  showStatus = true,
   emptyStateMessage,
   initialFilters = {},
 }) {
@@ -212,6 +213,7 @@ export default function AnnouncementsManager({
               onEdit={(a) => showEdit && navigate(`/edit-announcement/${a.id}`)}
               showView={showView}
               showEdit={showEdit}
+              showStatus={showStatus}
             />
           )}
 
@@ -234,6 +236,7 @@ AnnouncementsManager.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
+  showStatus: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   initialFilters: PropTypes.object,
 };

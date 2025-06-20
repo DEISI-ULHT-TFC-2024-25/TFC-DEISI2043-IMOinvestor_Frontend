@@ -37,6 +37,7 @@ export default function MyAnnouncements() {
       showView={true}
       showEdit={true}
       showDelete={true}
+      showStatus={true}
       emptyStateMessage={`Ainda não existem anúncios para ${orgName}.`}
     />
   );
