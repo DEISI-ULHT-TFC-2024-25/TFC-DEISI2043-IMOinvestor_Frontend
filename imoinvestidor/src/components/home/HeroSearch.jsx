@@ -103,7 +103,7 @@ export default function HeroSearch({
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-gray-600"
+              className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-[#0A2647] transition-colors duration-200"
             >
               <X className="h-5 w-5" />
             </button>
@@ -114,15 +114,15 @@ export default function HeroSearch({
           <div className="order-2 sm:order-1 w-full sm:w-auto">
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className={`text-sm border px-4 py-3 rounded-lg w-full sm:w-auto transition-colors font-medium ${
+              className={`text-sm px-6 py-3 rounded-lg w-full sm:w-auto transition-all duration-200 font-medium border-2 shadow-sm ${
                 showAdvanced || hasActiveFilters()
-                  ? "bg-[#CFAF5E] text-white border-[#CFAF5E]"
-                  : "text-blue-600 hover:text-white border-blue-600 hover:bg-blue-600"
+                  ? "bg-[#0A2647] text-white border-[#0A2647] hover:bg-[#0d2e57] hover:border-[#0d2e57] shadow-md"
+                  : "text-[#0A2647] bg-white border-[#0A2647] hover:bg-[#0A2647] hover:text-white"
               }`}
             >
               Pesquisa Avançada
               {hasActiveFilters() && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-[#CFAF5E] bg-white rounded-full">
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-[#0A2647] bg-[#CFAF5E] rounded-full min-w-[20px]">
                   {getActiveFiltersCount()}
                 </span>
               )}
@@ -141,9 +141,9 @@ export default function HeroSearch({
         </div>
 
         {hasActiveFilters() && !showAdvanced && (
-          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-[#0A2647]">Filtros Ativos:</h4>
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-[#0A2647]">Filtros Ativos:</h4>
               <button
                 onClick={clearFilters}
                 className="text-sm text-[#CFAF5E] hover:text-[#b89a4e] font-medium"
