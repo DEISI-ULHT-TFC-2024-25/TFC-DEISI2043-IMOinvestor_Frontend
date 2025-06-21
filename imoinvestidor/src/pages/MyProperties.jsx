@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getUser } from "@services/authService";
 import { getPropertiesByOrganization } from "@services/propertyService";
 import { getOrganizationById } from "@services/organizationService";
@@ -9,6 +9,11 @@ export default function MyProperties() {
   const orgId = user?.organization_ids?.[0];
   const [orgName, setOrgName] = useState("Organização");
   const [loading, setLoading] = useState(true);
+
+  // Memoizing the fetch function prevents unnecessary re-renders
+  const fetchProperties = useCallback((filters) => {
+    return getPropertiesByOrganization(filters);
+  }, []); // Empty dependency array since getPropertiesByOrganization doesn't depend on any props/state
 
   useEffect(() => {
     if (orgId) {
@@ -32,7 +37,7 @@ export default function MyProperties() {
   return (
     <PropertiesManager
       title={`Propriedades da Organização: ${orgName}`}
-      fetchProperties={(filters) => getPropertiesByOrganization(filters)}
+      fetchProperties={fetchProperties}
       showView={true}
       showEdit={true}
       showDelete={true}

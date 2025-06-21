@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 import PropertiesList from '@properties/PropertiesList';
 import AnnouncementsList from '@announcements/AnnouncementsList';
@@ -11,15 +12,84 @@ import ConfirmDialog from '@common/ConfirmDialog';
 import PropertyDetails from '@properties/PropertyDetails';
 import AnnouncementDetails from '@pages/AnnouncementDetails';
 
-import { getPropertyMediasByProperty } from '@services/propertyMediaService';
 import useDeleteProperty from '@hooks/useDeleteProperty';
 import useDeleteAnnouncement from '@hooks/useDeleteAnnouncement';
 import useDistricts from '@hooks/useDistricts';
 import useMunicipalities from '@hooks/useMunicipalities';
+import { useItemsData } from '@hooks/useItemsData';
+
+// Memoized components
+const MemoizedPropertyFilters = React.memo(PropertyFilters);
+const MemoizedPropertiesSearchBar = React.memo(PropertiesSearchBar);
+const MemoizedPropertiesList = React.memo(PropertiesList);
+const MemoizedAnnouncementsList = React.memo(AnnouncementsList);
+
+// Memoized main content to prevent unnecessary re-renders
+const MainContent = React.memo(function MainContent({ 
+  listType, 
+  allItems, 
+  showView, 
+  showEdit, 
+  showDelete, 
+  selectionMode, 
+  onItemSelect, 
+  selectedItem, 
+  emptyStateMessage,
+  onDelete,
+  onView,
+  onEdit,
+  filtering
+}) {
+  const ListComponent = listType === 'property' ? MemoizedPropertiesList : MemoizedAnnouncementsList;
+  
+  const listProps = listType === 'property'
+    ? {
+        properties: allItems,
+        onDelete: showDelete && !selectionMode ? onDelete : undefined,
+        onView: showView ? onView : undefined,
+        onEdit: onEdit,
+        showView,
+        showEdit,
+        selectionMode,
+        onPropertySelect: onItemSelect,
+        selectedProperty: selectedItem,
+      }
+    : {
+        announcements: allItems,
+        onDelete: showDelete && !selectionMode ? onDelete : undefined,
+        onView: showView ? onView : undefined,
+        onEdit: onEdit,
+        showView,
+        showEdit,
+        selectionMode,
+        onAnnouncementSelect: onItemSelect,
+        selectedAnnouncement: selectedItem,
+      };
+  
+  if (filtering) {
+    return (
+      <div className="text-center py-8">
+        <div className="inline-flex items-center px-4 py-2 bg-[#0A2647]/10 text-[#0A2647] rounded-lg border border-[#CFAF5E]/20">
+          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-[#CFAF5E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          A filtrar...
+        </div>
+      </div>
+    );
+  }
+  
+  return allItems.length === 0 ? (
+    <PropertiesEmptyState message={emptyStateMessage} />
+  ) : (
+    <ListComponent {...listProps} />
+  );
+});
 
 export default function ItemsManager({
-  listType,           // 'property' or 'announcement'
-  fetchItems,         // fetchProperties or fetchAnnouncements
+  listType,
+  fetchItems,
   title,
   showView = true,
   showEdit = true,
@@ -30,124 +100,40 @@ export default function ItemsManager({
   selectedItem = null,
 }) {
   const navigate = useNavigate();
-  const [allItems, setAllItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [toDelete, setToDelete] = useState(null);
   const [toView, setToView] = useState(null);
 
-  const [filters, setFilters] = useState({
-    tipo: '', 
-    tipologia: '',
-    casasBanho: '',
-    distrito: '', 
-    municipio: '', 
-    novaConstrucao: '',
-    certificado: '',
-    priceRange: [0,2000000],
-    areaUtilMin: '', 
-    areaUtilMax: '',
-    areaBrutaMin: '', 
-    areaBrutaMax: '',
-    extraInfos: [],
-  });
+  // Use custom hook for data management
+  const {
+    allItems,
+    loading,
+    filtering,
+    error,
+    searchTerm,
+    setSearchTerm,
+    filters,
+    setFilters,
+    removeItem
+  } = useItemsData(fetchItems, listType);
 
   const { districts } = useDistricts();
   const { municipalities, loadByDistrict } = useMunicipalities(filters.distrito);
-
-  // Convert filters to API parameters
-  const getApiParams = () => {
-    const params = {};
-    
-    // Add search term
-    if (searchTerm.trim()) {
-      params.search = searchTerm.trim();
-    }
-    
-    // Add filters
-    if (filters.distrito) params.district = filters.distrito;
-    if (filters.municipio) params.municipality = filters.municipio;
-    if (filters.tipo) params.property_type = filters.tipo;
-    if (filters.tipologia) params.tipologia = filters.tipologia;
-    if (filters.casasBanho) params.numero_casas_banho = filters.casasBanho;
-    if (filters.novaConstrucao) params.nova_construcao = filters.novaConstrucao;
-    if (filters.certificado) params.certificado_energetico = filters.certificado;
-    
-    // Price range
-    if (filters.priceRange) {
-      const [minPrice, maxPrice] = filters.priceRange;
-      if (minPrice > 0) params.price_min = minPrice;
-      if (maxPrice < 2000000) params.price_max = maxPrice;
-    }
-    
-    // Area filters
-    if (filters.areaUtilMin) params.area_util_min = filters.areaUtilMin;
-    if (filters.areaUtilMax) params.area_util_max = filters.areaUtilMax;
-    if (filters.areaBrutaMin) params.area_bruta_min = filters.areaBrutaMin;
-    if (filters.areaBrutaMax) params.area_bruta_max = filters.areaBrutaMax;
-    
-    // Extra infos
-    if (filters.extraInfos && filters.extraInfos.length > 0) {
-      params.extra_infos = filters.extraInfos.join(',');
-    }
-    
-    return params;
-  };
-
-  // Load items with current filters and search term
-  useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Get API parameters based on current filters and search
-        const apiParams = getApiParams();
-        
-        // Fetch filtered items from server
-        const data = await fetchItems(apiParams);
-        
-        // Add media to each item
-        const withMedia = await Promise.all(data.map(async item => {
-          const prop = listType === 'property' ? item : item.property;
-          try {
-            const media = await getPropertyMediasByProperty(prop.id);
-            return listType === 'property'
-              ? { ...item, media }
-              : { ...item, property: { ...prop, media } };
-          } catch {
-            return listType === 'property'
-              ? { ...item, media: [] }
-              : { ...item, property: { ...prop, media: [] } };
-          }
-        }));
-        
-        setAllItems(withMedia);
-      } catch (e) {
-        setError(e);
-        setAllItems([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    load();
-  }, [fetchItems, listType, filters, searchTerm]); // Re-fetch when filters or search changes
 
   // Delete hooks
   const { removeProperty } = useDeleteProperty();
   const { removeAnnouncement } = useDeleteAnnouncement();
 
-  const handleDeleteConfirm = async () => {
+  // Memoized callbacks
+  const handleDeleteConfirm = useCallback(async () => {
     if (!toDelete) return;
+    
     const ok = listType === 'property'
       ? await removeProperty(toDelete.id)
       : await removeAnnouncement(toDelete.id);
 
     if (ok) {
-      setAllItems(prev => prev.filter(i => i.id !== toDelete.id));
+      removeItem(toDelete.id);
       setSuccessMessage(
         listType === 'property'
           ? 'Propriedade apagada com sucesso!'
@@ -158,10 +144,46 @@ export default function ItemsManager({
     }
     setToDelete(null);
     setTimeout(() => setSuccessMessage(''), 3000);
-  };
+  }, [toDelete, listType, removeProperty, removeAnnouncement, removeItem]);
 
-  const ListComponent = listType === 'property' ? PropertiesList : AnnouncementsList;
+  const handleCreateNew = useCallback(() => {
+    navigate(listType === 'property' ? '/create-property' : '/create-announcement');
+  }, [navigate, listType]);
 
+  const handleEdit = useCallback((item) => {
+    navigate(listType === 'property' ? `/edit-property/${item.id}` : `/edit-announcement/${item.id}`);
+  }, [navigate, listType]);
+
+  // Enhanced view handler with ID validation
+  const handleView = useCallback((item) => {
+    console.log('handleView called with item:', item);
+    
+    // Validate that item exists and has an ID
+    if (!item) {
+      console.error('handleView: item is null or undefined');
+      return;
+    }
+    
+    if (!item.id) {
+      console.error('handleView: item missing ID', item);
+      return;
+    }
+    
+    // Additional validation for announcements
+    if (listType === 'announcement') {
+      if (!item.property) {
+        console.error('handleView: announcement missing property', item);
+        return;
+      }
+    }
+    
+    console.log(`Setting toView for ${listType} with ID:`, item.id);
+    setToView(item);
+  }, [listType]);
+
+  const DetailsComponent = listType === 'property' ? PropertyDetails : AnnouncementDetails;
+
+  // Only show initial loading, not filter loading
   if (loading) {
     return (
       <p className="p-6 text-center text-gray-600">
@@ -169,6 +191,7 @@ export default function ItemsManager({
       </p>
     );
   }
+
   if (error) {
     return (
       <p className="p-6 text-center text-red-600">
@@ -184,7 +207,7 @@ export default function ItemsManager({
         <h1 className="text-xl font-semibold">{title}</h1>
         {showEdit && !selectionMode && (
           <button
-            onClick={() => navigate(listType === 'property' ? '/create-property' : '/create-announcement')}
+            onClick={handleCreateNew}
             className="px-4 py-2 bg-[#CFAF5E] text-white rounded"
           >
             {listType === 'property' ? 'Nova Propriedade' : 'Novo Anúncio'}
@@ -193,8 +216,9 @@ export default function ItemsManager({
       </div>
 
       <div className="flex gap-6">
+        {/* Sidebar */}
         <aside className="w-72">
-          <PropertyFilters
+          <MemoizedPropertyFilters
             filters={filters}
             onFiltersChange={setFilters}
             districts={districts}
@@ -203,8 +227,9 @@ export default function ItemsManager({
           />
         </aside>
 
+        {/* Main content */}
         <main className="flex-1 space-y-4">
-          <PropertiesSearchBar
+          <MemoizedPropertiesSearchBar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
           />
@@ -218,58 +243,37 @@ export default function ItemsManager({
           {toDelete && (
             <ConfirmDialog
               message={`Tem certeza que deseja apagar ${
-                listType === 'property' ? toDelete.name : toDelete.property.title
+                listType === 'property' ? toDelete.name : toDelete.property?.title || 'este item'
               }?`}
               onCancel={() => setToDelete(null)}
               onConfirm={handleDeleteConfirm}
             />
           )}
 
-          {allItems.length === 0 ? (
-            <PropertiesEmptyState message={emptyStateMessage} />
-          ) : (
-            <ListComponent
-              {...(
-                listType === 'property'
-                  ? {
-                      properties: allItems,
-                      onDelete: showDelete && !selectionMode ? setToDelete : undefined,
-                      onView: showView ? setToView : undefined,
-                      onEdit: p => navigate(`/edit-property/${p.id}`),
-                      showView,
-                      showEdit,
-                      selectionMode,
-                      onPropertySelect: onItemSelect,
-                      selectedProperty: selectedItem,
-                    }
-                  : {
-                      announcements: allItems,
-                      onDelete: showDelete && !selectionMode ? setToDelete : undefined,
-                      onView: showView ? setToView : undefined,
-                      onEdit: a => navigate(`/edit-announcement/${a.id}`),
-                      showView,
-                      showEdit,
-                      selectionMode,
-                      onAnnouncementSelect: onItemSelect,
-                      selectedAnnouncement: selectedItem,
-                    }
-              )}
-            />
-          )}
+          <MainContent
+            listType={listType}
+            allItems={allItems}
+            showView={showView}
+            showEdit={showEdit}
+            showDelete={showDelete}
+            selectionMode={selectionMode}
+            onItemSelect={onItemSelect}
+            selectedItem={selectedItem}
+            emptyStateMessage={emptyStateMessage}
+            onDelete={setToDelete}
+            onView={handleView} // Use the enhanced handler
+            onEdit={handleEdit}
+            filtering={filtering}
+          />
 
-          {listType === 'property' ? (
-            <PropertyDetails
-              property={toView || null}
-              isOpen={!!toView}
-              onClose={() => setToView(null)}
-            />
-          ) : (
-            <AnnouncementDetails
-              announcement={toView || null}
-              isOpen={!!toView}
-              onClose={() => setToView(null)}
-            />
-          )}
+          {/* Pass the item directly to the details component */}
+          <DetailsComponent
+            {...{
+              [listType === 'property' ? 'property' : 'announcement']: toView,
+              isOpen: !!toView,
+              onClose: () => setToView(null),
+            }}
+          />
         </main>
       </div>
     </section>

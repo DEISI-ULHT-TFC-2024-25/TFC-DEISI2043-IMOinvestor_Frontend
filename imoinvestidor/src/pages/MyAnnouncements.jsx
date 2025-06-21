@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getUser } from '@services/authService';
 import { getOrganizationById } from '@services/organizationService';
 import AnnouncementsManager from '@announcements/AnnouncementsManager';
@@ -11,16 +11,21 @@ export default function MyAnnouncements() {
   const [orgName, setOrgName] = useState('Organização');
   const [loading, setLoading] = useState(true);
 
+  // Memoizing the fetch function prevents unnecessary re-renders
+  const fetchAnnouncements = useCallback((filters) => {
+    return fetchAnnouncementsByOrganization(filters);
+  }, []); // Empty dependency array since fetchAnnouncementsByOrganization doesn't depend on any props/state
+
   useEffect(() => {
-    if (!orgId) {
+    if (orgId) {
+      getOrganizationById(orgId)
+        .then(org => setOrgName(org.name))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    } else if (user) {
       setLoading(false);
-      return;
     }
-    getOrganizationById(orgId)
-      .then(org => setOrgName(org.name))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [orgId]);
+  }, [orgId, user]);
 
   if (loading || !user || !orgId) {
     return (
@@ -33,7 +38,7 @@ export default function MyAnnouncements() {
   return (
     <AnnouncementsManager
       title={`Anúncios da Organização: ${orgName}`}
-      fetchAnnouncements={(filters) => fetchAnnouncementsByOrganization(filters)}
+      fetchAnnouncements={fetchAnnouncements}
       showView={true}
       showEdit={true}
       showDelete={true}
