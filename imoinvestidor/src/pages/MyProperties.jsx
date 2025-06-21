@@ -32,7 +32,7 @@ export default function MyProperties() {
   return (
     <PropertiesManager
       title={`Propriedades da Organização: ${orgName}`}
-      fetchProperties={() => getPropertiesByOrganization()}
+      fetchProperties={(filters) => getPropertiesByOrganization(filters)}
       showView={true}
       showEdit={true}
       showDelete={true}

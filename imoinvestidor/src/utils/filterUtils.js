@@ -1,11 +1,8 @@
 export function buildPropertyFilters(filters = {}) {
   const query = {};
 
-  if (filters.tipo) query.property_type = filters.tipo;
-
-  if (filters.tipologia?.trim()) {
-    query.tipologia = filters.tipologia.trim();
-  }
+  if (filters.tipo?.trim()) query.property_type = filters.tipo.trim();
+  if (filters.tipologia?.trim()) query.tipologia = filters.tipologia.trim();
 
   if (filters.casasBanho && filters.casasBanho !== '' && filters.casasBanho !== '0') {
     const n = parseInt(filters.casasBanho, 10);
@@ -15,7 +12,7 @@ export function buildPropertyFilters(filters = {}) {
   if (filters.distrito) query.district = filters.distrito;
   if (filters.municipio) query.municipality = filters.municipio;
 
-  if (filters.novaConstrucao) query.nova_construcao = filters.novaConstrucao;
+  if (filters.novaConstrucao?.trim()) query.nova_construcao = filters.novaConstrucao.trim();
 
   if (filters.certificado?.trim()) {
     query.certificado_energetico = filters.certificado.trim();
