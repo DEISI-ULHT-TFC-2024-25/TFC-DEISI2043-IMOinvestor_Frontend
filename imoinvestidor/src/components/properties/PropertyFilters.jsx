@@ -6,7 +6,6 @@ import SelectField from "@common/SelectField";
 import InputField from "@common/InputField";
 import PriceRangeSlider from "@common/PriceRangeSlider";
 import CheckboxGroup from "@common/CheckboxGroup";
-import { handleDistrictChange } from "@utils/locationUtils";
 
 const extraInfos = [
   "varanda",
@@ -52,18 +51,48 @@ const PropertyFilters = ({
     handleFilterChange("extraInfos", newExtras);
   };
 
-  const handleDistrictFilterChange = async (e) => {
-    const newDistrict = e.target.value;
+const handleDistrictFilterChange = async (e) => {
+  const newDistrict = e.target.value;
+  
+  try {
+    if (!newDistrict) {
+      // If district is cleared, update both filters immediately and load all municipalities
+      onFiltersChange({
+        ...filters,
+        distrito: "",
+        municipio: ""
+      });
+      await loadMunicipalitiesByDistrict("");
+      return;
+    }
 
-    await handleDistrictChange({
-      newDistrict: String(newDistrict),
-      currentMunicipality: filters.municipio || "",
-      loadByDistrict: loadMunicipalitiesByDistrict,
-      setDistrict: (district) => handleFilterChange("distrito", district),
-      setMunicipality: (municipality) =>
-        handleFilterChange("municipio", municipality),
+    // Update district filter
+    handleFilterChange("distrito", newDistrict);
+    
+    // Load municipalities for the selected district
+    const loadedMunicipalities = await loadMunicipalitiesByDistrict(newDistrict);
+    
+    // Check if current municipality is still valid for the new district
+    const currentMunicipality = filters.municipio || "";
+    if (currentMunicipality) {
+      const isStillValid = loadedMunicipalities.some(
+        (m) => String(m.id) === String(currentMunicipality)
+      );
+      
+      if (!isStillValid) {
+        handleFilterChange("municipio", "");
+      }
+    }
+  } catch (error) {
+    console.error('Error loading municipalities:', error);
+    // Reset both filters on error
+    onFiltersChange({
+      ...filters,
+      distrito: "",
+      municipio: ""
     });
-  };
+  }
+};
 
   const clearFilters = () => {
     onFiltersChange({

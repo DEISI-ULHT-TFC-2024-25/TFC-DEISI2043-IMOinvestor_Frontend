@@ -30,7 +30,7 @@ export default function ItemsManager({
   selectedItem = null,
 }) {
   const navigate = useNavigate();
-  const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,22 +52,64 @@ export default function ItemsManager({
     areaBrutaMin: '', 
     areaBrutaMax: '',
     extraInfos: [],
-    searchTerm: '',
   });
 
   const { districts } = useDistricts();
   const { municipalities, loadByDistrict } = useMunicipalities(filters.distrito);
 
-  // Update filters when search term changes
-  useEffect(() => {
-    setFilters(prev => ({ ...prev, searchTerm }));
-  }, [searchTerm]);
+  // Convert filters to API parameters
+  const getApiParams = () => {
+    const params = {};
+    
+    // Add search term
+    if (searchTerm.trim()) {
+      params.search = searchTerm.trim();
+    }
+    
+    // Add filters
+    if (filters.distrito) params.district = filters.distrito;
+    if (filters.municipio) params.municipality = filters.municipio;
+    if (filters.tipo) params.property_type = filters.tipo;
+    if (filters.tipologia) params.tipologia = filters.tipologia;
+    if (filters.casasBanho) params.numero_casas_banho = filters.casasBanho;
+    if (filters.novaConstrucao) params.nova_construcao = filters.novaConstrucao;
+    if (filters.certificado) params.certificado_energetico = filters.certificado;
+    
+    // Price range
+    if (filters.priceRange) {
+      const [minPrice, maxPrice] = filters.priceRange;
+      if (minPrice > 0) params.price_min = minPrice;
+      if (maxPrice < 2000000) params.price_max = maxPrice;
+    }
+    
+    // Area filters
+    if (filters.areaUtilMin) params.area_util_min = filters.areaUtilMin;
+    if (filters.areaUtilMax) params.area_util_max = filters.areaUtilMax;
+    if (filters.areaBrutaMin) params.area_bruta_min = filters.areaBrutaMin;
+    if (filters.areaBrutaMax) params.area_bruta_max = filters.areaBrutaMax;
+    
+    // Extra infos
+    if (filters.extraInfos && filters.extraInfos.length > 0) {
+      params.extra_infos = filters.extraInfos.join(',');
+    }
+    
+    return params;
+  };
 
-  // Load items + media
+  // Load items with current filters and search term
   useEffect(() => {
     async function load() {
       try {
-        const data = await fetchItems(filters);
+        setLoading(true);
+        setError(null);
+        
+        // Get API parameters based on current filters and search
+        const apiParams = getApiParams();
+        
+        // Fetch filtered items from server
+        const data = await fetchItems(apiParams);
+        
+        // Add media to each item
         const withMedia = await Promise.all(data.map(async item => {
           const prop = listType === 'property' ? item : item.property;
           try {
@@ -81,15 +123,18 @@ export default function ItemsManager({
               : { ...item, property: { ...prop, media: [] } };
           }
         }));
-        setItems(withMedia);
+        
+        setAllItems(withMedia);
       } catch (e) {
         setError(e);
+        setAllItems([]);
       } finally {
         setLoading(false);
       }
     }
+    
     load();
-  }, [fetchItems, listType, filters]);
+  }, [fetchItems, listType, filters, searchTerm]); // Re-fetch when filters or search changes
 
   // Delete hooks
   const { removeProperty } = useDeleteProperty();
@@ -102,7 +147,7 @@ export default function ItemsManager({
       : await removeAnnouncement(toDelete.id);
 
     if (ok) {
-      setItems(prev => prev.filter(i => i.id !== toDelete.id));
+      setAllItems(prev => prev.filter(i => i.id !== toDelete.id));
       setSuccessMessage(
         listType === 'property'
           ? 'Propriedade apagada com sucesso!'
@@ -180,14 +225,14 @@ export default function ItemsManager({
             />
           )}
 
-          {items.length === 0 ? (
+          {allItems.length === 0 ? (
             <PropertiesEmptyState message={emptyStateMessage} />
           ) : (
             <ListComponent
               {...(
                 listType === 'property'
                   ? {
-                      properties: items,
+                      properties: allItems,
                       onDelete: showDelete && !selectionMode ? setToDelete : undefined,
                       onView: showView ? setToView : undefined,
                       onEdit: p => navigate(`/edit-property/${p.id}`),
@@ -198,7 +243,7 @@ export default function ItemsManager({
                       selectedProperty: selectedItem,
                     }
                   : {
-                      announcements: items,
+                      announcements: allItems,
                       onDelete: showDelete && !selectionMode ? setToDelete : undefined,
                       onView: showView ? setToView : undefined,
                       onEdit: a => navigate(`/edit-announcement/${a.id}`),
