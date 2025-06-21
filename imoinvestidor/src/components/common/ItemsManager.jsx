@@ -10,7 +10,7 @@ import PropertiesSearchBar from '@properties/PropertiesSearchBar';
 import PropertiesEmptyState from '@properties/PropertiesEmptyState';
 import ConfirmDialog from '@common/ConfirmDialog';
 import PropertyDetails from '@properties/PropertyDetails';
-import AnnouncementDetails from '@pages/AnnouncementDetails';
+import AnnouncementDetails from '@announcements/AnnouncementDetails';
 
 import useDeleteProperty from '@hooks/useDeleteProperty';
 import useDeleteAnnouncement from '@hooks/useDeleteAnnouncement';
