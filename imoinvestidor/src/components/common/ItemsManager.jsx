@@ -156,28 +156,23 @@ export default function ItemsManager({
 
   // Enhanced view handler with ID validation
   const handleView = useCallback((item) => {
-    console.log('handleView called with item:', item);
     
     // Validate that item exists and has an ID
     if (!item) {
-      console.error('handleView: item is null or undefined');
       return;
     }
     
     if (!item.id) {
-      console.error('handleView: item missing ID', item);
       return;
     }
     
     // Additional validation for announcements
     if (listType === 'announcement') {
       if (!item.property) {
-        console.error('handleView: announcement missing property', item);
         return;
       }
     }
     
-    console.log(`Setting toView for ${listType} with ID:`, item.id);
     setToView(item);
   }, [listType]);
 
