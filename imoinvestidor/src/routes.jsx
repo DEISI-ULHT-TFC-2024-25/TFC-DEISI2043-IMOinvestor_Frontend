@@ -180,12 +180,12 @@ export default function AppRoutes() {
           }
         />
 
-        {/* Acesso a investidores */}
+        {/* Acesso a SYS_ADMIN e INVESTOR */}
         <Route
           path='announcements'
           element={
             <RoleRoute
-              allowedRoles={[ROLES.INVESTOR]}
+              allowedRoles={[ROLES.SYS_ADMIN, ROLES.INVESTOR]}
             >
               <AllAnnouncements />
             </RoleRoute>
@@ -196,7 +196,7 @@ export default function AppRoutes() {
           path='map'
           element={
             <RoleRoute
-              allowedRoles={[ROLES.INVESTOR]}
+              allowedRoles={[ROLES.SYS_ADMIN, ROLES.INVESTOR]}
             >
               <Map />
             </RoleRoute>
