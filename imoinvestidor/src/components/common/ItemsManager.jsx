@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import React from 'react';
@@ -23,6 +23,24 @@ const MemoizedPropertyFilters = React.memo(PropertyFilters);
 const MemoizedPropertiesSearchBar = React.memo(PropertiesSearchBar);
 const MemoizedPropertiesList = React.memo(PropertiesList);
 const MemoizedAnnouncementsList = React.memo(AnnouncementsList);
+
+// Custom hook for screen size detection
+const useScreenSize = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  return isMobile;
+};
 
 // Memoized main content to prevent unnecessary re-renders
 const MainContent = React.memo(function MainContent({ 
@@ -100,6 +118,7 @@ export default function ItemsManager({
   selectedItem = null,
 }) {
   const navigate = useNavigate();
+  const isMobile = useScreenSize();
   const [successMessage, setSuccessMessage] = useState('');
   const [toDelete, setToDelete] = useState(null);
   const [toView, setToView] = useState(null);
@@ -181,38 +200,51 @@ export default function ItemsManager({
   // Only show initial loading, not filter loading
   if (loading) {
     return (
-      <p className="p-6 text-center text-gray-600">
-        {listType === 'property' ? 'A carregar propriedades…' : 'A carregar anúncios…'}
-      </p>
+      <div className="p-4 sm:p-6 text-center text-gray-600">
+        <div className="inline-flex items-center px-4 py-2">
+          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-[#CFAF5E]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {listType === 'property' ? 'A carregar propriedades…' : 'A carregar anúncios…'}
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <p className="p-6 text-center text-red-600">
+      <div className="p-4 sm:p-6 text-center text-red-600">
         Erro: {error.message}
-      </p>
+      </div>
     );
   }
 
   return (
-    <section className="p-4 mx-auto max-w-7xl">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl font-semibold">{title}</h1>
-        {showEdit && !selectionMode && (
-          <button
-            onClick={handleCreateNew}
-            className="px-4 py-2 bg-[#CFAF5E] text-white rounded"
-          >
-            {listType === 'property' ? 'Nova Propriedade' : 'Novo Anúncio'}
-          </button>
-        )}
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Layout */}
+      {isMobile ? (
+        <div className="p-4 space-y-4">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <h1 className="text-lg font-semibold text-[#0A2647] truncate">{title}</h1>
+            {showEdit && !selectionMode && (
+              <button
+                onClick={handleCreateNew}
+                className="px-3 py-2 bg-[#CFAF5E] text-white rounded-lg text-sm font-medium whitespace-nowrap ml-2"
+              >
+                {listType === 'property' ? 'Nova' : 'Novo'}
+              </button>
+            )}
+          </div>
 
-      <div className="flex gap-6">
-        {/* Sidebar */}
-        <aside className="w-72">
+          {/* Search Bar */}
+          <MemoizedPropertiesSearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
+
+          {/* Filters - Mobile optimized */}
           <MemoizedPropertyFilters
             filters={filters}
             onFiltersChange={setFilters}
@@ -220,21 +252,15 @@ export default function ItemsManager({
             municipalities={municipalities}
             loadMunicipalitiesByDistrict={loadByDistrict}
           />
-        </aside>
 
-        {/* Main content */}
-        <main className="flex-1 space-y-4">
-          <MemoizedPropertiesSearchBar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
-
+          {/* Success Message */}
           {successMessage && (
-            <div className="p-3 bg-green-100 text-green-800 rounded">
+            <div className="p-3 bg-green-100 text-green-800 rounded-lg text-sm">
               {successMessage}
             </div>
           )}
 
+          {/* Delete Confirmation */}
           {toDelete && (
             <ConfirmDialog
               message={`Tem certeza que deseja apagar ${
@@ -245,6 +271,7 @@ export default function ItemsManager({
             />
           )}
 
+          {/* Main Content */}
           <MainContent
             listType={listType}
             allItems={allItems}
@@ -256,12 +283,12 @@ export default function ItemsManager({
             selectedItem={selectedItem}
             emptyStateMessage={emptyStateMessage}
             onDelete={setToDelete}
-            onView={handleView} // Use the enhanced handler
+            onView={handleView}
             onEdit={handleEdit}
             filtering={filtering}
           />
 
-          {/* Pass the item directly to the details component */}
+          {/* Details Component */}
           <DetailsComponent
             {...{
               [listType === 'property' ? 'property' : 'announcement']: toView,
@@ -269,9 +296,87 @@ export default function ItemsManager({
               onClose: () => setToView(null),
             }}
           />
-        </main>
-      </div>
-    </section>
+        </div>
+      ) : (
+        /* Desktop Layout - Original */
+        <section className="p-4 mx-auto max-w-7xl">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-xl font-semibold">{title}</h1>
+            {showEdit && !selectionMode && (
+              <button
+                onClick={handleCreateNew}
+                className="px-4 py-2 bg-[#CFAF5E] text-white rounded"
+              >
+                {listType === 'property' ? 'Nova Propriedade' : 'Novo Anúncio'}
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-6">
+            {/* Sidebar */}
+            <aside className="w-72">
+              <MemoizedPropertyFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                districts={districts}
+                municipalities={municipalities}
+                loadMunicipalitiesByDistrict={loadByDistrict}
+              />
+            </aside>
+
+            {/* Main content */}
+            <main className="flex-1 space-y-4">
+              <MemoizedPropertiesSearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+
+              {successMessage && (
+                <div className="p-3 bg-green-100 text-green-800 rounded">
+                  {successMessage}
+                </div>
+              )}
+
+              {toDelete && (
+                <ConfirmDialog
+                  message={`Tem certeza que deseja apagar ${
+                    listType === 'property' ? toDelete.name : toDelete.property?.title || 'este item'
+                  }?`}
+                  onCancel={() => setToDelete(null)}
+                  onConfirm={handleDeleteConfirm}
+                />
+              )}
+
+              <MainContent
+                listType={listType}
+                allItems={allItems}
+                showView={showView}
+                showEdit={showEdit}
+                showDelete={showDelete}
+                selectionMode={selectionMode}
+                onItemSelect={onItemSelect}
+                selectedItem={selectedItem}
+                emptyStateMessage={emptyStateMessage}
+                onDelete={setToDelete}
+                onView={handleView}
+                onEdit={handleEdit}
+                filtering={filtering}
+              />
+
+              {/* Details Component */}
+              <DetailsComponent
+                {...{
+                  [listType === 'property' ? 'property' : 'announcement']: toView,
+                  isOpen: !!toView,
+                  onClose: () => setToView(null),
+                }}
+              />
+            </main>
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
 

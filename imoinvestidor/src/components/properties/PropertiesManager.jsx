@@ -1,11 +1,32 @@
 import PropTypes from 'prop-types';
 import ItemsManager from '@common/ItemsManager';
 
-export default function PropertiesManager(props) {
+export default function PropertiesManager({
+  fetchProperties,
+  title = "Gestão de Propriedades",
+  showView = true,
+  showEdit = true,
+  showDelete = true,
+  emptyStateMessage = "Nenhuma propriedade encontrada",
+  selectionMode = false,
+  onPropertySelect,
+  selectedProperty,
+  initialFilters = {},
+  ...props
+}) {
   return (
     <ItemsManager
       listType="property"
-      fetchItems={props.fetchProperties}
+      fetchItems={fetchProperties}
+      title={title}
+      showView={showView}
+      showEdit={showEdit}
+      showDelete={showDelete}
+      emptyStateMessage={emptyStateMessage}
+      selectionMode={selectionMode}
+      onItemSelect={onPropertySelect}
+      selectedItem={selectedProperty}
+      initialFilters={initialFilters}
       {...props}
     />
   );
@@ -19,6 +40,7 @@ PropertiesManager.propTypes = {
   showDelete: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   selectionMode: PropTypes.bool,
-  onPropertySelect: PropTypes.func,    // forwarded as onItemSelect internally
-  selectedProperty: PropTypes.object,   // forwarded as selectedItem
+  onPropertySelect: PropTypes.func,
+  selectedProperty: PropTypes.object,
+  initialFilters: PropTypes.object,
 };

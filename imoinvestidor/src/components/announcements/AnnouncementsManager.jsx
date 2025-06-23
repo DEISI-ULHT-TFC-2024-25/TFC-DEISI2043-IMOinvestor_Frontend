@@ -1,11 +1,32 @@
 import PropTypes from 'prop-types';
 import ItemsManager from '@common/ItemsManager';
 
-export default function AnnouncementsManager(props) {
+export default function AnnouncementsManager({
+  fetchAnnouncements,
+  title = "Gestão de Anúncios",
+  showView = true,
+  showEdit = true,
+  showDelete = true,
+  emptyStateMessage = "Nenhum anúncio encontrado",
+  selectionMode = false,
+  onAnnouncementSelect,
+  selectedAnnouncement,
+  initialFilters = {},
+  ...props
+}) {
   return (
     <ItemsManager
       listType="announcement"
-      fetchItems={props.fetchAnnouncements}
+      fetchItems={fetchAnnouncements}
+      title={title}
+      showView={showView}
+      showEdit={showEdit}
+      showDelete={showDelete}
+      emptyStateMessage={emptyStateMessage}
+      selectionMode={selectionMode}
+      onItemSelect={onAnnouncementSelect}
+      selectedItem={selectedAnnouncement}
+      initialFilters={initialFilters}
       {...props}
     />
   );
@@ -19,7 +40,7 @@ AnnouncementsManager.propTypes = {
   showDelete: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   selectionMode: PropTypes.bool,
-  onAnnouncementSelect: PropTypes.func,    // forwarded as onItemSelect internally
-  selectedAnnouncement: PropTypes.object,   // forwarded as selectedItem
+  onAnnouncementSelect: PropTypes.func,
+  selectedAnnouncement: PropTypes.object,
   initialFilters: PropTypes.object,
 };
