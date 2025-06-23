@@ -44,6 +44,7 @@ export default function Home() {
         setSearchTerm={setSearchTerm}
         filters={filters}
         setFilters={setFilters}
+        isLoggedIn={isLoggedIn}
       />
 
       <RecentSearchs />

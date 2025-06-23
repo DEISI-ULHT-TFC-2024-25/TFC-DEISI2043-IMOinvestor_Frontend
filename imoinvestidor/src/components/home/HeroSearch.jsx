@@ -12,6 +12,7 @@ export default function HeroSearch({
   filters,
   setFilters,
   destination = "announcements",
+  isLoggedIn = false,
 }) {
   const navigate = useNavigate();
 
@@ -65,6 +66,11 @@ export default function HeroSearch({
   const hasActiveFilters = () => getActiveFiltersCount() > 0;
 
   const handleSearch = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
     const searchFilters = {
       ...filters,
       searchTerm: searchTerm.trim(),
@@ -212,4 +218,5 @@ HeroSearch.propTypes = {
   filters: PropTypes.object.isRequired,
   setFilters: PropTypes.func.isRequired,
   destination: PropTypes.string,
+  isLoggedIn: PropTypes.bool,
 };
