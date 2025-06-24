@@ -6,25 +6,25 @@ import placeholderImg from '@images/placeholder.jpg';
 
 export default function PropertyDetails({ property, isOpen, onClose }) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const media = property?.media || [];
-  const hasImages = media.length > 0;
+  const images = property?.images || [];
+  const hasImages = images.length > 0;
 
-  const processedMedia = useMemo(() => {
-    return media.map((item) => {
+  const processedImages = useMemo(() => {
+    return images.map((item) => {
       if (item?.file instanceof File) {
         return URL.createObjectURL(item.file);
       }
       return item?.file || item?.url || placeholderImg;
     });
-  }, [media]);
+  }, [images]);
 
   useEffect(() => {
     return () => {
-      processedMedia.forEach(src => {
+      processedImages.forEach(src => {
         if (src.startsWith('blob:')) URL.revokeObjectURL(src);
       });
     };
-  }, [processedMedia]);
+  }, [processedImages]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -58,7 +58,7 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
     };
   };
 
-  const priceData = formatPrice(property.preco_minimo, property.preco_maximo);
+  const priceData = formatPrice(property.min_price, property.max_price);
 
   const handleSlideChange = (index) => {
     setCurrentSlide(index);
@@ -89,8 +89,8 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
               <span>
-                {property.municipalityName || property.municipality},{" "}
-                {property.districtName || property.district}
+                {property.municipality},{" "}
+                {property.district}
               </span>
             </div>
             <div className="px-3 py-1 bg-[#CFAF5E] text-[#0A2647] rounded-full text-xs font-semibold">
@@ -111,7 +111,7 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
                   className="overflow-hidden"
                   afterChange={handleSlideChange}
                 >
-                  {processedMedia.map((src, index) => (
+                  {processedImages.map((src, index) => (
                     <div
                       key={index}
                       className="relative w-full h-full bg-gray-100 flex items-center justify-center"
@@ -128,7 +128,7 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
                   ))}
                 </SliderWrapper>
                 <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
-                  {currentSlide + 1} / {processedMedia.length}
+                  {currentSlide + 1} / {processedImages.length}
                 </div>
               </div>
             ) : (
@@ -190,17 +190,17 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
               <FeatureCard
                 icon={<Bed className="text-white" />}
                 label="Quartos"
-                value={property.tipologia}
+                value={property.typology}
               />
               <FeatureCard
                 icon={<Bath className="text-white" />}
                 label="Casas de banho"
-                value={property.numero_casas_banho}
+                value={property.num_wc}
               />
               <FeatureCard
                 icon={<Ruler className="text-white" />}
                 label="m² úteis"
-                value={`${property.area_util} m²`}
+                value={`${property.net_area} m²`}
               />
             </div>
 
@@ -234,15 +234,15 @@ function DetailsSection({ property }) {
           Detalhes do Imóvel
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DetailItem label="Área Útil" value={`${property.area_util} m²`} />
-          <DetailItem label="Área Bruta" value={`${property.area_bruta} m²`} />
+          <DetailItem label="Área Útil" value={`${property.net_area} m²`} />
+          <DetailItem label="Área Bruta" value={`${property.gross_area} m²`} />
           <DetailItem
             label="Distrito"
-            value={`${property.districtName || property.district}`}
+            value={`${property.district}`}
           />
           <DetailItem
             label="Município"
-            value={`${property.municipalityName || property.municipality}`}
+            value={`${property.municipality}`}
           />
           <DetailItem label="Código Postal" value={property.postal_code} />
           {property.street && (
@@ -254,21 +254,21 @@ function DetailsSection({ property }) {
           )}
           <DetailItem
             label="Nova Construção"
-            value={property.nova_construcao ? 'Sim' : 'Não'}
+            value={property.new_construction ? 'Sim' : 'Não'}
           />
           <DetailItem
             label="Certificado Energético"
-            value={property.certificado_energetico}
+            value={property.energy_certf}
           />
         </div>
       </div>
 
-      {property.descricao && (
+      {property.description && (
         <div>
           <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">
             Descrição
           </h3>
-          <p className="text-gray-700 leading-relaxed">{property.descricao}</p>
+          <p className="text-gray-700 leading-relaxed">{property.description}</p>
         </div>
       )}
 
