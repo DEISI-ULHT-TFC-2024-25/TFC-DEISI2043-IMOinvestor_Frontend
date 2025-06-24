@@ -18,6 +18,8 @@ export function BaseCard({
         className={`w-full object-cover ${imageClassName}`}
       />
 
+      <div className="border-t border-gray-100"></div>
+
       <div className="p-4">
         <h2 className="text-lg font-semibold leading-snug text-[#0A2647]">
           {title}
