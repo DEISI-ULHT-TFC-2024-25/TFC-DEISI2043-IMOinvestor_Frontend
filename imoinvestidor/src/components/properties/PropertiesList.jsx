@@ -1,10 +1,9 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PropertyCard } from "@properties/PropertyCard";
 import DeleteButton from "@common/DeleteButton";
-import placeholderImg from '@images/placeholder.jpg';
 
 const useScreenSize = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -117,65 +116,33 @@ export default function PropertiesList({
           const isSelected = selectionMode && selectedPropertyId === property.id;
           
           return (
-            <div
+            <PropertyCard
               key={property.id}
-              className={`relative transition-all duration-300 ease-out ${
-                selectionMode 
-                  ? 'cursor-pointer' 
-                  : ''
-              }`}
-            >
-              {isSelected && (
-                <div className="absolute -top-2 -right-2 z-20 bg-[#CFAF5E] text-white rounded-full p-1.5 shadow-lg border-2 border-white">
-                  <Check className="h-3 w-3" />
-                </div>
-              )}
-              
-              {selectionMode && (
-                <div className={`absolute -inset-1 rounded-xl pointer-events-none transition-all duration-300 ${
-                  isSelected 
-                    ? 'ring-2 ring-[#CFAF5E] ring-offset-2 ring-offset-white shadow-lg' 
-                    : 'hover:ring-1 hover:ring-[#CFAF5E]/30 hover:ring-offset-1 hover:ring-offset-white'
-                }`} />
-              )}
-              
-              <div className={`transition-all duration-300 ${
-                selectionMode && isSelected ? 'transform scale-[1.02]' : ''
-              } ${
-                selectionMode ? 'hover:transform hover:scale-[1.01]' : ''
-              }`}>
-                <PropertyCard
-                  title={property.name}
-                  typology={property.typology ?? "T?"}
-                  num_wc={property.num_wc ?? "0"}
-                  net_area={property.net_area}
-                  price={`${property.min_price?.toLocaleString()} € – ${property.max_price?.toLocaleString()} €`}
-                  street={property.street}
-                  district={String(property.district)}
-                  onView={showView ? () => onView && onView(property) : undefined}
-                  onEdit={showEdit ? () => navigate(`/edit-property/${property.id}`) : undefined}
-                  showView={showView}
-                  showEdit={showEdit}
-                  selectionMode={selectionMode}
-                  onSelect={selectionMode ? () => handlePropertyClick(property) : undefined}
-                  isSelected={isSelected}
-                  className={`${
-                    isSelected ? 'border-[#CFAF5E] shadow-md' : ''
-                  }`}
-                  actions={
-                    !selectionMode && onDelete && (
-                      <DeleteButton
-                        onClick={e => { e.stopPropagation(); onDelete(property); }}
-                        title="Apagar imóvel"
-                        size={22}
-                      />            
-                    )
-                  }
-                  // Pass the full property object so PropertyCard can access images
-                  property={property}
-                />
-              </div>
-            </div>
+              title={property.name}
+              typology={property.typology ?? "T?"}
+              num_wc={property.num_wc ?? "0"}
+              net_area={property.net_area}
+              price={`${property.min_price?.toLocaleString()} € – ${property.max_price?.toLocaleString()} €`}
+              street={property.street}
+              district={String(property.district)}
+              onView={showView ? () => onView && onView(property) : undefined}
+              onEdit={showEdit ? () => navigate(`/edit-property/${property.id}`) : undefined}
+              showView={showView}
+              showEdit={showEdit}
+              selectionMode={selectionMode}
+              onSelect={selectionMode ? () => handlePropertyClick(property) : undefined}
+              isSelected={isSelected}
+              actions={
+                !selectionMode && onDelete && (
+                  <DeleteButton
+                    onClick={e => { e.stopPropagation(); onDelete(property); }}
+                    title="Apagar imóvel"
+                    size={22}
+                  />            
+                )
+              }
+              property={property}
+            />
           );
         })}
       </div>

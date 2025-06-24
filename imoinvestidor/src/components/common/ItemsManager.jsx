@@ -84,7 +84,8 @@ const MainContent = React.memo(function MainContent({
         selectedAnnouncement: selectedItem,
       };
   
-  if (filtering) {
+  // Don't show filtering animation when in selectionMode (selection doesn't need loading state)
+  if (filtering && !selectionMode) {
     return (
       <div className="text-center py-8">
         <div className="inline-flex items-center px-4 py-2 bg-[#0A2647]/10 text-[#0A2647] rounded-lg border border-[#CFAF5E]/20">
@@ -249,7 +250,7 @@ export default function ItemsManager({
             setSearchTerm={setSearchTerm}
           />
 
-          {/* Filters - Mobile optimized */}
+          {/* Filters */}
           <MemoizedPropertyFilters
             filters={filters}
             onFiltersChange={setFilters}
@@ -303,7 +304,7 @@ export default function ItemsManager({
           />
         </div>
       ) : (
-        /* Desktop Layout - Original */
+        /* Desktop Layout */
         <section className="p-4 mx-auto max-w-7xl">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
