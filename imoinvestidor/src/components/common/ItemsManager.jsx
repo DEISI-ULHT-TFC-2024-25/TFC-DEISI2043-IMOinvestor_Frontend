@@ -226,14 +226,19 @@ export default function ItemsManager({
       {isMobile ? (
         <div className="p-4 space-y-4">
           {/* Header */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-lg font-semibold text-[#0A2647] truncate">{title}</h1>
+          <div className="space-y-3">
+            {/* Title */}
+            <h1 className="text-lg font-semibold text-[#0A2647] leading-tight">
+              {title}
+            </h1>
+            
+            {/* Button */}
             {showEdit && !selectionMode && (
               <button
                 onClick={handleCreateNew}
-                className="px-3 py-2 bg-[#CFAF5E] text-white rounded-lg text-sm font-medium whitespace-nowrap ml-2"
+                className="w-full px-4 py-3 bg-[#CFAF5E] text-white rounded-lg text-sm font-medium"
               >
-                {listType === 'property' ? 'Nova' : 'Novo'}
+                {listType === 'property' ? 'Nova Propriedade' : 'Novo Anúncio'}
               </button>
             )}
           </div>
