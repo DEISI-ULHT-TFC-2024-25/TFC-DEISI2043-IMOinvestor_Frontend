@@ -44,10 +44,10 @@ export function normalizeFiltersForAnnouncement(filters = {}) {
     tipo: filters.property_type,
     distrito: filters.district,
     municipio: filters.municipality,
-    novaConstrucao: filters.nova_construcao,
-    certificado: filters.certificado_energetico,
-    casasBanho: filters.numero_casas_banho,
-    areaUtilMin: filters.area_util,
-    areaBrutaMin: filters.area_bruta,
+    novaConstrucao: filters.new_construction,
+    certificado: filters.energy_cert,
+    casasBanho: filters.num_wc,
+    areaUtilMin: filters.net_area,
+    areaBrutaMin: filters.gross_area,
   };
 } 

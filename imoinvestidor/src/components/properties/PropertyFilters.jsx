@@ -51,48 +51,48 @@ const PropertyFilters = ({
     handleFilterChange("extraInfos", newExtras);
   };
 
-const handleDistrictFilterChange = async (e) => {
-  const newDistrict = e.target.value;
-  
-  try {
-    if (!newDistrict) {
-      // If district is cleared, update both filters immediately and load all municipalities
+  const handleDistrictFilterChange = async (e) => {
+    const newDistrict = e.target.value;
+    
+    try {
+      if (!newDistrict) {
+        // If district is cleared, update both filters immediately and load all municipalities
+        onFiltersChange({
+          ...filters,
+          distrito: "",
+          municipio: ""
+        });
+        await loadMunicipalitiesByDistrict("");
+        return;
+      }
+
+      // Update district filter
+      handleFilterChange("distrito", newDistrict);
+      
+      // Load municipalities for the selected district
+      const loadedMunicipalities = await loadMunicipalitiesByDistrict(newDistrict);
+      
+      // Check if current municipality is still valid for the new district
+      const currentMunicipality = filters.municipio || "";
+      if (currentMunicipality) {
+        const isStillValid = loadedMunicipalities.some(
+          (m) => String(m.id) === String(currentMunicipality)
+        );
+        
+        if (!isStillValid) {
+          handleFilterChange("municipio", "");
+        }
+      }
+    } catch (error) {
+      console.error('Error loading municipalities:', error);
+      // Reset both filters on error
       onFiltersChange({
         ...filters,
         distrito: "",
         municipio: ""
       });
-      await loadMunicipalitiesByDistrict("");
-      return;
     }
-
-    // Update district filter
-    handleFilterChange("distrito", newDistrict);
-    
-    // Load municipalities for the selected district
-    const loadedMunicipalities = await loadMunicipalitiesByDistrict(newDistrict);
-    
-    // Check if current municipality is still valid for the new district
-    const currentMunicipality = filters.municipio || "";
-    if (currentMunicipality) {
-      const isStillValid = loadedMunicipalities.some(
-        (m) => String(m.id) === String(currentMunicipality)
-      );
-      
-      if (!isStillValid) {
-        handleFilterChange("municipio", "");
-      }
-    }
-  } catch (error) {
-    console.error('Error loading municipalities:', error);
-    // Reset both filters on error
-    onFiltersChange({
-      ...filters,
-      distrito: "",
-      municipio: ""
-    });
-  }
-};
+  };
 
   const clearFilters = () => {
     onFiltersChange({
@@ -109,6 +109,7 @@ const handleDistrictFilterChange = async (e) => {
       areaBrutaMin: "",
       areaBrutaMax: "",
       extraInfos: [],
+      ordering: "",
     });
   };
 
@@ -128,6 +129,7 @@ const handleDistrictFilterChange = async (e) => {
     if (filters.areaBrutaMin) count++;
     if (filters.areaBrutaMax) count++;
     if (filters.extraInfos && filters.extraInfos.length > 0) count++;
+    if (filters.ordering) count++;
     
     return count;
   };
@@ -136,6 +138,27 @@ const handleDistrictFilterChange = async (e) => {
 
   const FilterContent = () => (
     <div className="space-y-6 p-4">
+      {/* Ordering/Sorting */}
+      <div className="grid grid-cols-1 gap-4">
+        <SelectField
+          label="Ordenar por"
+          name="ordering"
+          value={filters.ordering || ""}
+          onChange={(e) => handleFilterChange("ordering", e.target.value)}
+          options={[
+            { label: "Preço (Menor para Maior)", value: "price_min" },
+            { label: "Preço (Maior para Menor)", value: "-price_min" },
+            { label: "Área Útil (Menor para Maior)", value: "net_area" },
+            { label: "Área Útil (Maior para Menor)", value: "-net_area" },
+            { label: "Área Bruta (Menor para Maior)", value: "gross_area" },
+            { label: "Área Bruta (Maior para Menor)", value: "-gross_area" },
+            { label: "Data de Criação (Mais Recente)", value: "-created_at" },
+            { label: "Data de Criação (Mais Antiga)", value: "created_at" },
+          ]}
+          placeholder="Ordenação padrão"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
         <SelectField
           label="Tipo de Imóvel"
@@ -144,6 +167,7 @@ const handleDistrictFilterChange = async (e) => {
           onChange={(e) => handleFilterChange("tipo", e.target.value)}
           options={[
             { label: "Apartamento", value: "Apartamento" },
+            { label: "Terreno", value: "Terreno" },
             { label: "Casa", value: "Casa" },
           ]}
           placeholder="Todos os tipos"
@@ -172,7 +196,7 @@ const handleDistrictFilterChange = async (e) => {
             { label: "1", value: "1" },
             { label: "2", value: "2" },
             { label: "3", value: "3" },
-            { label: "4+", value: "4+" },
+            { label: "4+", value: "4" },
           ]}
           placeholder="Qualquer quantidade"
         />
