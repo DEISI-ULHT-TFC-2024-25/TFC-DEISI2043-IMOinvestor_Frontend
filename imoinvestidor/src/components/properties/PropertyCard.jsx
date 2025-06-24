@@ -26,13 +26,55 @@ export function PropertyCard({
   showEdit = true,
   actions = null,
   className = '',
+  // Add property object to access media if needed
+  property = null,
 }) {
   const hasPriceRange = min_price || max_price;
 
-  const handleCardClick = () => {
+  const handleCardClick = (e) => {
+    // Prevent default to avoid any form submission or navigation
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (selectionMode && onSelect) {
       onSelect();
     }
+  };
+
+  // Function to get the property image URL
+  const getImageUrl = () => {
+    // If imageUrl is provided directly, use it
+    if (imageUrl && imageUrl !== placeholderImg) {
+      return imageUrl;
+    }
+    
+    // If property object has images array (from PropertiesList), use the first image
+    if (property?.images && Array.isArray(property.images) && property.images.length > 0) {
+      const imageItem = property.images[0];
+      const url = imageItem.file || 
+                  imageItem.url || 
+                  imageItem.image || 
+                  imageItem.file_url ||
+                  imageItem.media_url ||
+                  null;
+      if (url) return url;
+    }
+    
+    // If property object has media, use the first image
+    if (property?.media && property.media.length > 0) {
+      const firstImage = property.media.find(media => media.media_type === 'image');
+      if (firstImage?.file) {
+        return firstImage.file;
+      }
+    }
+    
+    // If property has a direct image field
+    if (property?.image) {
+      return property.image;
+    }
+    
+    // Fall back to placeholder
+    return placeholderImg;
   };
 
   return (
@@ -59,7 +101,7 @@ export function PropertyCard({
         areaUtil={net_area}
         street={street}
         district={district}
-        imageUrl={imageUrl || placeholderImg}
+        imageUrl={getImageUrl()}
       />
 
       <div className="p-4 sm:p-5">
@@ -68,11 +110,13 @@ export function PropertyCard({
           {showView && onView && !selectionMode && (
             <button
               onClick={(e) => {
+                e.preventDefault();
                 e.stopPropagation();
                 onView();
               }}
               className="text-[#CFAF5E] hover:bg-[#CFAF5E]/10 p-1 rounded-lg transition-colors flex-shrink-0 group"
               title="Ver detalhes"
+              type="button"
             >
               <Eye size={18} className="group-hover:scale-110 transition-transform" />
             </button>
@@ -91,6 +135,7 @@ export function PropertyCard({
         {selectionMode && onSelect && (
           <button
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onSelect();
             }}
@@ -99,6 +144,7 @@ export function PropertyCard({
                 ? 'bg-[#CFAF5E] text-white shadow-md'
                 : 'bg-gray-100 text-[#0A2647] hover:bg-[#CFAF5E]/10 hover:text-[#CFAF5E]'
             }`}
+            type="button"
           >
             {isSelected ? 'Selecionado' : 'Selecionar'}
           </button>
@@ -107,10 +153,12 @@ export function PropertyCard({
         {!selectionMode && showEdit && onEdit && (
           <button
             onClick={(e) => {
+              e.preventDefault();
               e.stopPropagation();
               onEdit();
             }}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#CFAF5E] to-[#d4b565] text-[#0A2647] font-semibold rounded-xl shadow hover:shadow-lg transform hover:scale-105 transition-all text-sm mt-4"
+            type="button"
           >
             <Edit3 size={16} />
             Editar
@@ -149,4 +197,5 @@ PropertyCard.propTypes = {
 
   actions: PropTypes.node,
   className: PropTypes.string,
+  property: PropTypes.object,
 };
