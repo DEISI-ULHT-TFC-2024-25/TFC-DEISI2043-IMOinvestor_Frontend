@@ -7,14 +7,14 @@ import { SelectorBadge } from '@common/SelectorBadge';
 
 export function PropertyCard({
   title,
-  tipologia,
-  casasBanho,
-  areaUtil,
+  typology,
+  num_wc,
+  net_area,
   street,
   district,
   imageUrl,
-  preco_minimo,
-  preco_maximo,
+  min_price,
+  max_price,
   price,
   hidePrice = false,
   onView,
@@ -27,7 +27,7 @@ export function PropertyCard({
   actions = null,
   className = '',
 }) {
-  const hasPriceRange = preco_minimo || preco_maximo;
+  const hasPriceRange = min_price || max_price;
 
   const handleCardClick = () => {
     if (selectionMode && onSelect) {
@@ -54,9 +54,9 @@ export function PropertyCard({
 
       <BaseCard
         title={title}
-        tipologia={tipologia}
-        casasBanho={casasBanho}
-        areaUtil={areaUtil}
+        tipologia={typology}
+        casasBanho={num_wc}
+        areaUtil={net_area}
         street={street}
         district={district}
         imageUrl={imageUrl || placeholderImg}
@@ -65,24 +65,24 @@ export function PropertyCard({
       <div className="p-4 sm:p-5">
         <div className="flex justify-between items-start mb-2">
           <div />
-            {showView && onView && !selectionMode && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onView();
-                }}
-                className="text-[#CFAF5E] hover:bg-[#CFAF5E]/10 p-1 rounded-lg transition-colors flex-shrink-0 group"
-                title="Ver detalhes"
-              >
-                <Eye size={18} className="group-hover:scale-110 transition-transform" />
-              </button>
-            )}
-          </div>
+          {showView && onView && !selectionMode && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+              className="text-[#CFAF5E] hover:bg-[#CFAF5E]/10 p-1 rounded-lg transition-colors flex-shrink-0 group"
+              title="Ver detalhes"
+            >
+              <Eye size={18} className="group-hover:scale-110 transition-transform" />
+            </button>
+          )}
+        </div>
 
         <PriceBlock
           hasRange={!!hasPriceRange}
-          min={preco_minimo}
-          max={preco_maximo}
+          min={min_price}
+          max={max_price}
           price={price}
           hidePrice={hidePrice}
           selectionMode={selectionMode}
@@ -123,17 +123,17 @@ export function PropertyCard({
 
 PropertyCard.propTypes = {
   title: PropTypes.string.isRequired,
-  tipologia: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  typology: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     .isRequired,
-  casasBanho: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+  num_wc: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     .isRequired,
-  areaUtil: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  net_area: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   street: PropTypes.string,
   district: PropTypes.string,
   imageUrl: PropTypes.string,
 
-  preco_minimo: PropTypes.number,
-  preco_maximo: PropTypes.number,
+  min_price: PropTypes.number,
+  max_price: PropTypes.number,
 
   price: PropTypes.string,
   hidePrice: PropTypes.bool,

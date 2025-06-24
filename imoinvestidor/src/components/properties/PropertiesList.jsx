@@ -7,17 +7,17 @@ import DeleteButton from "@common/DeleteButton";
 import placeholderImg from '@images/placeholder.jpg';
 
 const getImageUrl = (property) => {  
-  if (!property.media || !Array.isArray(property.media) || property.media.length === 0) {
+  if (!property.images || !Array.isArray(property.images) || property.images.length === 0) {
     return placeholderImg;
   }
 
-  const mediaItem = property.media[0];
+  const imageItem = property.images[0];
 
-  const imageUrl = mediaItem.file || 
-                   mediaItem.url || 
-                   mediaItem.image || 
-                   mediaItem.file_url ||
-                   mediaItem.media_url ||
+  const imageUrl = imageItem.file || 
+                   imageItem.url || 
+                   imageItem.image || 
+                   imageItem.file_url ||
+                   imageItem.media_url ||
                    null;
 
   if (!imageUrl) {
@@ -168,10 +168,10 @@ export default function PropertiesList({
               }`}>
                 <PropertyCard
                   title={property.name}
-                  tipologia={property.tipologia ?? "T?"}
-                  casasBanho={property.numero_casas_banho ?? "0"}
-                  areaUtil={property.area_util}
-                  price={`${property.preco_minimo?.toLocaleString()} € – ${property.preco_maximo?.toLocaleString()} €`}
+                  typology={property.typology ?? "T?"}
+                  num_wc={property.num_wc ?? "0"}
+                  net_area={property.net_area}
+                  price={`${property.min_price?.toLocaleString()} € – ${property.max_price?.toLocaleString()} €`}
                   street={property.street}
                   district={String(property.district)}
                   onView={showView ? () => onView && onView(property) : undefined}

@@ -56,9 +56,9 @@ export function AnnouncementCard({
 
       <BaseCard
         title={displayTitle}
-        tipologia={property.tipologia}
-        casasBanho={property.numero_casas_banho}
-        areaUtil={property.area_util}
+        tipologia={property.typology}
+        casasBanho={property.num_wc}
+        areaUtil={property.net_area}
         street={property.street}
         district={property.district}
         imageUrl={imgSrc}
@@ -152,9 +152,9 @@ AnnouncementCard.propTypes = {
     property: PropTypes.shape({
       title: PropTypes.string,
       name: PropTypes.string,
-      tipologia: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      numero_casas_banho: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      area_util: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      typology: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      num_wc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      net_area: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       street: PropTypes.string,
       district: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       imagens: PropTypes.array,
