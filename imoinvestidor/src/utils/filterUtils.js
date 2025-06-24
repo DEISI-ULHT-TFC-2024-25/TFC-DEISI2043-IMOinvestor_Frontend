@@ -40,7 +40,7 @@ export function buildPropertyFilters(filters = {}) {
   }
 
   if (filters.certificado?.trim()) {
-    query.energy_certif = filters.certificado.trim();
+    query.energy_cert = filters.certificado.trim();
   }
 
   // Area filters - API expects single values, not min/max variants
