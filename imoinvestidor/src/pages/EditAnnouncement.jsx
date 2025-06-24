@@ -239,9 +239,9 @@ export default function EditAnnouncement() {
 
                 <PropertyCard
                   title={property.name}
-                  tipologia={property.tipologia}
-                  casasBanho={property.numero_casas_banho}
-                  areaUtil={property.area_util}
+                  typology={property.typology}
+                  num_wc={property.num_wc}
+                  net_area={property.net_area}
                   street={property.street}
                   district={property.district ? String(property.district) : undefined}
                   imageUrl={
@@ -249,8 +249,8 @@ export default function EditAnnouncement() {
                       ? property.imagens[0].file || property.imagens[0].url
                       : placeholderImg
                   }
-                  preco_minimo={property.preco_minimo}
-                  preco_maximo={property.preco_maximo}
+                  min_price={property.preco_minimo}
+                  max_price={property.preco_maximo}
                   price={
                     form.price ? `€${parseFloat(form.price).toLocaleString('pt-PT')}` : undefined
                   }

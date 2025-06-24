@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Trash2,
-  Check,
   Building,
   MapPin,
   Image as ImageIcon,
@@ -34,7 +33,24 @@ const icons = [Building, MapPin, ImageIcon];
 
 export default function PropertyForm({ title, initialData = {}, onSubmit, submitLabel }) {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({});
+  
+  // Initialize formData with default values to prevent undefined issues
+  const [formData, setFormData] = useState({
+    nome: '',
+    tipo: '',
+    tipologia: '',
+    casasBanho: '',
+    areaUtil: '',
+    areaBruta: '',
+    codigoPostal: '',
+    distrito: '',
+    municipio: '',
+    rua: '',
+    novaConstrucao: false,
+    certificado: '',
+    descricao: '',
+  });
+  
   const [priceRange, setPriceRange] = useState([0, 2000000]);
   const { districts } = useDistricts();
   const { municipalities, loadByDistrict, setMunicipalities } = useMunicipalities();
@@ -55,26 +71,30 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
   useEffect(() => {
     if (initialData.name) {
       setFormData({
-        nome: initialData.name,
-        tipo: initialData.property_type,
-        tipologia: initialData.tipologia,
-        casasBanho: String(initialData.numero_casas_banho),
-        areaUtil: String(initialData.area_util),
-        areaBruta: String(initialData.area_bruta),
-        codigoPostal: initialData.postal_code,
-        distrito: String(initialData.district),
-        municipio: String(initialData.municipality),
-        rua: initialData.street,
-        novaConstrucao: initialData.nova_construcao,
-        certificado: initialData.certificado_energetico,
-        descricao: initialData.descricao,
-        ...initialData.informacoes_adicionais.reduce((acc, info) => {
+        nome: initialData.name || '',
+        tipo: initialData.property_type || '',
+        tipologia: initialData.tipology || '',
+        casasBanho: String(initialData.num_wc || ''),
+        areaUtil: String(initialData.net_area || ''),
+        areaBruta: String(initialData.gross_area || ''),
+        codigoPostal: initialData.postal_code || '',
+        distrito: String(initialData.district || ''),
+        municipio: String(initialData.municipality || ''),
+        rua: initialData.street || '',
+        novaConstrucao: initialData.new_construction || false,
+        certificado: initialData.energy_certf || '',
+        descricao: initialData.description || '',
+        ...(initialData.informacoes_adicionais || []).reduce((acc, info) => {
           acc[`extra_${info}`] = true;
           return acc;
         }, {}),
       });
 
-      setPriceRange([initialData.preco_minimo, initialData.preco_maximo]);
+      setPriceRange([
+        initialData.min_price || 0, 
+        initialData.max_price || 2000000
+      ]);
+      
       loadByDistrict(initialData.district).then(setMunicipalities).catch(console.error);
 
       if (initialData.id) {
@@ -94,11 +114,22 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     }
   }, [initialData, loadByDistrict, setMunicipalities]);
 
-  const nextStep = (e) => { e.preventDefault(); setFormError(null); setStep((s) => Math.min(s + 1, steps.length - 1)); };
-  const prevStep = (e) => { e.preventDefault(); setFormError(null); setStep((s) => Math.max(s - 1, 0)); };
+  const nextStep = (e) => { 
+    e.preventDefault(); 
+    setFormError(null); 
+    setStep((s) => Math.min(s + 1, steps.length - 1)); 
+  };
+  
+  const prevStep = (e) => { 
+    e.preventDefault(); 
+    setFormError(null); 
+    setStep((s) => Math.max(s - 1, 0)); 
+  };
 
+  // Fixed handleInputChange - no unnecessary String conversion
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
+    
     if (name === "distrito") {
       await handleDistrictChange({
         newDistrict: String(value),
@@ -109,7 +140,8 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         setMunicipalities,
       });
     } else {
-      setFormData(f => ({ ...f, [name]: String(value) }));
+      // Don't convert all values to String - let them remain as they are
+      setFormData(f => ({ ...f, [name]: value }));
     }
   };
 
@@ -126,8 +158,13 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     });
   };
 
-  const handleRemoveImage = (i) => () => setImages((imgs) => { const c = [...imgs]; c[i] = null; return c; });
+  const handleRemoveImage = (i) => () => setImages((imgs) => { 
+    const c = [...imgs]; 
+    c[i] = null; 
+    return c; 
+  });
 
+  // Updated handleFormSubmit with correct field mapping
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError(null);
@@ -135,20 +172,22 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
       const payload = {
         name: formData.nome,
         property_type: formData.tipo,
-        tipologia: formData.tipologia,
-        numero_casas_banho: String(formData.casasBanho),
-        area_util: Number(formData.areaUtil),
-        area_bruta: Number(formData.areaBruta),
-        preco_minimo: priceRange[0],
-        preco_maximo: priceRange[1],
+        tipology: formData.tipologia,           // Updated field name
+        num_wc: String(formData.casasBanho),    // Updated field name
+        net_area: Number(formData.areaUtil),    // Updated field name
+        gross_area: Number(formData.areaBruta), // Updated field name
+        min_price: priceRange[0],               // Updated field name
+        max_price: priceRange[1],               // Updated field name
         postal_code: formData.codigoPostal,
         district: Number(formData.distrito),
         municipality: Number(formData.municipio),
         street: formData.rua,
-        nova_construcao: formData.novaConstrucao,
-        certificado_energetico: formData.certificado,
-        descricao: formData.descricao,
-        informacoes_adicionais: Object.keys(formData).filter((k) => k.startsWith("extra_") && formData[k]).map((k) => k.replace("extra_", "")),
+        new_construction: formData.novaConstrucao,  // Updated field name
+        energy_certf: formData.certificado,         // Updated field name
+        description: formData.descricao,            // Updated field name
+        informacoes_adicionais: Object.keys(formData)
+          .filter((k) => k.startsWith("extra_") && formData[k])
+          .map((k) => k.replace("extra_", "")),
       };
 
       const property = await onSubmit(payload);
@@ -171,31 +210,58 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
 
   const renderLastStep = () => (
     <>
-      <TextAreaField label="Descrição" name="descricao" value={formData.descricao || ""} onChange={handleInputChange} />
+      <TextAreaField 
+        label="Descrição" 
+        name="descricao" 
+        value={formData.descricao || ""} 
+        onChange={handleInputChange} 
+      />
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Imagens do Imóvel</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Imagens do Imóvel
+        </label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {images.map((slot, i) => (
             <div key={i} className="relative border-2 border-dashed border-gray-300 rounded h-24 overflow-hidden">
               {slot ? (
                 <>
-                  <img src={slot.file ? URL.createObjectURL(slot.file) : slot.url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
-                  <button type="button" onClick={handleRemoveImage(i)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                  <img 
+                    src={slot.file ? URL.createObjectURL(slot.file) : slot.url} 
+                    alt={`Imagem ${i + 1}`} 
+                    className="w-full h-full object-cover" 
+                  />
+                  <button 
+                    type="button" 
+                    onClick={handleRemoveImage(i)} 
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                  >
                     <Trash2 size={12} />
                   </button>
                 </>
               ) : (
                 <label className="flex h-full w-full items-center justify-center cursor-pointer hover:border-[#CFAF5E]">
                   <span className="text-[#CFAF5E] text-2xl font-bold">+</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleFileChange(i)} />
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleFileChange(i)} 
+                  />
                 </label>
               )}
             </div>
           ))}
         </div>
-        <p className="text-sm text-gray-500 mt-2">Pode adicionar até {MAX_IMAGES} imagens.</p>
+        <p className="text-sm text-gray-500 mt-2">
+          Pode adicionar até {MAX_IMAGES} imagens.
+        </p>
       </div>
-      <CheckboxGroup label="Informações Adicionais" options={extraInfos} selectedOptions={extraInfos.filter((info) => formData[`extra_${info}`])} onChange={handleCheckboxChange} />
+      <CheckboxGroup 
+        label="Informações Adicionais" 
+        options={extraInfos} 
+        selectedOptions={extraInfos.filter((info) => formData[`extra_${info}`])} 
+        onChange={handleCheckboxChange} 
+      />
     </>
   );
 
@@ -205,11 +271,23 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stepDef.fields.map((f, i) => {
             const val = formData[f.name] || "";
-            const options = f.dynamicOptionsKey === "districts" ? districts.map(d => ({ label: d.name, value: d.id })) :
-                             f.dynamicOptionsKey === "municipalities" ? municipalities.map(m => ({ label: m.name, value: m.id })) : f.options;
+            const options = f.dynamicOptionsKey === "districts" 
+              ? districts.map(d => ({ label: d.name, value: d.id })) 
+              : f.dynamicOptionsKey === "municipalities" 
+              ? municipalities.map(m => ({ label: m.name, value: m.id })) 
+              : f.options;
             
             if (f.type === "select" || f.type === "dynamic-select") {
-              return <SelectField key={i} label={f.label} name={f.name} options={options} value={val} onChange={handleInputChange} />;
+              return (
+                <SelectField 
+                  key={i} 
+                  label={f.label} 
+                  name={f.name} 
+                  options={options} 
+                  value={val} 
+                  onChange={handleInputChange} 
+                />
+              );
             } else {
               return (
                 <InputField 
@@ -229,7 +307,12 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
           })}
         </div>
       )}
-      {stepDef.includePriceSlider && <PriceRangeSlider priceRange={priceRange} setPriceRange={setPriceRange} />}
+      {stepDef.includePriceSlider && (
+        <PriceRangeSlider 
+          priceRange={priceRange} 
+          setPriceRange={setPriceRange} 
+        />
+      )}
       {!isDesktop && step === steps.length - 1 && renderLastStep()}
     </div>
   );
@@ -253,7 +336,11 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
 
   return (
     <form onSubmit={handleFormSubmit} className="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
-      {formError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{formError}</div>}
+      {formError && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {formError}
+        </div>
+      )}
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-[#0A2647]">{title}</h2>
         {!isDesktop && <p className="text-sm text-gray-500">Passo {step + 1} de {steps.length}</p>}
@@ -277,7 +364,12 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
             );
           })}
           <div className="flex justify-end">
-            <button type="submit" className="px-8 py-3 bg-[#CFAF5E] text-white rounded shadow hover:bg-opacity-90">{submitLabel}</button>
+            <button 
+              type="submit" 
+              className="px-8 py-3 bg-[#CFAF5E] text-white rounded shadow hover:bg-opacity-90"
+            >
+              {submitLabel}
+            </button>
           </div>
         </>
       ) : (
@@ -285,14 +377,27 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
           {renderFields(steps[step])}
           <div className="flex justify-between mt-6">
             {step > 0 ? (
-              <button type="button" onClick={prevStep} className="flex items-center px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
+              <button 
+                type="button" 
+                onClick={prevStep} 
+                className="flex items-center px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              >
                 <ChevronLeft size={16} className="mr-1" /> Anterior
               </button>
             ) : <div />}
             {isLast ? (
-              <button type="submit" className="px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90">{submitLabel}</button>
+              <button 
+                type="submit" 
+                className="px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90"
+              >
+                {submitLabel}
+              </button>
             ) : (
-              <button type="button" onClick={nextStep} className="flex items-center px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90">
+              <button 
+                type="button" 
+                onClick={nextStep} 
+                className="flex items-center px-6 py-2 bg-[#CFAF5E] text-white rounded hover:bg-opacity-90"
+              >
                 Seguinte <ChevronRight size={16} className="ml-1" />
               </button>
             )}
