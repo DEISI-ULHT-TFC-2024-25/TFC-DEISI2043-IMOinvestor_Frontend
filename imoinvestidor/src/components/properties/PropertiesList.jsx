@@ -6,27 +6,6 @@ import { PropertyCard } from "@properties/PropertyCard";
 import DeleteButton from "@common/DeleteButton";
 import placeholderImg from '@images/placeholder.jpg';
 
-const getImageUrl = (property) => {  
-  if (!property.images || !Array.isArray(property.images) || property.images.length === 0) {
-    return placeholderImg;
-  }
-
-  const imageItem = property.images[0];
-
-  const imageUrl = imageItem.file || 
-                   imageItem.url || 
-                   imageItem.image || 
-                   imageItem.file_url ||
-                   imageItem.media_url ||
-                   null;
-
-  if (!imageUrl) {
-    return placeholderImg;
-  }
-
-  return imageUrl;
-};
-
 const useScreenSize = () => {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -140,7 +119,6 @@ export default function PropertiesList({
           return (
             <div
               key={property.id}
-              onClick={() => handlePropertyClick(property)}
               className={`relative transition-all duration-300 ease-out ${
                 selectionMode 
                   ? 'cursor-pointer' 
@@ -178,6 +156,9 @@ export default function PropertiesList({
                   onEdit={showEdit ? () => navigate(`/edit-property/${property.id}`) : undefined}
                   showView={showView}
                   showEdit={showEdit}
+                  selectionMode={selectionMode}
+                  onSelect={selectionMode ? () => handlePropertyClick(property) : undefined}
+                  isSelected={isSelected}
                   className={`${
                     isSelected ? 'border-[#CFAF5E] shadow-md' : ''
                   }`}
@@ -190,7 +171,8 @@ export default function PropertiesList({
                       />            
                     )
                   }
-                  imageUrl={getImageUrl(property)}
+                  // Pass the full property object so PropertyCard can access images
+                  property={property}
                 />
               </div>
             </div>
@@ -213,6 +195,7 @@ export default function PropertiesList({
                   ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                   : 'border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-[#CFAF5E] hover:text-[#CFAF5E]'
               }`}
+              type="button"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -227,6 +210,7 @@ export default function PropertiesList({
                       ? 'bg-[#CFAF5E] text-white shadow-sm'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-[#CFAF5E] border border-gray-200 hover:border-[#CFAF5E]'
                   }`}
+                  type="button"
                 >
                   {pageNum}
                 </button>
@@ -241,6 +225,7 @@ export default function PropertiesList({
                   ? 'border-gray-200 text-gray-400 cursor-not-allowed'
                   : 'border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-[#CFAF5E] hover:text-[#CFAF5E]'
               }`}
+              type="button"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
