@@ -155,7 +155,9 @@ const AnnouncementDetails = ({
   }
 
   const { property = {}, price, is_active, created_at } = announcementData;
-  const images = property.imagens || property.media || [];
+  
+  // Updated to match PropertyDetails naming convention
+  const images = property?.images || [];
   const hasImages = images.length > 0;
 
   // Format price safely
@@ -211,13 +213,13 @@ const AnnouncementDetails = ({
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
               <span>
-                {property.municipio || property.municipality}, {property.district || property.districtName}
+                {property.municipality}, {property.district}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              {(property.tipo || property.property_type) && (
+              {property.property_type && (
                 <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#CFAF5E] text-[#0A2647]">
-                  {property.tipo || property.property_type}
+                  {property.property_type}
                 </span>
               )}
               <span
@@ -333,17 +335,17 @@ const AnnouncementDetails = ({
               <FeatureCard
                 icon={<BedDouble className="text-white" />}
                 label="Quartos"
-                value={property.tipologia || 'N/A'}
+                value={property.typology || 'N/A'}
               />
               <FeatureCard
                 icon={<Bath className="text-white" />}
                 label="Casas de banho"
-                value={property.numero_casas_banho || 'N/A'}
+                value={property.num_wc || 'N/A'}
               />
               <FeatureCard
                 icon={<Ruler className="text-white" />}
                 label="m² úteis"
-                value={property.area_util ? `${property.area_util} m²` : 'N/A'}
+                value={property.net_area ? `${property.net_area} m²` : 'N/A'}
               />
             </div>
 
@@ -354,104 +356,88 @@ const AnnouncementDetails = ({
                   Detalhes do Imóvel
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {property.area_util && (
-                    <DetailItem label="Área Útil" value={`${property.area_util} m²`} />
+                  {property.net_area && (
+                    <DetailItem label="Área Útil" value={`${property.net_area} m²`} />
                   )}
-                  {property.area_bruta && (
-                    <DetailItem label="Área Bruta" value={`${property.area_bruta} m²`} />
+                  {property.gross_area && (
+                    <DetailItem label="Área Bruta" value={`${property.gross_area} m²`} />
                   )}
-                  {(property.district || property.districtName) && (
-                    <DetailItem label="Distrito" value={property.district || property.districtName} />
+                  {property.district && (
+                    <DetailItem label="Distrito" value={property.district} />
                   )}
-                  {(property.municipio || property.municipality || property.municipalityName) && (
-                    <DetailItem label="Município" value={property.municipio || property.municipality || property.municipalityName} />
+                  {property.municipality && (
+                    <DetailItem label="Município" value={property.municipality} />
                   )}
-                  {(property.codigo_postal || property.postal_code) && (
-                    <DetailItem label="Código Postal" value={property.codigo_postal || property.postal_code} />
+                  {property.postal_code && (
+                    <DetailItem label="Código Postal" value={property.postal_code} />
                   )}
                   {property.street && (
                     <DetailItem label="Rua" value={property.street} className="md:col-span-2" />
                   )}
-                  {property.nova_construcao !== undefined && (
+                  {property.new_construction !== undefined && (
                     <DetailItem 
                       label="Nova Construção" 
-                      value={property.nova_construcao ? 'Sim' : 'Não'} 
+                      value={property.new_construction ? 'Sim' : 'Não'} 
                     />
                   )}
-                  {property.certificado_energetico && (
+                  {property.energy_certf && (
                     <DetailItem 
                       label="Certificado Energético" 
-                      value={property.certificado_energetico} 
+                      value={property.energy_certf} 
                     />
                   )}
-                  {property.andar && (
-                    <DetailItem label="Andar" value={property.andar} />
+                  {property.floor && (
+                    <DetailItem label="Andar" value={property.floor} />
                   )}
-                  {property.orientacao && (
-                    <DetailItem label="Orientação" value={property.orientacao} />
+                  {property.orientation && (
+                    <DetailItem label="Orientação" value={property.orientation} />
                   )}
                 </div>
               </div>
 
               {/* Additional Features */}
-              {(property.varanda || property.piscina || property.elevador || property.jardim || property.estacionamento || property.ar_condicionado || property.aquecimento || property.mobilado) && (
+              {property.informacoes_adicionais?.length > 0 && (
                 <div>
                   <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">
                     Características Adicionais
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {property.varanda && (
-                      <FeatureTag icon={<Building size={14} />} text="Varanda" />
-                    )}
-                    {property.piscina && (
-                      <FeatureTag icon={<Waves size={14} />} text="Piscina" />
-                    )}
-                    {property.elevador && (
-                      <FeatureTag icon={<ArrowUpDown size={14} />} text="Elevador" />
-                    )}
-                    {property.jardim && (
-                      <FeatureTag icon={<TreePine size={14} />} text="Jardim" />
-                    )}
-                    {property.estacionamento && (
-                      <FeatureTag icon={<Car size={14} />} text="Estacionamento" />
-                    )}
-                    {property.ar_condicionado && (
-                      <FeatureTag text="Ar Condicionado" />
-                    )}
-                    {property.aquecimento && (
-                      <FeatureTag text="Aquecimento" />
-                    )}
-                    {property.mobilado && (
-                      <FeatureTag text="Mobilado" />
-                    )}
+                    {property.informacoes_adicionais.map((info, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-[#CFAF5E] bg-opacity-20 text-[#0A2647] rounded-full text-sm font-medium"
+                      >
+                        {info}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}
 
               {/* Description */}
-              {property.descricao && (
+              {property.description && (
                 <div>
                   <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">
                     Descrição
                   </h3>
                   <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {property.descricao}
+                    {property.description}
                   </p>
                 </div>
               )}
 
               {/* Contact Information */}
-              {(property.contacto_telefone || property.contacto_email) && (
+              {(property.phone_contact || property.email_contact) && (
                 <div>
                   <h3 className="text-xl font-semibold text-[#0A2647] mb-4 border-b border-gray-200 pb-2">
                     Contacto
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {property.contacto_telefone && (
-                      <DetailItem label="Telefone" value={property.contacto_telefone} />
+                    {property.phone_contact && (
+                      <DetailItem label="Telefone" value={property.phone_contact} />
                     )}
-                    {property.contacto_email && (
-                      <DetailItem label="Email" value={property.contacto_email} />
+                    {property.email_contact && (
+                      <DetailItem label="Email" value={property.email_contact} />
                     )}
                   </div>
                 </div>
