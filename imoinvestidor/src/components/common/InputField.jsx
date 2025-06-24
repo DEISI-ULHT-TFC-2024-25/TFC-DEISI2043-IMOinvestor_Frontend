@@ -28,11 +28,18 @@ export default function InputField({
       }
     }
     
-    // Create a new event object with the modified value
+    // If the value hasn't changed, pass the original event
+    if (newValue === e.target.value) {
+      onChange(e);
+      return;
+    }
+    
+    // Create a new event object that preserves the original event structure
     const modifiedEvent = {
       ...e,
       target: {
         ...e.target,
+        name: e.target.name, // Explicitly preserve the name
         value: newValue
       }
     };

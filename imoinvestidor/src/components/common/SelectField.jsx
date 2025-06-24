@@ -1,13 +1,26 @@
 import PropTypes from "prop-types";
 
-export default function SelectField({ label, name, options, value, onChange, placeholder = "Selecione" }) {
+export default function SelectField({ 
+  label, 
+  name, 
+  options, 
+  value, 
+  onChange, 
+  placeholder = "Selecione",
+  required = false 
+}) {
   return (
     <div className="flex flex-col">
-      {label && <label className="mb-1 font-semibold text-sm text-[#0A2647]">{label}</label>}
+      {label && (
+        <label className="mb-1 font-semibold text-sm text-[#0A2647]">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
       <select
         name={name}
         value={value}
         onChange={onChange}
+        required={required}
         className="border border-gray-300 rounded w-full p-3 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#CFAF5E]"
       >
         <option value="">{placeholder}</option>
@@ -28,4 +41,5 @@ SelectField.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
+  required: PropTypes.bool,
 };

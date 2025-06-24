@@ -46,7 +46,7 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     distrito: '',
     municipio: '',
     rua: '',
-    novaConstrucao: false,
+    novaConstrucao: '',
     certificado: '',
     descricao: '',
   });
@@ -73,7 +73,7 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
       setFormData({
         nome: initialData.name || '',
         tipo: initialData.property_type || '',
-        tipologia: initialData.tipology || '',
+        tipologia: initialData.typology || '',
         casasBanho: String(initialData.num_wc || ''),
         areaUtil: String(initialData.net_area || ''),
         areaBruta: String(initialData.gross_area || ''),
@@ -81,7 +81,7 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         distrito: String(initialData.district || ''),
         municipio: String(initialData.municipality || ''),
         rua: initialData.street || '',
-        novaConstrucao: initialData.new_construction || false,
+        novaConstrucao: initialData.new_construction ? 'Sim' : 'Não',
         certificado: initialData.energy_certf || '',
         descricao: initialData.description || '',
         ...(initialData.informacoes_adicionais || []).reduce((acc, info) => {
@@ -126,7 +126,6 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     setStep((s) => Math.max(s - 1, 0)); 
   };
 
-  // Fixed handleInputChange - no unnecessary String conversion
   const handleInputChange = async (e) => {
     const { name, value } = e.target;
     
@@ -140,7 +139,6 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         setMunicipalities,
       });
     } else {
-      // Don't convert all values to String - let them remain as they are
       setFormData(f => ({ ...f, [name]: value }));
     }
   };
@@ -164,33 +162,74 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
     return c; 
   });
 
-  // Updated handleFormSubmit with correct field mapping
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormError(null);
     try {
       const payload = {
-        name: formData.nome,
-        property_type: formData.tipo,
-        tipology: formData.tipologia,           // Updated field name
-        num_wc: String(formData.casasBanho),    // Updated field name
-        net_area: Number(formData.areaUtil),    // Updated field name
-        gross_area: Number(formData.areaBruta), // Updated field name
-        min_price: priceRange[0],               // Updated field name
-        max_price: priceRange[1],               // Updated field name
-        postal_code: formData.codigoPostal,
-        district: Number(formData.distrito),
-        municipality: Number(formData.municipio),
-        street: formData.rua,
-        new_construction: formData.novaConstrucao,  // Updated field name
-        energy_certf: formData.certificado,         // Updated field name
-        description: formData.descricao,            // Updated field name
+        name: formData.nome || '',
+        property_type: formData.tipo || '',
+        typology: formData.tipologia || '', 
+        num_wc: formData.casasBanho ? parseInt(formData.casasBanho, 10) : 0,
+        net_area: formData.areaUtil ? parseFloat(formData.areaUtil) : 0,
+        gross_area: formData.areaBruta ? parseFloat(formData.areaBruta) : 0,
+        min_price: priceRange[0] || 0,
+        max_price: priceRange[1] || 0,
+        postal_code: formData.codigoPostal || '',
+        district: formData.distrito ? parseInt(formData.distrito, 10) : null,
+        municipality: formData.municipio ? parseInt(formData.municipio, 10) : null,
+        street: formData.rua || '',
+        new_construction: formData.novaConstrucao === 'Sim',
+        energy_certf: formData.certificado || '',
+        description: formData.descricao || '',
         informacoes_adicionais: Object.keys(formData)
           .filter((k) => k.startsWith("extra_") && formData[k])
           .map((k) => k.replace("extra_", "")),
       };
 
-      const property = await onSubmit(payload);
+      // DEBUG: Log the payload to see what's being sent
+      console.log('=== FIXED PAYLOAD DEBUG ===');
+      console.log('Raw formData:', formData);
+      console.log('Constructed payload:', payload);
+      console.log('Price range:', priceRange);
+      
+      const issues = [];
+      
+      if (!payload.name) issues.push('Missing name');
+      if (!payload.property_type) issues.push('Missing property_type');
+      if (!payload.typology) issues.push('Missing typology');
+      if (isNaN(payload.district) || payload.district === null) issues.push('Invalid district');
+      if (isNaN(payload.municipality) || payload.municipality === null) issues.push('Invalid municipality');
+      if (isNaN(payload.net_area)) issues.push('Invalid net_area');
+      if (isNaN(payload.gross_area)) issues.push('Invalid gross_area');
+      if (isNaN(payload.min_price)) issues.push('Invalid min_price');
+      if (isNaN(payload.max_price)) issues.push('Invalid max_price');
+      
+      if (issues.length > 0) {
+        console.error('Validation issues found:', issues);
+        setFormError(`Validation errors: ${issues.join(', ')}`);
+        return;
+      }
+      
+      // Remove any undefined/null values before sending (except required fields)
+      const cleanPayload = Object.fromEntries(
+        Object.entries(payload).filter(([key, value]) => {
+          // Never remove these critical fields
+          if (['name', 'property_type', 'typology', 'district', 'municipality'].includes(key)) {
+            return true;
+          }
+          
+          if (value === null || value === undefined) return false;
+          if (typeof value === 'number' && isNaN(value)) return false;
+          
+          return true;
+        })
+      );
+      
+      console.log('=== CLEAN PAYLOAD ===');
+      console.log('Clean payload:', cleanPayload);
+      
+      const property = await onSubmit(cleanPayload);
 
       if (property?.id) {
         await Promise.all(images.map(async (slot, idx) => {
@@ -204,7 +243,8 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
       }
     } catch (err) {
       console.error("Error during form submission:", err);
-      setFormError(err.message || "Erro ao guardar imóvel.");
+      console.error("Error response:", err.response?.data);
+      setFormError(err.response?.data?.message || err.message || "Erro ao guardar imóvel.");
     }
   };
 
@@ -271,12 +311,23 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stepDef.fields.map((f, i) => {
             const val = formData[f.name] || "";
-            const options = f.dynamicOptionsKey === "districts" 
-              ? districts.map(d => ({ label: d.name, value: d.id })) 
-              : f.dynamicOptionsKey === "municipalities" 
-              ? municipalities.map(m => ({ label: m.name, value: m.id })) 
-              : f.options;
             
+            // Handle dynamic options
+            let options = f.options || [];
+            if (f.dynamicOptionsKey === "districts") {
+              options = districts.map(d => ({ label: d.name, value: String(d.id) }));
+            } else if (f.dynamicOptionsKey === "municipalities") {
+              options = municipalities.map(m => ({ label: m.name, value: String(m.id) }));
+            } else if (f.options && Array.isArray(f.options) && f.options.length > 0) {
+              // Convert string array to option objects if needed
+              if (typeof f.options[0] === 'string') {
+                options = f.options.map(opt => ({ label: opt, value: opt }));
+              } else {
+                options = f.options;
+              }
+            }
+            
+            // Render select fields
             if (f.type === "select" || f.type === "dynamic-select") {
               return (
                 <SelectField 
@@ -286,24 +337,27 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
                   options={options} 
                   value={val} 
                   onChange={handleInputChange} 
-                />
-              );
-            } else {
-              return (
-                <InputField 
-                  key={i} 
-                  label={f.label} 
-                  name={f.name} 
-                  type={f.inputType || "text"} 
-                  value={val} 
-                  onChange={handleInputChange}
-                  required={f.required}
-                  placeholder={f.placeholder}
-                  preventNegative={f.inputType === "number"}
-                  min={f.min}
+                  placeholder={f.placeholder || "Selecione"}
+                  required={f.required || false} // ADD THIS LINE
                 />
               );
             }
+            
+            // Render input fields - this handles type === "input" and any other type
+            return (
+              <InputField 
+                key={i} 
+                label={f.label} 
+                name={f.name} 
+                type={f.inputType || "text"} 
+                value={val} 
+                onChange={handleInputChange}
+                required={f.required || false} // ADD THIS LINE
+                placeholder={f.placeholder}
+                preventNegative={f.inputType === "number"}
+                min={f.min}
+              />
+            );
           })}
         </div>
       )}
