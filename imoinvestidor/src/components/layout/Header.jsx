@@ -44,6 +44,7 @@ export default function Header() {
 
           {isAdmin && (
             <div className="flex gap-2">
+              {/*
               <Link to="/health">
                 <button className="px-3 py-1 border border-green-400 text-green-400 rounded-md text-sm hover:bg-green-100 transition">
                   Health
@@ -54,6 +55,7 @@ export default function Header() {
                   Todas as Propriedades
                 </button>
               </Link>
+              */}
               <Link to="/admin">
                 <button className="px-3 py-1 border border-red-400 text-red-400 rounded-md text-sm hover:bg-red-100 transition">
                   Admin Dashboard
