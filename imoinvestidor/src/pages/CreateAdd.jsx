@@ -80,7 +80,7 @@ export default function CreateAdScreen() {
       price: parseFloat(form.price).toString(),
       is_active: true,
       organization: parseInt(form.property.organization_id || user.organization_ids?.[0]),
-      property: parseInt(form.property.id)
+      property_id: parseInt(form.property.id)
     };
     
     createAnnouncement(announcementData)
