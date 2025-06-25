@@ -170,7 +170,7 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         name: formData.nome || '',
         property_type: formData.tipo || '',
         typology: formData.tipologia || '', 
-        num_wc: formData.casasBanho ? parseInt(formData.casasBanho, 10) : 0,
+        num_wc: formData.casasBanho || '',
         net_area: formData.areaUtil ? parseFloat(formData.areaUtil) : 0,
         gross_area: formData.areaBruta ? parseFloat(formData.areaBruta) : 0,
         min_price: priceRange[0] || 0,
@@ -179,7 +179,7 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
         district: formData.distrito ? parseInt(formData.distrito, 10) : null,
         municipality: formData.municipio ? parseInt(formData.municipio, 10) : null,
         street: formData.rua || '',
-        new_construction: formData.novaConstrucao === 'Sim',
+        new_construction: formData.novaConstrucao || '',
         energy_certf: formData.certificado || '',
         description: formData.descricao || '',
         informacoes_adicionais: Object.keys(formData)
