@@ -10,8 +10,8 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
   
   const property = form.property;
   const price = parseFloat(form.price) || 0;
-  const minPrice = property?.preco_minimo || 0;
-  const maxPrice = property?.preco_maximo || 0;
+  const minPrice = property?.min_price || 0;
+  const maxPrice = property?.max_price || 0;
   
   useEffect(() => {
     const checkForExistingAnnouncement = async () => {
@@ -39,11 +39,11 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
   };
 
   const getImageUrl = (property) => {
-    if (!property?.media || !Array.isArray(property.media) || property.media.length === 0) {
+    if (!property?.images || !Array.isArray(property.images) || property.images.length === 0) {
       return null;
     }
 
-    const mediaItem = property.media[0];
+    const mediaItem = property.images[0];
     const imageUrl = mediaItem.file || 
                      mediaItem.url || 
                      mediaItem.image || 
@@ -67,18 +67,19 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
         <div className="max-w-md mx-auto">
           <PropertyCard
             title={property.name}
-            tipologia={property.tipologia ?? "T?"}
-            casasBanho={property.numero_casas_banho ?? "0"}
-            areaUtil={property.area_util}
+            typology={property.typology ?? "T?"}
+            num_wc={property.num_wc ?? "0"}
+            net_area={property.net_area}
             street={property.street}
-            district={String(property.district)}
+            district={String(property.district_name)}
             imageUrl={getImageUrl(property)}
+            min_price={property.min_price}
+            max_price={property.max_price}
+            property={property}
             className="shadow-lg"
             showView={false}
             showEdit={false}
             hidePrice={true}
-            preco_minimo={property.preco_minimo}
-            preco_maximo={property.preco_maximo}
           />
         </div>
       )}
@@ -86,9 +87,9 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
       <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-gray-100">
         <div className="text-center mb-6">
           <div className="text-4xl font-bold text-[#0A2647] mb-2">€{price.toLocaleString()}</div>
-          {property?.area_util && (
+          {property?.net_area && (
             <div className="text-lg text-gray-600">
-              €{Math.round(price / property.area_util)}/m²
+              €{Math.round(price / property.net_area)}/m²
             </div>
           )}
         </div>
@@ -135,8 +136,6 @@ export default function StepConfirm({ form, prev, onCreate, existingAds, loading
           </div>
         </div>
       )}
-
-
 
       {success && (
         <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl border-2 border-green-200">

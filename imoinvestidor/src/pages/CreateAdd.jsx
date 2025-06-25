@@ -79,7 +79,7 @@ export default function CreateAdScreen() {
       expiry_date: null,
       price: parseFloat(form.price).toString(),
       is_active: true,
-      organization: parseInt(form.property.organization || user.organization_ids?.[0]),
+      organization: parseInt(form.property.organization_id || user.organization_ids?.[0]),
       property: parseInt(form.property.id)
     };
     
@@ -105,26 +105,26 @@ export default function CreateAdScreen() {
   };
 
   const renderStepper = () => (
-  <div className="flex items-center justify-center mb-8">
-    {steps.map(({ id, label, icon: Icon }, index) => {
-      const isActive = id === step;
-      const isDone = id < step;
-      return (
-        <React.Fragment key={id}>
-          <div className="flex flex-col items-center">
-            <div className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${isDone ? 'bg-[#CFAF5E] border-[#CFAF5E] text-white' : isActive ? 'border-[#CFAF5E] text-[#CFAF5E]' : 'border-gray-300 text-gray-400'}`}>
-              {isDone ? <Check size={16} /> : <Icon size={16} />}
+    <div className="flex items-center justify-center mb-8">
+      {steps.map(({ id, label, icon: Icon }, index) => {
+        const isActive = id === step;
+        const isDone = id < step;
+        return (
+          <React.Fragment key={id}>
+            <div className="flex flex-col items-center">
+              <div className={`w-8 h-8 flex items-center justify-center rounded-full border-2 ${isDone ? 'bg-[#CFAF5E] border-[#CFAF5E] text-white' : isActive ? 'border-[#CFAF5E] text-[#CFAF5E]' : 'border-gray-300 text-gray-400'}`}>
+                {isDone ? <Check size={16} /> : <Icon size={16} />}
+              </div>
+              <span className={`mt-2 text-sm font-medium ${isActive || isDone ? 'text-[#0A2647]' : 'text-gray-400'}`}>{label}</span>
             </div>
-            <span className={`mt-2 text-sm font-medium ${isActive || isDone ? 'text-[#0A2647]' : 'text-gray-400'}`}>{label}</span>
-          </div>
-          {index < steps.length - 1 && (
-            <div className="w-24 h-px bg-gray-200 mx-4" />
-          )}
-        </React.Fragment>
-      );
-    })}
-  </div>
-);
+            {index < steps.length - 1 && (
+              <div className="w-24 h-px bg-gray-200 mx-4" />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0A2647]10 p-4">

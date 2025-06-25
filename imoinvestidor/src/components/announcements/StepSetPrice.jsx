@@ -4,8 +4,8 @@ import PricePositionBar from '@common/PricePositionBar';
 
 export default function StepSetPrice({ form, setForm, error, prev, next }) {
   const property = form.property;
-  const minPrice = property?.preco_minimo || 0;
-  const maxPrice = property?.preco_maximo || 0;
+  const minPrice = property?.min_price || 0;
+  const maxPrice = property?.max_price || 0;
   const currentPrice = parseFloat(form.price) || 0;
   
   const getPriceValidation = () => {
@@ -97,19 +97,19 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
             </h3>
             <div className="space-y-2 text-sm">
               <p className="font-medium">{property?.name}</p>
-              <p className="text-blue-200">{property?.street}, {property?.district}</p>
+              <p className="text-blue-200">{property?.street}, {property?.district_name}</p>
               <div className="flex items-center flex-wrap gap-4 text-blue-100 text-sm">
                 <div className="flex items-center gap-1">
                   <BedDouble size={16} />
-                  <span>{property?.tipologia}</span>
+                  <span>{property?.typology}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Bath size={16} />
-                  <span>{property?.casasBanho} WC</span>
+                  <span>{property?.num_wc} WC</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Ruler size={16} />
-                  <span>{property?.area_util} m²</span>
+                  <span>{property?.net_area} m²</span>
                 </div>
               </div>
             </div>
@@ -124,12 +124,12 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col gap-1">
                 <span className="text-sm font-medium text-gray-500">Mínimo Recomendado</span>
                 <span className="text-2xl font-bold text-green-600">€{minPrice.toLocaleString()}</span>
-                <span className="text-sm text-gray-400">€{Math.round(minPrice / property?.area_util)}/m²</span>
+                <span className="text-sm text-gray-400">€{Math.round(minPrice / property?.net_area)}/m²</span>
               </div>
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col gap-1">
                 <span className="text-sm font-medium text-gray-500">Máximo Recomendado</span>
                 <span className="text-2xl font-bold text-yellow-600">€{maxPrice.toLocaleString()}</span>
-                <span className="text-sm text-gray-400">€{Math.round(maxPrice / property?.area_util)}/m²</span>
+                <span className="text-sm text-gray-400">€{Math.round(maxPrice / property?.net_area)}/m²</span>
               </div>
             </div>
           </div>
@@ -153,10 +153,10 @@ export default function StepSetPrice({ form, setForm, error, prev, next }) {
               inputClassName="text-3xl font-bold text-center"
             />
 
-            {property?.area_util && (
+            {property?.net_area && (
               <p className="mt-2 text-lg text-gray-600">
                 {currentPrice 
-                  ? `€${Math.round(currentPrice / property.area_util).toLocaleString()}/m²`
+                  ? `€${Math.round(currentPrice / property.net_area).toLocaleString()}/m²`
                   : '€0/m²'
                 }
               </p>
