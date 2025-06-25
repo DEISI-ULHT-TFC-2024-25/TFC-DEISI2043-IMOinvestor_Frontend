@@ -60,7 +60,7 @@ export function AnnouncementCard({
         casasBanho={property.num_wc}
         areaUtil={property.net_area}
         street={property.street}
-        district={property.district}
+        district={String(property.district_name)}
         imageUrl={imgSrc}
         imageClassName="h-48 sm:h-56"
       />

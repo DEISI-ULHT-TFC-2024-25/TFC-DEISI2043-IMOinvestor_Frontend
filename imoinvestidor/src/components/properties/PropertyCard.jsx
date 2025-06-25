@@ -102,7 +102,7 @@ export function PropertyCard({
         casasBanho={num_wc}
         areaUtil={net_area}
         street={street}
-        district={district}
+        district={String(property.district_name)}
         imageUrl={getImageUrl()}
       />
 

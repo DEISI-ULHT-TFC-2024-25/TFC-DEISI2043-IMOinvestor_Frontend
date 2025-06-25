@@ -124,7 +124,7 @@ export default function PropertiesList({
               net_area={property.net_area}
               price={`${property.min_price?.toLocaleString()} € – ${property.max_price?.toLocaleString()} €`}
               street={property.street}
-              district={String(property.district)}
+              district={String(property.district_name)}
               onView={showView ? () => onView && onView(property) : undefined}
               onEdit={showEdit ? () => navigate(`/edit-property/${property.id}`) : undefined}
               showView={showView}
