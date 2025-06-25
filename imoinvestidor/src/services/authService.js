@@ -59,13 +59,12 @@ export async function updateProfile(updates) {
   const stored = localStorage.getItem('user');
   if (!stored) throw new Error('Utilizador não autenticado.');
 
-  const { id } = JSON.parse(stored);
-  const { data, status } = await api.put(`/user/${id}/`, updates);
+  const { data, status } = await api.put('/user/update/', updates); 
   if (status !== 200) {
     throw new Error(data.message || 'Erro ao atualizar utilizador.');
   }
 
-  const newUser = { ...JSON.parse(stored), ...data };
+  const newUser = { ...JSON.parse(stored), ...updates, ...data }; // funde as novas atualizações
   localStorage.setItem('user', JSON.stringify(newUser));
   return newUser;
 }
