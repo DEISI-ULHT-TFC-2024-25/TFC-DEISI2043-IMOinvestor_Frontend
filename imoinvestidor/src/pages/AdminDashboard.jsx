@@ -75,13 +75,13 @@ export default function AdminDashboard() {
           </button>
           <button
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded"
-            onClick={() => navigate('/admin/properties')}
+            onClick={() => navigate('/all-properties')}
           >
             Gerir Propriedades
           </button>
           <button
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded"
-            onClick={() => navigate('/admin/announcements')}
+            onClick={() => navigate('/announcements')}
           >
             Gerir Anúncios
           </button>
