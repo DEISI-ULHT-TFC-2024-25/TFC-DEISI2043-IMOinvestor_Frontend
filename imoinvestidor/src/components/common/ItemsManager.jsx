@@ -49,6 +49,7 @@ const MainContent = React.memo(function MainContent({
   showView, 
   showEdit, 
   showDelete, 
+  showStatus, // Added showStatus prop
   selectionMode, 
   onItemSelect, 
   selectedItem, 
@@ -79,6 +80,7 @@ const MainContent = React.memo(function MainContent({
         onEdit: onEdit,
         showView,
         showEdit,
+        showStatus,
         selectionMode,
         onAnnouncementSelect: onItemSelect,
         selectedAnnouncement: selectedItem,
@@ -113,6 +115,7 @@ export default function ItemsManager({
   showView = true,
   showEdit = true,
   showDelete = true,
+  showStatus = true,
   emptyStateMessage,
   selectionMode = false,
   onItemSelect = null,
@@ -284,6 +287,7 @@ export default function ItemsManager({
             showView={showView}
             showEdit={showEdit}
             showDelete={showDelete}
+            showStatus={showStatus}
             selectionMode={selectionMode}
             onItemSelect={onItemSelect}
             selectedItem={selectedItem}
@@ -360,6 +364,7 @@ export default function ItemsManager({
                 showView={showView}
                 showEdit={showEdit}
                 showDelete={showDelete}
+                showStatus={showStatus}
                 selectionMode={selectionMode}
                 onItemSelect={onItemSelect}
                 selectedItem={selectedItem}
@@ -393,6 +398,7 @@ ItemsManager.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
+  showStatus: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   selectionMode: PropTypes.bool,
   onItemSelect: PropTypes.func,

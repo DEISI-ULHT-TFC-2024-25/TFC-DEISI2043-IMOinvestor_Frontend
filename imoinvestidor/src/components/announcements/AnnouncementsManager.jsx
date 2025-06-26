@@ -7,6 +7,7 @@ export default function AnnouncementsManager({
   showView = true,
   showEdit = true,
   showDelete = true,
+  showStatus = true,
   emptyStateMessage = "Nenhum anúncio encontrado",
   selectionMode = false,
   onAnnouncementSelect,
@@ -22,6 +23,7 @@ export default function AnnouncementsManager({
       showView={showView}
       showEdit={showEdit}
       showDelete={showDelete}
+      showStatus={showStatus}
       emptyStateMessage={emptyStateMessage}
       selectionMode={selectionMode}
       onItemSelect={onAnnouncementSelect}
@@ -38,6 +40,7 @@ AnnouncementsManager.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
+  showStatus: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   selectionMode: PropTypes.bool,
   onAnnouncementSelect: PropTypes.func,
