@@ -25,8 +25,53 @@ export function AnnouncementCard({
   const displayTitle =
     property.name || property.title || `Propriedade ${announcement.id}` || 'Sem título';
 
-  const imagens = Array.isArray(property.imagens) ? property.imagens : [];
-  const imgSrc = (imagens[0]?.file || imagens[0]?.url) ?? placeholderImg;
+  // Fixed function to get the property image URL - matching PropertyCard pattern exactly
+  const getImageUrl = () => {
+    // First check if there's a direct imageUrl prop (like PropertyCard does)
+    if (property?.imageUrl && property.imageUrl !== placeholderImg) {
+      return property.imageUrl;
+    }
+    
+    // Check if property has images array (similar to PropertyCard)
+    if (property?.images && Array.isArray(property.images) && property.images.length > 0) {
+      const imageItem = property.images[0];
+      const url = imageItem.file || 
+                  imageItem.url || 
+                  imageItem.image || 
+                  imageItem.file_url ||
+                  imageItem.media_url ||
+                  null;
+      if (url) return url;
+    }
+    
+    // Check for media array (following PropertyCard pattern)
+    if (property?.media && property.media.length > 0) {
+      const firstImage = property.media.find(media => media.media_type === 'image');
+      if (firstImage?.file) {
+        return firstImage.file;
+      }
+    }
+    
+    // Check for imagens array (your original structure)
+    if (property?.imagens && Array.isArray(property.imagens) && property.imagens.length > 0) {
+      const imageItem = property.imagens[0];
+      const url = imageItem.file || 
+                  imageItem.url || 
+                  imageItem.image || 
+                  imageItem.file_url ||
+                  imageItem.media_url ||
+                  null;
+      if (url) return url;
+    }
+    
+    // Check for single image property
+    if (property?.image) {
+      return property.image;
+    }
+    
+    // Fallback to placeholder
+    return placeholderImg;
+  };
 
   return (
     <div
@@ -60,8 +105,8 @@ export function AnnouncementCard({
         casasBanho={property.num_wc}
         areaUtil={property.net_area}
         street={property.street}
-        district={String(property.district_name)}
-        imageUrl={imgSrc}
+        district={String(property.district_name || '')}
+        imageUrl={getImageUrl()}
         imageClassName="h-48 sm:h-56"
       />
 
@@ -147,6 +192,7 @@ export function AnnouncementCard({
 
 AnnouncementCard.propTypes = {
   announcement: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     is_active: PropTypes.bool,
     property: PropTypes.shape({
@@ -156,8 +202,15 @@ AnnouncementCard.propTypes = {
       num_wc: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       net_area: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       street: PropTypes.string,
-      district: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      imagens: PropTypes.array,
+      district_name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      imageUrl: PropTypes.string, // Add this prop type
+      imagens: PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.object
+      ]),
+      images: PropTypes.array,
+      media: PropTypes.array,
+      image: PropTypes.string,
     }),
   }).isRequired,
   onView: PropTypes.func,
