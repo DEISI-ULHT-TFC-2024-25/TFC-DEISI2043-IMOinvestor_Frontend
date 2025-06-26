@@ -86,7 +86,6 @@ export default function Registration() {
       };
   
       await register(payload);
-      console.log("Registo efetuado com sucesso!");
       navigate("/login");
     } catch (error) {
       console.error("Erro no registo:", error.message);

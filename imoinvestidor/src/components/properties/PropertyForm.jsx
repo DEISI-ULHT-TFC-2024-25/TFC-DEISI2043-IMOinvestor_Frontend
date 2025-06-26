@@ -186,12 +186,6 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
           .filter((k) => k.startsWith("extra_") && formData[k])
           .map((k) => k.replace("extra_", "")),
       };
-
-      // DEBUG: Log the payload to see what's being sent
-      console.log('=== FIXED PAYLOAD DEBUG ===');
-      console.log('Raw formData:', formData);
-      console.log('Constructed payload:', payload);
-      console.log('Price range:', priceRange);
       
       const issues = [];
       
@@ -225,9 +219,6 @@ export default function PropertyForm({ title, initialData = {}, onSubmit, submit
           return true;
         })
       );
-      
-      console.log('=== CLEAN PAYLOAD ===');
-      console.log('Clean payload:', cleanPayload);
       
       const property = await onSubmit(cleanPayload);
 
