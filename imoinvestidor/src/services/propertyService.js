@@ -11,7 +11,7 @@ function normalizeProperty(raw) {
     casasBanho: raw.num_wc ?? raw.numero_casas_banho ?? '0',
     title: raw.name,
     tipologia: raw.typology ?? raw.tipologia,
-    certificadoEnergetico: raw.energy_cert ?? raw.certificado_energetico,
+    certificadoEnergetico: raw.energy_certf ?? raw.certificado_energetico,
     novaConstrucao: raw.new_construction ?? raw.nova_construcao,
     areaUtil: raw.net_area ?? raw.area_util,
     areaBruta: raw.gross_area ?? raw.area_bruta,
