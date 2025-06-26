@@ -13,6 +13,7 @@ export default function AnnouncementsManager({
   onAnnouncementSelect,
   selectedAnnouncement,
   initialFilters = {},
+  viewStyle = "icon",
   ...props
 }) {
   return (
@@ -29,6 +30,7 @@ export default function AnnouncementsManager({
       onItemSelect={onAnnouncementSelect}
       selectedItem={selectedAnnouncement}
       initialFilters={initialFilters}
+      viewStyle={viewStyle}
       {...props}
     />
   );
@@ -46,4 +48,5 @@ AnnouncementsManager.propTypes = {
   onAnnouncementSelect: PropTypes.func,
   selectedAnnouncement: PropTypes.object,
   initialFilters: PropTypes.object,
+  viewStyle: PropTypes.oneOf(['icon', 'button']),
 };
