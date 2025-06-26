@@ -55,7 +55,17 @@ export default function EditAnnouncement() {
         setLoading(true);
         const ann = await fetchAnnouncementById(id);
         setAnnouncement(ann);
-        setProperty(ann.property || null);
+        
+        const propertyData = ann.property || null;
+        if (propertyData) {
+          if (!propertyData.district_name && propertyData.district) {
+            propertyData.district_name = typeof propertyData.district === 'object' 
+              ? propertyData.district.name || propertyData.district.nome || String(propertyData.district)
+              : String(propertyData.district);
+          }
+        }
+        
+        setProperty(propertyData);
         setForm({
           price: ann.price ?? '',
           is_active: ann.is_active ?? false,
@@ -89,9 +99,8 @@ export default function EditAnnouncement() {
     }
 
     const payload = {
-      price: price,
+      price: price.toString(),
       is_active: Boolean(form.is_active),
-      property: typeof property === 'object' ? property.id : property,
     };
 
     console.log('Submitting payload:', payload);
@@ -142,7 +151,7 @@ export default function EditAnnouncement() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#0A2647] mb-2">
-            Editar Anúncio #{id}
+            Editar Anúncio
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
             Altere os detalhes do seu anúncio ou edite as informações do imóvel associado.
@@ -243,22 +252,20 @@ export default function EditAnnouncement() {
                   num_wc={property.num_wc}
                   net_area={property.net_area}
                   street={property.street}
-                  district={property.district ? String(property.district) : undefined}
+                  district={property.district_name || (property.district ? String(property.district) : '')}
                   imageUrl={
                     Array.isArray(property.imagens) && property.imagens.length > 0
                       ? property.imagens[0].file || property.imagens[0].url
                       : placeholderImg
                   }
-                  min_price={property.preco_minimo}
-                  max_price={property.preco_maximo}
-                  price={
-                    form.price ? `€${parseFloat(form.price).toLocaleString('pt-PT')}` : undefined
-                  }
+                  min_price={property.preco_minimo || property.min_price}
+                  max_price={property.preco_maximo || property.max_price}
                   showView
                   showEdit
                   onView={() => setShowDetails(true)}
                   onEdit={handlePropertyEdit}
                   className="shadow-lg hover:shadow-xl transition-shadow rounded-xl"
+                  property={property}
                 />
               </div>
             </div>
