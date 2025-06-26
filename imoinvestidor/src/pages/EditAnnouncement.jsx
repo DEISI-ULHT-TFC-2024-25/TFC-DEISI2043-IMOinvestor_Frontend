@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { fetchAnnouncementById } from '@services/announcementService';
-import useUpdateAnnouncement from '@hooks/useUpdateAnnouncement';
+import { fetchAnnouncementById, updateAnnouncement } from '@services/announcementService';
 import InputField from '@common/InputField';
 import CheckboxField from '@common/CheckboxField';
 import { PropertyCard } from '@properties/PropertyCard';
@@ -15,7 +14,9 @@ export default function EditAnnouncement() {
   const location = useLocation();
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [updateError, setUpdateError] = useState(null);
 
   const [announcement, setAnnouncement] = useState(null);
   const [property, setProperty] = useState(null);
@@ -23,10 +24,8 @@ export default function EditAnnouncement() {
 
   const [form, setForm] = useState({
     price: '',
-    is_active: false,
+    is_active: false, // Initialize with default value
   });
-
-  const { submitUpdate, loading: saving, error: updateError } = useUpdateAnnouncement();
 
   // Determine return path based on where user came from
   const getReturnPath = () => {
@@ -53,6 +52,7 @@ export default function EditAnnouncement() {
     const loadData = async () => {
       try {
         setLoading(true);
+        setFetchError(null);
         const ann = await fetchAnnouncementById(id);
         setAnnouncement(ann);
         
@@ -68,7 +68,7 @@ export default function EditAnnouncement() {
         setProperty(propertyData);
         setForm({
           price: ann.price ?? '',
-          is_active: ann.is_active ?? false,
+          is_active: ann.is_active ?? false, // Set from announcement data
         });
       } catch (err) {
         console.error('Error loading announcement:', err);
@@ -81,33 +81,37 @@ export default function EditAnnouncement() {
   }, [id]);
 
   const onChange = e => {
-    const { name, type, checked, value } = e.target;
-    setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+    setForm(f => ({ ...f, [name]: fieldValue }));
+    // Clear errors when user starts typing
+    if (updateError) setUpdateError(null);
   };
 
   const onSubmit = async e => {
     e.preventDefault();
 
     if (!property) {
-      return setFetchError('Imóvel associado em falta.');
+      return setUpdateError('Imóvel associado em falta.');
     }
 
     // Ensure we have a valid price
     const price = parseFloat(form.price);
     if (isNaN(price) || price < 0) {
-      return setFetchError('Por favor, insira um preço válido.');
+      return setUpdateError('Por favor, insira um preço válido.');
     }
 
     const payload = {
       price: price.toString(),
-      is_active: Boolean(form.is_active),
+      property_id: property.id,
+      is_active: form.is_active, // Include is_active in payload
     };
 
-    console.log('Submitting payload:', payload);
-    console.log('Property object:', property);
-
     try {
-      const result = await submitUpdate(id, payload);
+      setSaving(true);
+      setUpdateError(null);
+      
+      const result = await updateAnnouncement(id, payload);
       if (result) {
         navigate(returnPath);
       }
@@ -115,7 +119,28 @@ export default function EditAnnouncement() {
       console.error('Submit error:', error);
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
-      setFetchError(error.response?.data?.message || error.message || 'Erro ao atualizar anúncio');
+      
+      let errorMessage = 'Erro ao atualizar anúncio';
+      
+      if (error.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (error.response.data.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.price) {
+          errorMessage = Array.isArray(error.response.data.price) 
+            ? error.response.data.price[0] 
+            : error.response.data.price;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setUpdateError(errorMessage);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -212,6 +237,7 @@ export default function EditAnnouncement() {
                     type="button"
                     onClick={handleCancel}
                     className="flex items-center justify-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium order-2 md:order-1"
+                    disabled={saving}
                   >
                     <X size={16} className="mr-2" />
                     Cancelar
@@ -254,8 +280,8 @@ export default function EditAnnouncement() {
                   street={property.street}
                   district={property.district_name || (property.district ? String(property.district) : '')}
                   imageUrl={
-                    Array.isArray(property.imagens) && property.imagens.length > 0
-                      ? property.imagens[0].file || property.imagens[0].url
+                    Array.isArray(property.media) && property.media.length > 0
+                      ? property.media[0].file || property.media[0].url
                       : placeholderImg
                   }
                   min_price={property.preco_minimo || property.min_price}
