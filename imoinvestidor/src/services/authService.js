@@ -39,7 +39,7 @@ export async function register(userData) {
     first_name:    userData.name,
     last_name:     userData.surname,
     email:         userData.email,
-    phone:         userData.phone,
+    phone:         userData.phone_number, // Fixed: was userData.phone, should be userData.phone_number
     date_of_birth: userData.birthDate,
     lang_key:      (userData.preferredLanguage || 'PT').toUpperCase(),
     role_id:       parseInt(userData.role_id),
@@ -47,11 +47,18 @@ export async function register(userData) {
     created_by:    userData.email,
   };
 
-  const { data, status } = await api.post('/user/', payload);
-  if (status !== 201 && status !== 200) {
-    throw new Error(data.message || 'Erro ao registar utilizador.');
+  console.log('Sending registration payload:', payload); // Debug log
+
+  try {
+    const { data, status } = await api.post('/user/create/', payload); // Changed from '/user/' to '/user/create/'
+    if (status !== 201 && status !== 200) {
+      throw new Error(data.message || 'Erro ao registar utilizador.');
+    }
+    return data;
+  } catch (error) {
+    console.error('Registration error details:', error.response?.data);
+    throw new Error(error.response?.data?.message || error.message || 'Erro ao registar utilizador.');
   }
-  return data;
 }
 
 

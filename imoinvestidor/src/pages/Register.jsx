@@ -39,7 +39,7 @@ export default function Registration() {
     confirmPassword: "",
     birthDate: "",
     preferredLanguage: "",
-    role: "",
+    role_id: "", // Changed from 'role' to 'role_id'
     organization: "",
     department: "",
     jobTitle: "",
@@ -73,25 +73,42 @@ export default function Registration() {
 
   const handleSubmit = async () => {
     try {
-      const requiresOrganization = ["agente", "promotor"].includes(formData.role);
-  
-      const institution_ids =
-        requiresOrganization && formData.organization
-          ? [parseInt(formData.organization)]
-          : null;
-  
-      const payload = {
-        ...formData,
-        institution_ids,
-      };
-  
-      await register(payload);
+      // Validate required fields
+      if (!formData.name || !formData.surname || !formData.email || !formData.password) {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        alert("As senhas não coincidem.");
+        return;
+      }
+
+      if (!formData.role_id) {
+        alert("Por favor, selecione um papel.");
+        return;
+      }
+
+      if (!formData.termsAccepted) {
+        alert("Por favor, aceite os termos e condições.");
+        return;
+      }
+
+      // Check if organization is required but not selected
+      const requiresOrganization = ["4", "5"].includes(formData.role_id);
+      if (requiresOrganization && !formData.organization) {
+        alert("Por favor, selecione uma organização.");
+        return;
+      }
+
+      await register(formData);
+      alert("Registo realizado com sucesso!");
       navigate("/login");
     } catch (error) {
-      console.error("Erro no registo:", error.message);
+      console.error("Erro no registo:", error);
+      alert(`Erro no registo: ${error.message}`);
     }
   };
-  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
@@ -109,20 +126,82 @@ export default function Registration() {
               </div>
               <h2 className="text-xl font-semibold mb-8">Informações Pessoais</h2>
               <div className="grid grid-cols-2 gap-6">
-                <input type="text" name="name" placeholder="Primeiro Nome" value={formData.name} onChange={handleChange} className="border rounded p-2" />
-                <input type="text" name="surname" placeholder="Último Nome" value={formData.surname} onChange={handleChange} className="border rounded p-2" />
-                <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} className="border rounded p-2" />
-                <input type="text" name="phone_number" placeholder="Telefone" value={formData.phone_number} onChange={handleChange} className="border rounded p-2" />
-                <input type="password" name="password" placeholder="Senha" value={formData.password} onChange={handleChange} className="col-span-2 border rounded p-2" />
+                <input 
+                  type="text" 
+                  name="name" 
+                  placeholder="Primeiro Nome" 
+                  value={formData.name} 
+                  onChange={handleChange} 
+                  className="border rounded p-2"
+                  required 
+                />
+                <input 
+                  type="text" 
+                  name="surname" 
+                  placeholder="Último Nome" 
+                  value={formData.surname} 
+                  onChange={handleChange} 
+                  className="border rounded p-2"
+                  required 
+                />
+                <input 
+                  type="email" 
+                  name="email" 
+                  placeholder="Email" 
+                  value={formData.email} 
+                  onChange={handleChange} 
+                  className="col-span-2 border rounded p-2"
+                  required 
+                />
+                <input 
+                  type="tel" 
+                  name="phone_number" 
+                  placeholder="Telefone" 
+                  value={formData.phone_number} 
+                  onChange={handleChange} 
+                  className="col-span-2 border rounded p-2" 
+                />
+                <input 
+                  type="password" 
+                  name="password" 
+                  placeholder="Senha" 
+                  value={formData.password} 
+                  onChange={handleChange} 
+                  className="col-span-2 border rounded p-2"
+                  required 
+                />
                 <PasswordRequirements />
-                <input type="password" name="confirmPassword" placeholder="Confirmar Senha" value={formData.confirmPassword} onChange={handleChange} className="col-span-2 border rounded p-2" />
-                <input type="date" name="birthDate" placeholder="Data de Nascimento" value={formData.birthDate} onChange={handleChange} className="col-span-2 border rounded p-2" />
-                <select name="preferredLanguage" value={formData.preferredLanguage} onChange={handleChange} className="col-span-2 border rounded p-2">
+                <input 
+                  type="password" 
+                  name="confirmPassword" 
+                  placeholder="Confirmar Senha" 
+                  value={formData.confirmPassword} 
+                  onChange={handleChange} 
+                  className="col-span-2 border rounded p-2"
+                  required 
+                />
+                <input 
+                  type="date" 
+                  name="birthDate" 
+                  placeholder="Data de Nascimento" 
+                  value={formData.birthDate} 
+                  onChange={handleChange} 
+                  className="col-span-2 border rounded p-2" 
+                />
+                <select 
+                  name="preferredLanguage" 
+                  value={formData.preferredLanguage} 
+                  onChange={handleChange} 
+                  className="col-span-2 border rounded p-2"
+                >
                   <option value="">Linguagem Preferida</option>
                   <option value="pt">Português</option>
-                  <option value="eng">Inglês</option>
+                  <option value="en">Inglês</option>
                 </select>
-                <button onClick={nextStep} className="col-span-2 mt-4 bg-[#CFAF5E] text-white py-2 rounded hover:bg-yellow-600">
+                <button 
+                  onClick={nextStep} 
+                  className="col-span-2 mt-4 bg-[#CFAF5E] text-white py-2 rounded hover:bg-yellow-600"
+                >
                   Próximo
                 </button>
                 <p className="col-span-2 text-sm text-center mt-4">
@@ -140,6 +219,7 @@ export default function Registration() {
                 value={formData.role_id}
                 onChange={handleChange}
                 className="w-full border rounded p-2 mb-4"
+                required
               >
                 <option value="">Selecione um papel</option>
                 <option value="3">Investidor</option>
@@ -152,7 +232,8 @@ export default function Registration() {
                   name="organization"
                   value={formData.organization}
                   onChange={handleChange}
-                  className="col-span-2 border rounded p-2"
+                  className="w-full border rounded p-2 mb-4"
+                  required
                 >
                   <option value="">Selecione uma organização</option>
                   {organizations.map((org) => (
@@ -165,18 +246,40 @@ export default function Registration() {
               
               <div className="flex flex-col mt-6 space-y-4">
                 <label className="flex items-center">
-                  <input type="checkbox" checked={formData.termsAccepted} onChange={(e) => handleCheckboxChange("termsAccepted", e.target.checked)} className="mr-2" />
+                  <input 
+                    type="checkbox" 
+                    checked={formData.termsAccepted} 
+                    onChange={(e) => handleCheckboxChange("termsAccepted", e.target.checked)} 
+                    className="mr-2"
+                    required 
+                  />
                   Ao clicar no botão aceito os Termos e Condições
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" checked={formData.receiveUpdates} onChange={(e) => handleCheckboxChange("receiveUpdates", e.target.checked)} className="mr-2" />
+                  <input 
+                    type="checkbox" 
+                    checked={formData.receiveUpdates} 
+                    onChange={(e) => handleCheckboxChange("receiveUpdates", e.target.checked)} 
+                    className="mr-2" 
+                  />
                   Sim, eu quero receber atualizações sobre produtos e serviços, promoções, ofertas especiais, novidades e eventos.
                 </label>
               </div>
 
-              <div className="col-span-2 flex justify-between space-x-4 mt-4">
-                <button onClick={prevStep} className="w-full border rounded py-2 hover:bg-gray-100">Voltar</button>
-                <button onClick={handleSubmit} className="w-full bg-[#CFAF5E] text-white py-2 rounded hover:bg-yellow-600">Finalizar</button>
+              <div className="flex justify-between space-x-4 mt-6">
+                <button 
+                  onClick={prevStep} 
+                  className="w-full border rounded py-2 hover:bg-gray-100"
+                >
+                  Voltar
+                </button>
+                <button 
+                  onClick={handleSubmit} 
+                  className="w-full bg-[#CFAF5E] text-white py-2 rounded hover:bg-yellow-600"
+                  disabled={!formData.termsAccepted}
+                >
+                  Finalizar
+                </button>
               </div>
             </div>
           )}
