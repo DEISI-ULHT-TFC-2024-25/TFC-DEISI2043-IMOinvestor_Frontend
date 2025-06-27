@@ -19,6 +19,7 @@ import CreateAdd from '@pages/CreateAdd';
 import EditAnnouncement from '@pages/EditAnnouncement';
 import MyAnnouncements from '@pages/MyAnnouncements';
 import AllAnnouncements from '@pages/AllAnnouncementsList';
+import AnnouncementListing from '@pages/AnnouncementListing';
 import AdminDashboard from '@pages/AdminDashboard';
 import AdminUsersPage from '@pages/AdminUsersPage';
 import EditUserPage from '@pages/EditUserPage';
@@ -188,6 +189,17 @@ export default function AppRoutes() {
               allowedRoles={[ROLES.SYS_ADMIN, ROLES.INVESTOR]}
             >
               <AllAnnouncements />
+            </RoleRoute>
+          }
+        />
+
+        <Route
+          path='announcement/:id'
+          element={
+            <RoleRoute
+              allowedRoles={[ROLES.SYS_ADMIN, ROLES.INVESTOR]}
+            >
+              <AnnouncementListing />
             </RoleRoute>
           }
         />

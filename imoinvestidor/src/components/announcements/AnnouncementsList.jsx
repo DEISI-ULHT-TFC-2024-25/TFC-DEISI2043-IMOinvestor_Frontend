@@ -32,6 +32,7 @@ export default function AnnouncementsList({
   selectionMode = false,
   onAnnouncementSelect,
   selectedAnnouncement,
+  viewStyle = "icon",
 }) {
   const isMobile = useScreenSize();
   const [selectedAnnouncementId, setSelectedAnnouncementId] = useState(selectedAnnouncement?.id || null);
@@ -167,7 +168,7 @@ export default function AnnouncementsList({
                   selectionMode={selectionMode}
                   onSelect={() => onAnnouncementSelect?.(announcement)}
                   isSelected={isSelected}
-                  viewStyle="icon"
+                  viewStyle={viewStyle}
                   className={`${
                     isSelected ? 'border-[#CFAF5E] shadow-md' : ''
                   }`}
@@ -257,4 +258,5 @@ AnnouncementsList.propTypes = {
   selectionMode: PropTypes.bool,
   onAnnouncementSelect: PropTypes.func,
   selectedAnnouncement: PropTypes.object,
+  viewStyle: PropTypes.oneOf(['icon', 'button']),
 };

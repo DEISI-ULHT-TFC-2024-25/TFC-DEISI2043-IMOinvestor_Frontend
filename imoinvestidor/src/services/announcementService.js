@@ -1,12 +1,40 @@
 import { api } from './apiClient';
 import { buildPropertyFilters } from '@utils/filterUtils';
+import { getPropertyMediasByProperty } from './propertyMediaService';
 
 export async function fetchAnnouncements(filters = {}) {
   const query = buildPropertyFilters(filters);
   query.expand = 'property';
 
   const response = await api.get('/announcement/', { params: query });
-  return response.data;
+  const announcements = response.data;
+
+  // Fetch media for each property
+  const announcementsWithMedia = await Promise.all(
+    announcements.map(async (announcement) => {
+      try {
+        const media = await getPropertyMediasByProperty(announcement.property.id);
+        return {
+          ...announcement,
+          property: {
+            ...announcement.property,
+            media: media || []
+          }
+        };
+      } catch (error) {
+        console.warn(`Failed to fetch media for property ${announcement.property.id}:`, error);
+        return {
+          ...announcement,
+          property: {
+            ...announcement.property,
+            media: []
+          }
+        };
+      }
+    })
+  );
+
+  return announcementsWithMedia;
 }
 
 export async function fetchAnnouncementsByOrganization(filters = {}, ordering = '') {
@@ -15,12 +43,65 @@ export async function fetchAnnouncementsByOrganization(filters = {}, ordering = 
   if (ordering) query.ordering = ordering;
 
   const { data } = await api.get('/announcement/my-organization/', { params: query });
-  return data;
+  const announcements = data;
+
+  // Fetch media for each property
+  const announcementsWithMedia = await Promise.all(
+    announcements.map(async (announcement) => {
+      try {
+        const media = await getPropertyMediasByProperty(announcement.property.id);
+        return {
+          ...announcement,
+          property: {
+            ...announcement.property,
+            media: media || []
+          }
+        };
+      } catch (error) {
+        console.warn(`Failed to fetch media for property ${announcement.property.id}:`, error);
+        return {
+          ...announcement,
+          property: {
+            ...announcement.property,
+            media: []
+          }
+        };
+      }
+    })
+  );
+
+  return announcementsWithMedia;
 }
 
 export async function fetchAnnouncementById(id) {
-  const response = await api.get(`/announcement/${id}/`);
-  return response.data;
+  const response = await api.get(`/announcement/${id}/`, {
+    params: {
+      expand: 'property'
+    }
+  });
+  
+  const announcement = response.data;
+  
+  // Fetch media for the property
+  try {
+    const media = await getPropertyMediasByProperty(announcement.property.id);
+    return {
+      ...announcement,
+      property: {
+        ...announcement.property,
+        media: media || []
+      }
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch media for property ${announcement.property.id}:`, error);
+    return {
+      ...announcement,
+      property: {
+        ...announcement.property,
+        media: []
+      }
+    };
+  }
 }
 
 export async function createAnnouncement(data) {
@@ -50,4 +131,4 @@ export function normalizeFiltersForAnnouncement(filters = {}) {
     areaUtilMin: filters.net_area,
     areaBrutaMin: filters.gross_area,
   };
-} 
+}

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { X, Home, MapPin, BedDouble, Bath, Ruler, Calendar, Building, Car, Waves, TreePine, ArrowUpDown } from 'lucide-react';
+import { X, Home, MapPin, BedDouble, Bath, Ruler, Calendar } from 'lucide-react';
 import { fetchAnnouncementById } from '@services/announcementService';
+import placeholderImg from '@images/placeholder.jpg';
 
 const AnnouncementDetails = ({ 
   announcement, 
@@ -51,6 +52,48 @@ const AnnouncementDetails = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const getImages = () => {
+    if (!announcementData?.property) return [];
+    
+    const property = announcementData.property;
+    
+    // Check if property has images array
+    if (property?.images && Array.isArray(property.images) && property.images.length > 0) {
+      return property.images.map(imageItem => ({
+        file: imageItem.file || imageItem.url || imageItem.image || imageItem.file_url || imageItem.media_url,
+        url: imageItem.file || imageItem.url || imageItem.image || imageItem.file_url || imageItem.media_url
+      })).filter(img => img.file);
+    }
+    
+    // Check for media array
+    if (property?.media && property.media.length > 0) {
+      return property.media
+        .filter(media => media.media_type === 'image')
+        .map(media => ({
+          file: media.file,
+          url: media.file
+        }));
+    }
+    
+    // Check for single image property
+    if (property?.image) {
+      return [{
+        file: property.image,
+        url: property.image
+      }];
+    }
+    
+    // Check if there's a direct imageUrl prop
+    if (property?.imageUrl && property.imageUrl !== placeholderImg) {
+      return [{
+        file: property.imageUrl,
+        url: property.imageUrl
+      }];
+    }
+    
+    return [];
   };
 
   // Handle body scroll
@@ -156,8 +199,7 @@ const AnnouncementDetails = ({
 
   const { property = {}, price, is_active, created_at } = announcementData;
   
-  // Updated to match PropertyDetails naming convention
-  const images = property?.images || [];
+  const images = getImages();
   const hasImages = images.length > 0;
 
   // Format price safely
@@ -213,7 +255,7 @@ const AnnouncementDetails = ({
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
               <span>
-                {property.municipality}, {property.district}
+                {property.municipality_name}, {property.district_name}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -247,7 +289,7 @@ const AnnouncementDetails = ({
                     alt={`Imagem ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbSBuw6NvIGRpc3BvbsOtdmVsPC90ZXh0Pjwvc3ZnPg==';
+                      e.target.src = placeholderImg;
                     }}
                   />
                   
@@ -292,6 +334,9 @@ const AnnouncementDetails = ({
                           src={img.file || img.url}
                           alt={`Miniatura ${index + 1}`}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = placeholderImg;
+                          }}
                         />
                       </button>
                     ))}
@@ -363,10 +408,10 @@ const AnnouncementDetails = ({
                     <DetailItem label="Área Bruta" value={`${property.gross_area} m²`} />
                   )}
                   {property.district && (
-                    <DetailItem label="Distrito" value={property.district} />
+                    <DetailItem label="Distrito" value={property.district_name} />
                   )}
                   {property.municipality && (
-                    <DetailItem label="Município" value={property.municipality} />
+                    <DetailItem label="Município" value={property.municipality_name} />
                   )}
                   {property.postal_code && (
                     <DetailItem label="Código Postal" value={property.postal_code} />

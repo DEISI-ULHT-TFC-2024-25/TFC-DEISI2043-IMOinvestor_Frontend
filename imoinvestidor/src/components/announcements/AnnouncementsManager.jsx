@@ -7,11 +7,13 @@ export default function AnnouncementsManager({
   showView = true,
   showEdit = true,
   showDelete = true,
+  showStatus = true,
   emptyStateMessage = "Nenhum anúncio encontrado",
   selectionMode = false,
   onAnnouncementSelect,
   selectedAnnouncement,
   initialFilters = {},
+  viewStyle = "icon",
   ...props
 }) {
   return (
@@ -22,11 +24,13 @@ export default function AnnouncementsManager({
       showView={showView}
       showEdit={showEdit}
       showDelete={showDelete}
+      showStatus={showStatus}
       emptyStateMessage={emptyStateMessage}
       selectionMode={selectionMode}
       onItemSelect={onAnnouncementSelect}
       selectedItem={selectedAnnouncement}
       initialFilters={initialFilters}
+      viewStyle={viewStyle}
       {...props}
     />
   );
@@ -38,9 +42,11 @@ AnnouncementsManager.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
+  showStatus: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   selectionMode: PropTypes.bool,
   onAnnouncementSelect: PropTypes.func,
   selectedAnnouncement: PropTypes.object,
   initialFilters: PropTypes.object,
+  viewStyle: PropTypes.oneOf(['icon', 'button']),
 };

@@ -38,7 +38,7 @@ const NewPropertiesListing = ({ isLoggedIn }) => {
 
   const handleViewAnnouncement = (announcement) => {
     if (isLoggedIn) {
-      navigate(`/listagem/${announcement.id}`);
+      navigate(`/announcement/${announcement.id}`);
     } else {
       navigate('/login');
     }

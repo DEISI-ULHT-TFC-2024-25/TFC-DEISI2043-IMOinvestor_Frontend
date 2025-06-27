@@ -1,19 +1,61 @@
 import PropTypes from 'prop-types';
 import { useEffect, useMemo, useState } from 'react';
 import { MapPin, Home, Bed, Bath, Ruler, X } from 'lucide-react';
-import SliderWrapper from "@common/SliderWrapper";
 import placeholderImg from '@images/placeholder.jpg';
 
 export default function PropertyDetails({ property, isOpen, onClose }) {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const images = property?.images || [];
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const getImages = () => {
+    if (!property) return [];
+    
+    // Check if property has images array
+    if (property?.images && Array.isArray(property.images) && property.images.length > 0) {
+      return property.images.map(imageItem => ({
+        file: imageItem.file || imageItem.url || imageItem.image || imageItem.file_url || imageItem.media_url,
+        url: imageItem.file || imageItem.url || imageItem.image || imageItem.file_url || imageItem.media_url
+      })).filter(img => img.file);
+    }
+    
+    // Check for media array
+    if (property?.media && property.media.length > 0) {
+      return property.media
+        .filter(media => media.media_type === 'image')
+        .map(media => ({
+          file: media.file,
+          url: media.file
+        }));
+    }
+    
+    // Check for single image property
+    if (property?.image) {
+      return [{
+        file: property.image,
+        url: property.image
+      }];
+    }
+    
+    // Check if there's a direct imageUrl prop
+    if (property?.imageUrl && property.imageUrl !== placeholderImg) {
+      return [{
+        file: property.imageUrl,
+        url: property.imageUrl
+      }];
+    }
+    
+    return [];
+  };
+
+  const images = getImages();
   const hasImages = images.length > 0;
 
   const processedImages = useMemo(() => {
     return images.map((item) => {
+      // Handle File objects
       if (item?.file instanceof File) {
         return URL.createObjectURL(item.file);
       }
+      // Handle URL strings
       return item?.file || item?.url || placeholderImg;
     });
   }, [images]);
@@ -33,9 +75,18 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
 
   useEffect(() => {
     if (isOpen) {
-      setCurrentSlide(0);
+      setCurrentImageIndex(0);
     }
   }, [isOpen]);
+
+  // Image navigation functions
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % processedImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + processedImages.length) % processedImages.length);
+  };
 
   if (!isOpen || !property) return null;
 
@@ -59,10 +110,6 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
   };
 
   const priceData = formatPrice(property.min_price, property.max_price);
-
-  const handleSlideChange = (index) => {
-    setCurrentSlide(index);
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center lg:p-4">
@@ -89,8 +136,8 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
               <span>
-                {property.municipality},{" "}
-                {property.district}
+                {property.municipality_name},{" "}
+                {property.district_name}
               </span>
             </div>
             <div className="px-3 py-1 bg-[#CFAF5E] text-[#0A2647] rounded-full text-xs font-semibold">
@@ -103,33 +150,70 @@ export default function PropertyDetails({ property, isOpen, onClose }) {
           <div className="bg-gray-100">
             {hasImages ? (
               <div className="relative">
-                <SliderWrapper
-                  slidesToShow={1}
-                  scrollByPage={false}
-                  itemWidth="w-full"
-                  itemHeight="h-[60vh] sm:h-[55vh] md:h-[400px] lg:h-[480px]"
-                  className="overflow-hidden"
-                  afterChange={handleSlideChange}
-                >
-                  {processedImages.map((src, index) => (
-                    <div
-                      key={index}
-                      className="relative w-full h-full bg-gray-100 flex items-center justify-center"
-                    >
-                      <img
-                        src={src}
-                        alt={`Imagem ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = placeholderImg;
-                        }}
-                      />
-                    </div>
-                  ))}
-                </SliderWrapper>
-                <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
-                  {currentSlide + 1} / {processedImages.length}
+                <div className="relative h-[60vh] sm:h-[55vh] md:h-[400px] lg:h-[480px] bg-gray-100 flex items-center justify-center">
+                  <img
+                    src={processedImages[currentImageIndex]}
+                    alt={`Imagem ${currentImageIndex + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = placeholderImg;
+                    }}
+                  />
+                  
+                  {/* Navigation buttons */}
+                  {processedImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all"
+                      >
+                        &#8249;
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full flex items-center justify-center transition-all"
+                      >
+                        &#8250;
+                      </button>
+                    </>
+                  )}
                 </div>
+                
+                {/* Image counter */}
+                <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+                  {currentImageIndex + 1} / {processedImages.length}
+                </div>
+
+                {/* Image thumbnails */}
+                {processedImages.length > 1 && (
+                  <div className="absolute bottom-4 left-4 flex space-x-2 max-w-[60%] overflow-x-auto">
+                    {processedImages.slice(0, 5).map((src, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all ${
+                          index === currentImageIndex 
+                            ? 'border-[#CFAF5E]' 
+                            : 'border-white border-opacity-60'
+                        }`}
+                      >
+                        <img
+                          src={src}
+                          alt={`Miniatura ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = placeholderImg;
+                          }}
+                        />
+                      </button>
+                    ))}
+                    {processedImages.length > 5 && (
+                      <div className="w-12 h-12 rounded-lg bg-black bg-opacity-50 flex items-center justify-center text-white text-xs font-semibold">
+                        +{processedImages.length - 5}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex items-center justify-center h-48 md:h-64 text-gray-500">
@@ -238,11 +322,11 @@ function DetailsSection({ property }) {
           <DetailItem label="Área Bruta" value={`${property.gross_area} m²`} />
           <DetailItem
             label="Distrito"
-            value={`${property.district}`}
+            value={`${property.district_name}`}
           />
           <DetailItem
             label="Município"
-            value={`${property.municipality}`}
+            value={`${property.municipality_name}`}
           />
           <DetailItem label="Código Postal" value={property.postal_code} />
           {property.street && (

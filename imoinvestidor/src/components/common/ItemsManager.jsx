@@ -49,6 +49,7 @@ const MainContent = React.memo(function MainContent({
   showView, 
   showEdit, 
   showDelete, 
+  showStatus, // Added showStatus prop
   selectionMode, 
   onItemSelect, 
   selectedItem, 
@@ -56,7 +57,8 @@ const MainContent = React.memo(function MainContent({
   onDelete,
   onView,
   onEdit,
-  filtering
+  filtering,
+  viewStyle // Added viewStyle prop
 }) {
   const ListComponent = listType === 'property' ? MemoizedPropertiesList : MemoizedAnnouncementsList;
   
@@ -71,6 +73,7 @@ const MainContent = React.memo(function MainContent({
         selectionMode,
         onPropertySelect: onItemSelect,
         selectedProperty: selectedItem,
+        viewStyle, // Pass viewStyle to properties list
       }
     : {
         announcements: allItems,
@@ -79,9 +82,11 @@ const MainContent = React.memo(function MainContent({
         onEdit: onEdit,
         showView,
         showEdit,
+        showStatus,
         selectionMode,
         onAnnouncementSelect: onItemSelect,
         selectedAnnouncement: selectedItem,
+        viewStyle, // Pass viewStyle to announcements list
       };
   
   // Don't show filtering animation when in selectionMode (selection doesn't need loading state)
@@ -113,10 +118,12 @@ export default function ItemsManager({
   showView = true,
   showEdit = true,
   showDelete = true,
+  showStatus = true,
   emptyStateMessage,
   selectionMode = false,
   onItemSelect = null,
   selectedItem = null,
+  viewStyle = "icon", // Added viewStyle prop with default value
 }) {
   const navigate = useNavigate();
   const isMobile = useScreenSize();
@@ -186,15 +193,22 @@ export default function ItemsManager({
       return;
     }
     
-    // Additional validation for announcements
+    // If viewStyle is "button" and we have a custom item select handler, use navigation
+    if (viewStyle === "button" && onItemSelect) {
+      onItemSelect(item);
+      return;
+    }
+    
+    // Additional validation for announcements when opening popup
     if (listType === 'announcement') {
       if (!item.property) {
         return;
       }
     }
     
+    // Default behavior: open details popup
     setToView(item);
-  }, [listType]);
+  }, [listType, onItemSelect, viewStyle]);
 
   const DetailsComponent = listType === 'property' ? PropertyDetails : AnnouncementDetails;
 
@@ -284,6 +298,7 @@ export default function ItemsManager({
             showView={showView}
             showEdit={showEdit}
             showDelete={showDelete}
+            showStatus={showStatus}
             selectionMode={selectionMode}
             onItemSelect={onItemSelect}
             selectedItem={selectedItem}
@@ -292,6 +307,7 @@ export default function ItemsManager({
             onView={handleView}
             onEdit={handleEdit}
             filtering={filtering}
+            viewStyle={viewStyle}
           />
 
           {/* Details Component */}
@@ -360,6 +376,7 @@ export default function ItemsManager({
                 showView={showView}
                 showEdit={showEdit}
                 showDelete={showDelete}
+                showStatus={showStatus}
                 selectionMode={selectionMode}
                 onItemSelect={onItemSelect}
                 selectedItem={selectedItem}
@@ -368,6 +385,7 @@ export default function ItemsManager({
                 onView={handleView}
                 onEdit={handleEdit}
                 filtering={filtering}
+                viewStyle={viewStyle}
               />
 
               {/* Details Component */}
@@ -393,8 +411,10 @@ ItemsManager.propTypes = {
   showView: PropTypes.bool,
   showEdit: PropTypes.bool,
   showDelete: PropTypes.bool,
+  showStatus: PropTypes.bool,
   emptyStateMessage: PropTypes.string,
   selectionMode: PropTypes.bool,
   onItemSelect: PropTypes.func,
   selectedItem: PropTypes.object,
+  viewStyle: PropTypes.oneOf(['icon', 'button']),
 };

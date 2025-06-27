@@ -40,7 +40,18 @@ export function buildPropertyFilters(filters = {}) {
   }
 
   if (filters.certificado?.trim()) {
-    query.energy_cert = filters.certificado.trim();
+    const energyCertMap = {
+      'A+': 'A+',
+      'A': 'A',
+      'B': 'B',
+      'B-': 'B-',
+      'C': 'C',
+      'D': 'D',
+      'E': 'E',
+      'F': 'F'
+    };
+    const mappedCert = energyCertMap[filters.certificado.trim()] || filters.certificado.trim();
+    query.energy_certf = mappedCert;
   }
 
   // Area filters - API expects single values, not min/max variants
