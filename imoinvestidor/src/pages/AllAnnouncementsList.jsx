@@ -14,8 +14,8 @@ export default function AllAnnouncements() {
       fetchAnnouncements={() => fetchAnnouncements(filters)}
       initialFilters={filters}
       showView={false}
-      showEdit={false}
-      showDelete={false}
+      showEdit={true}
+      showDelete={true}
       showStatus={false}
       emptyStateMessage="Ainda não existem anúncios disponíveis."
     />
