@@ -1,8 +1,10 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import AnnouncementsManager from '@announcements/AnnouncementsManager';
 import { fetchAnnouncements, normalizeFiltersForAnnouncement } from '@services/announcementService';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AllAnnouncements() {
+  const { isAdmin } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const rawFilters = Object.fromEntries(searchParams.entries());
@@ -27,8 +29,8 @@ export default function AllAnnouncements() {
       fetchAnnouncements={fetchActiveAnnouncements}
       initialFilters={filters}
       showView={false}
-      showEdit={true}
-      showDelete={true}
+      showEdit={isAdmin}
+      showDelete={isAdmin}
       showStatus={false}
       emptyStateMessage="Ainda não existem anúncios disponíveis."
       onAnnouncementSelect={handleViewAnnouncement}
