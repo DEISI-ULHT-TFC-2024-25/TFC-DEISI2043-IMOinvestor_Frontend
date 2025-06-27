@@ -102,7 +102,6 @@ export default function Registration() {
       }
 
       await register(formData);
-      alert("Registo realizado com sucesso!");
       navigate("/login");
     } catch (error) {
       console.error("Erro no registo:", error);
