@@ -28,7 +28,7 @@ export default function AllAnnouncements() {
       key={searchParams.toString()}
       fetchAnnouncements={fetchActiveAnnouncements}
       initialFilters={filters}
-      showView={false}
+      showView={true}
       showEdit={isAdmin}
       showDelete={isAdmin}
       showStatus={false}
